@@ -1,5 +1,7 @@
 # WindowsCommandTools
 
+**This project was produced by DeepSeek Harness — thanks to the AI agent for the convenience it provides!**
+
 > **Visual panels instead of memorizing command syntax.**
 > CMD and PowerShell made simple: type a command and the next parameter is suggested, parameters can be filled in as a form, and risky operations ask once more.
 
