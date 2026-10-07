@@ -1,0 +1,5914 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "文件与目录",
+  "icon": "folder",
+  "commands": [
+    {
+      "name": "Get-ChildItem",
+      "aliases": [
+        "gci",
+        "ls",
+        "dir"
+      ],
+      "title": "列出目录内容",
+      "desc": "列出指定目录下的文件和子目录，可以按名称、扩展名、属性筛选。支持 -Recurse 递归整个目录树，配合 -Include 可以从大量文件里快速定位目标。只读操作，不会改动磁盘上的任何内容。",
+      "usage": "Get-ChildItem [[-Path] <string[]>] [[-Filter] <string>] [-Include <string[]>] [-Exclude <string[]>] [-Recurse] [-Depth <uint32>] [-Force] [-Name] [-Attributes <FlagsExpression[FileAttributes]>] [-FollowSymlink] [-Directory] [-File] [-Hidden] [-ReadOnly] [-System]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "目录列表",
+        "递归查找",
+        "文件枚举"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-ChildItem C:\\Windows -File",
+          "desc": "只列出该目录下的文件，不要子目录"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Logs -Recurse -Include *.log",
+          "desc": "递归找出所有扩展名为 log 的日志"
+        },
+        {
+          "cmd": "Get-ChildItem $env:TEMP -Force -Hidden",
+          "desc": "列出临时目录里被隐藏的项目"
+        },
+        {
+          "cmd": "Get-ChildItem D:\\Data -Directory -Depth 1",
+          "desc": "只列到第一层子目录，不继续下钻"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "目录",
+          "type": "path",
+          "value": "C:\\Windows",
+          "hint": "要列出的目录，可带通配符"
+        },
+        {
+          "token": "-Filter",
+          "label": "过滤",
+          "type": "text",
+          "value": "",
+          "hint": "服务端通配符，例如 *.txt"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "按通配符包含，多个用逗号分隔"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "按通配符排除"
+        },
+        {
+          "token": "-Recurse",
+          "label": "递归子目录",
+          "type": "flag",
+          "value": "false",
+          "hint": "进入所有下级目录"
+        },
+        {
+          "token": "-Depth",
+          "label": "递归深度",
+          "type": "number",
+          "value": "",
+          "hint": "限定递归层数，需配合 -Recurse"
+        },
+        {
+          "token": "-Force",
+          "label": "包含隐藏项",
+          "type": "flag",
+          "value": "false",
+          "hint": "把隐藏和系统项目也列出来"
+        },
+        {
+          "token": "-Name",
+          "label": "只输出名称",
+          "type": "flag",
+          "value": "false",
+          "hint": "只返回名字，便于管道处理"
+        },
+        {
+          "token": "-File",
+          "label": "只要文件",
+          "type": "flag",
+          "value": "false",
+          "hint": "排除目录条目"
+        },
+        {
+          "token": "-Directory",
+          "label": "只要目录",
+          "type": "flag",
+          "value": "false",
+          "hint": "排除文件条目"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要列出的目录，默认当前目录，支持通配符",
+          "valueHint": "目录路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要列出的一个或多个路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，方括号不当通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务商侧通配符过滤，比 -Include 快很多",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "按通配符包含，路径需带通配符或加 -Recurse",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "排除匹配的项目，写法与 -Include 相同",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Recurse",
+          "kind": "flag",
+          "desc": "递归进入所有子目录，大目录会比较慢"
+        },
+        {
+          "token": "-Depth",
+          "kind": "option",
+          "desc": "限制递归层数，必须与 -Recurse 一起用",
+          "valueHint": "<层数>"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "显示隐藏和系统项目，例如 desktop.ini"
+        },
+        {
+          "token": "-Name",
+          "kind": "flag",
+          "desc": "只输出名称，不返回完整对象"
+        },
+        {
+          "token": "-Attributes",
+          "kind": "option",
+          "desc": "按文件属性筛选，可用 ! 取反、逗号组合",
+          "valueHint": "<属性表达式>"
+        },
+        {
+          "token": "-Directory",
+          "kind": "flag",
+          "desc": "只返回目录"
+        },
+        {
+          "token": "-File",
+          "kind": "flag",
+          "desc": "只返回文件"
+        },
+        {
+          "token": "-Hidden",
+          "kind": "flag",
+          "desc": "只返回隐藏项目"
+        },
+        {
+          "token": "-ReadOnly",
+          "kind": "flag",
+          "desc": "只返回只读项目"
+        },
+        {
+          "token": "-System",
+          "kind": "flag",
+          "desc": "只返回系统项目"
+        },
+        {
+          "token": "-FollowSymlink",
+          "kind": "flag",
+          "desc": "递归时跟随符号链接进入目标目录"
+        }
+      ]
+    },
+    {
+      "name": "Get-Item",
+      "aliases": [
+        "gi"
+      ],
+      "title": "获取项目对象",
+      "desc": "取回文件、目录、注册表键等项目对象，用来读取长度、创建时间、属性等元数据。支持通配符，可以一次取得多个项目。只想判断存在性时用 Test-Path 更轻量。",
+      "usage": "Get-Item [-Path] <string[]> [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Force] [-Credential <pscredential>] [-Stream <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "文件属性",
+        "元数据",
+        "注册表项"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-Item C:\\Windows\\notepad.exe",
+          "desc": "获取该文件的完整属性对象"
+        },
+        {
+          "cmd": "Get-Item C:\\Windows\\*.exe",
+          "desc": "用通配符一次取出多个可执行文件"
+        },
+        {
+          "cmd": "Get-Item HKCU:\\Software",
+          "desc": "把注册表键当成项目取出来"
+        },
+        {
+          "cmd": "Get-Item $env:TEMP -Force",
+          "desc": "包含隐藏项目在内的方式取对象"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Windows\\notepad.exe",
+          "hint": "要取得项目对象的路径"
+        },
+        {
+          "token": "-Force",
+          "label": "包含隐藏项",
+          "type": "flag",
+          "value": "false",
+          "hint": "连隐藏和只读项目一起获取"
+        },
+        {
+          "token": "-Stream",
+          "label": "数据流",
+          "type": "text",
+          "value": "",
+          "hint": "读取备用数据流，例如 Zone.Identifier"
+        },
+        {
+          "token": "-Filter",
+          "label": "过滤",
+          "type": "text",
+          "value": "",
+          "hint": "服务端通配符过滤"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要取得项目对象的路径，支持通配符",
+          "valueHint": "文件或注册表路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要获取项目的一个或多个路径",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件或注册表路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务商侧通配符过滤，性能更好",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 *.log"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只包含匹配的项目，需配合通配符使用",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "排除匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "获取隐藏和只读项目，否则会被跳过"
+        },
+        {
+          "token": "-Stream",
+          "kind": "option",
+          "desc": "读取 NTFS 备用数据流的名称",
+          "valueHint": "<流名>",
+          "children": [
+            {
+              "token": "<流名>",
+              "kind": "value",
+              "desc": "数据流名称，如 Zone.Identifier",
+              "valueHint": "如 Zone.Identifier"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<通配路径>",
+          "kind": "value",
+          "desc": "带通配符的路径，例如 C:\\Windows\\*.exe",
+          "valueHint": "如 C:\\Windows\\*.exe"
+        }
+      ]
+    },
+    {
+      "name": "Set-Item",
+      "aliases": [
+        "si"
+      ],
+      "title": "设置项目值",
+      "desc": "修改已存在项目的值，典型用途是给注册表项或环境变量赋值。文件系统上不常用，改文件内容请用 Set-Content。只读项目会报错，需要配合 -Force。",
+      "usage": "Set-Item [-Path] <string[]> [[-Value] <Object>] [-Force] [-PassThru] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "修改属性",
+        "环境变量",
+        "注册表"
+      ],
+      "examples": [
+        {
+          "cmd": "Set-Item -Path Env:DEMO -Value $env:Path",
+          "desc": "在 PATH 环境变量末尾追加一个目录"
+        },
+        {
+          "cmd": "Set-Item -Path HKCU:\\Software\\Demo -Value hello",
+          "desc": "给注册表项的默认值写入字符串"
+        },
+        {
+          "cmd": "Get-Item C:\\readonly.txt | Set-Item -Force",
+          "desc": "管道传入并强制修改只读项目"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "text",
+          "value": "HKCU:\\Software\\Demo",
+          "hint": "要修改的项目路径，如 Env:Path"
+        },
+        {
+          "token": "-Value",
+          "label": "新值",
+          "type": "text",
+          "value": "",
+          "hint": "赋给该项目的新值"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "连只读项目也一起修改"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "把被修改的项目输出到管道"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要修改的项目路径，例如 Env:Path",
+          "valueHint": "项目路径",
+          "repeatable": true
+        },
+        {
+          "token": "<值>",
+          "kind": "value",
+          "desc": "赋给该项目的新值",
+          "valueHint": "新的值"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要修改的一个或多个项目路径",
+          "valueHint": "项目路径",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "项目路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Value",
+          "kind": "option",
+          "desc": "给项目指定的新值",
+          "valueHint": "<值>",
+          "children": [
+            {
+              "token": "<值>",
+              "kind": "value",
+              "desc": "给项目指定的新值",
+              "valueHint": "值"
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制修改只读项目，否则直接报错"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "返回被修改的项目对象"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "<通配符>",
+          "valueHint": "服务端通配符过滤",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 Env:*"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "New-Item",
+      "aliases": [
+        "ni"
+      ],
+      "title": "创建新项目",
+      "desc": "创建文件、目录、注册表键等新项目，用 -ItemType 指定类型。目录不存在时加上 -Force 可以连同上级目录一起建好。默认不会覆盖同名文件，重复创建会报错。",
+      "usage": "New-Item [-Path] <string[]> [-ItemType <string>] [-Value <Object>] [-Force] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "新建文件",
+        "新建目录",
+        "注册表"
+      ],
+      "examples": [
+        {
+          "cmd": "New-Item -Path C:\\Temp -Name demo -ItemType Directory",
+          "desc": "在指定目录下新建一个文件夹"
+        },
+        {
+          "cmd": "New-Item -Path C:\\Temp\\a.txt -ItemType File -Force",
+          "desc": "新建空文件，父目录不存在时一并创建"
+        },
+        {
+          "cmd": "New-Item -Path HKCU:\\Software -Name Demo -ItemType Key",
+          "desc": "在注册表里新建一个键"
+        },
+        {
+          "cmd": "New-Item C:\\Temp\\log.txt -ItemType File -Value init",
+          "desc": "新建文件并写入初始内容"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "位置",
+          "type": "path",
+          "value": "C:\\Temp",
+          "hint": "父路径或完整新路径"
+        },
+        {
+          "token": "-Name",
+          "label": "名称",
+          "type": "text",
+          "value": "demo",
+          "hint": "新项目的名字，与 -Path 组合"
+        },
+        {
+          "token": "-ItemType",
+          "label": "类型",
+          "type": "select",
+          "value": "Directory",
+          "hint": "要创建的项目类型",
+          "options": [
+            "File",
+            "Directory",
+            "SymbolicLink",
+            "Junction",
+            "HardLink",
+            "Key"
+          ]
+        },
+        {
+          "token": "-Value",
+          "label": "初始值",
+          "type": "text",
+          "value": "",
+          "hint": "文件初值或注册表键默认值"
+        },
+        {
+          "token": "-Force",
+          "label": "强制创建",
+          "type": "flag",
+          "value": "false",
+          "hint": "允许连同上级目录一起创建"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "新项目所在路径或完整新路径",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定新项目所在的容器路径",
+          "valueHint": "父目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "父目录",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "新项目的名称，与 -Path 拼接成完整路径",
+          "valueHint": "<名称>",
+          "children": [
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "新项目的名称，与 -Path 拼接成完整路径",
+              "valueHint": "名称"
+            }
+          ]
+        },
+        {
+          "token": "-ItemType",
+          "kind": "option",
+          "desc": "<类型>",
+          "valueHint": "项目类型，例如 File、Directory、Key",
+          "enum": [
+            "File",
+            "Directory",
+            "SymbolicLink",
+            "Junction",
+            "HardLink",
+            "Key"
+          ],
+          "children": [
+            {
+              "token": "<类型>",
+              "kind": "value",
+              "desc": "要创建的项目类型",
+              "valueHint": "如 Directory"
+            }
+          ]
+        },
+        {
+          "token": "-Value",
+          "kind": "option",
+          "desc": "新项目携带的值，例如文件初始内容",
+          "valueHint": "<值>",
+          "children": [
+            {
+              "token": "<值>",
+              "kind": "value",
+              "desc": "新项目携带的值，例如文件初始内容",
+              "valueHint": "值"
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "自动补建缺失的上级目录，可覆盖同名"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<名称>",
+          "kind": "value",
+          "desc": "新项目名称，配合 -Path 使用",
+          "valueHint": "名称"
+        },
+        {
+          "token": "<类型>",
+          "kind": "value",
+          "desc": "要创建的项目类型，如 Directory",
+          "valueHint": "如 Directory"
+        },
+        {
+          "token": "<初始值>",
+          "kind": "value",
+          "desc": "文件初始内容或键的默认值",
+          "valueHint": "初始内容"
+        }
+      ]
+    },
+    {
+      "name": "Remove-Item",
+      "aliases": [
+        "del",
+        "erase",
+        "rd",
+        "ri",
+        "rm",
+        "rmdir"
+      ],
+      "title": "删除项目",
+      "desc": "删除文件、目录和注册表项，删除目录必须加 -Recurse，否则会提示目录不为空。此项操作不进回收站，删掉之后很难恢复，执行前务必核对 -Path 的取值。",
+      "usage": "Remove-Item [-Path] <string[]> [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Recurse] [-Force] [-Credential <pscredential>] [-Stream <string[]>]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "删除",
+        "清理",
+        "高危"
+      ],
+      "examples": [
+        {
+          "cmd": "Remove-Item C:\\Temp\\old.txt",
+          "desc": "删除单个文件"
+        },
+        {
+          "cmd": "Remove-Item C:\\Temp\\build -Recurse -Force",
+          "desc": "连隐藏只读在内的整个目录一起删掉"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Logs -Filter *.tmp | Remove-Item",
+          "desc": "管道方式批量删除临时文件"
+        },
+        {
+          "cmd": "Remove-Item HKCU:\\Software\\Demo -Recurse",
+          "desc": "删除注册表键及其所有子键"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Temp\\old.txt",
+          "hint": "要删除的文件或目录"
+        },
+        {
+          "token": "-Recurse",
+          "label": "递归删除",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除目录时必须开启"
+        },
+        {
+          "token": "-Force",
+          "label": "强制删除",
+          "type": "flag",
+          "value": "false",
+          "hint": "连隐藏和只读项目一起删除"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "只删除匹配的项目"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "跳过匹配的项目"
+        },
+        {
+          "token": "-Stream",
+          "label": "数据流",
+          "type": "text",
+          "value": "",
+          "hint": "只删除指定的备用数据流"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要删除的项目，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要删除的一个或多个路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，方括号不当通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Recurse",
+          "kind": "flag",
+          "desc": "递归删除目录内的所有内容"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制删除隐藏、只读项目，不弹确认"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只删除匹配的项目，需配合通配符或递归",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Stream",
+          "kind": "option",
+          "desc": "删除指定的 NTFS 备用数据流",
+          "valueHint": "<流名>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Copy-Item",
+      "aliases": [
+        "copy",
+        "cp",
+        "cpi"
+      ],
+      "title": "复制文件或目录",
+      "desc": "把文件或目录复制到另一个位置，复制目录必须加 -Recurse，否则只建空目录。同名文件默认直接覆盖，可以先用 -WhatIf 预演一遍。支持跨会话复制到远程计算机。",
+      "usage": "Copy-Item [-Path] <string[]> [[-Destination] <string>] [-Container] [-Force] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Recurse] [-PassThru] [-Credential <pscredential>] [-FromSession <PSSession>] [-ToSession <PSSession>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "复制",
+        "备份",
+        "备份文件"
+      ],
+      "examples": [
+        {
+          "cmd": "Copy-Item C:\\a.txt D:\\backup\\",
+          "desc": "把单个文件复制到目标目录"
+        },
+        {
+          "cmd": "Copy-Item C:\\Data D:\\backup -Recurse -Force",
+          "desc": "连同子目录一起复制，同名直接覆盖"
+        },
+        {
+          "cmd": "Copy-Item C:\\Data\\* D:\\backup -Include *.txt -Recurse",
+          "desc": "只复制目录树里的文本文件"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Logs | Copy-Item -Destination D:\\logs",
+          "desc": "用管道批量把文件复制到目标目录"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "源",
+          "type": "path",
+          "value": "C:\\Data",
+          "hint": "要复制的源路径"
+        },
+        {
+          "token": "-Destination",
+          "label": "目标",
+          "type": "path",
+          "value": "D:\\backup",
+          "hint": "复制到的目标目录或文件名"
+        },
+        {
+          "token": "-Recurse",
+          "label": "递归复制",
+          "type": "flag",
+          "value": "false",
+          "hint": "复制目录时必须开启"
+        },
+        {
+          "token": "-Container",
+          "label": "保留容器",
+          "type": "flag",
+          "value": "false",
+          "hint": "复制时保留目录结构"
+        },
+        {
+          "token": "-Force",
+          "label": "强制覆盖",
+          "type": "flag",
+          "value": "false",
+          "hint": "覆盖只读的同名文件"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出复制结果对象"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源路径>",
+          "kind": "value",
+          "desc": "要复制的源文件或目录",
+          "valueHint": "源路径",
+          "repeatable": true
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "复制到的目标目录或新文件名",
+          "valueHint": "目标路径"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要复制的源路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Destination",
+          "kind": "option",
+          "desc": "目标位置，可以是目录也可以是文件名",
+          "valueHint": "<路径>"
+        },
+        {
+          "token": "-Recurse",
+          "kind": "flag",
+          "desc": "递归复制目录内的全部内容"
+        },
+        {
+          "token": "-Container",
+          "kind": "flag",
+          "desc": "复制时保留容器结构，不铺平"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "覆盖只读文件，否则会复制失败"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "返回被复制的项目对象"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只复制匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-FromSession",
+          "kind": "option",
+          "desc": "从指定的远程会话复制过来",
+          "valueHint": "<会话>"
+        },
+        {
+          "token": "-ToSession",
+          "kind": "option",
+          "desc": "复制到指定的远程会话",
+          "valueHint": "<会话>"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Move-Item",
+      "aliases": [
+        "mi",
+        "move",
+        "mv"
+      ],
+      "title": "移动或重命名项目",
+      "desc": "把文件或目录移动到新位置，目标路径写了新名字就等于重命名。同一分区内移动只改目录记录，速度极快。目标已存在同名项目时会被静默覆盖，务必先确认。",
+      "usage": "Move-Item [-Path] <string[]> [[-Destination] <string>] [-Force] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-PassThru] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "移动",
+        "剪切",
+        "重命名"
+      ],
+      "examples": [
+        {
+          "cmd": "Move-Item C:\\a.txt D:\\data\\",
+          "desc": "把文件移动到另一个目录"
+        },
+        {
+          "cmd": "Move-Item C:\\Data D:\\archive\\Data",
+          "desc": "移动目录的同时改用新名字"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Temp -Filter *.tmp | Move-Item -Destination D:\\tmp",
+          "desc": "管道批量把临时文件搬到别处"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "源",
+          "type": "path",
+          "value": "C:\\a.txt",
+          "hint": "要移动的源路径"
+        },
+        {
+          "token": "-Destination",
+          "label": "目标",
+          "type": "path",
+          "value": "D:\\data",
+          "hint": "移动到的目标位置"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "覆盖目标位置的同名项目"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出移动结果对象"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源路径>",
+          "kind": "value",
+          "desc": "要移动的源文件或目录",
+          "valueHint": "源路径",
+          "repeatable": true
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "移动到的目标位置，可同时改名",
+          "valueHint": "目标路径"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要移动的源路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Destination",
+          "kind": "option",
+          "desc": "目标位置，写新名字即顺便重命名",
+          "valueHint": "<路径>"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "覆盖目标处的同名只读项目"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "返回被移动的项目对象"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只移动匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Rename-Item",
+      "aliases": [
+        "ren",
+        "rni"
+      ],
+      "title": "重命名项目",
+      "desc": "在同一个位置给文件、目录或注册表项换个名字，只改名字不搬动数据。新名字只能写名称，不能带路径，想换目录请用 Move-Item。目标已有同名项目时会直接失败。",
+      "usage": "Rename-Item [-Path] <string> [-NewName] <string> [-Force] [-PassThru] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "重命名",
+        "改名"
+      ],
+      "examples": [
+        {
+          "cmd": "Rename-Item C:\\Temp\\a.txt b.txt",
+          "desc": "把文件改成一个新名字"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Logs -Filter *.log | Rename-Item -NewName { $_.Name + '.bak' }",
+          "desc": "批量给日志文件加上后缀"
+        },
+        {
+          "cmd": "Rename-Item C:\\Temp\\demo demo2 -Force",
+          "desc": "强制重命名，覆盖只读限制"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "原路径",
+          "type": "path",
+          "value": "C:\\Temp\\a.txt",
+          "hint": "要改名的项目路径"
+        },
+        {
+          "token": "-NewName",
+          "label": "新名称",
+          "type": "text",
+          "value": "b.txt",
+          "hint": "只写名称，不要带路径"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "改名只读或隐藏项目"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出改名后的对象"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<原路径>",
+          "kind": "value",
+          "desc": "要重命名的项目路径，支持通配符",
+          "valueHint": "路径"
+        },
+        {
+          "token": "<新名称>",
+          "kind": "value",
+          "desc": "新名字，只写名称不能带路径",
+          "valueHint": "新名称"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要重命名的项目路径",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "待重命名的项目路径",
+              "valueHint": "如 C:\\Temp\\a.txt"
+            }
+          ]
+        },
+        {
+          "token": "-NewName",
+          "kind": "option",
+          "desc": "新名称，不能包含路径分隔符",
+          "valueHint": "<名称>",
+          "children": [
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "只写名称，不要带目录",
+              "valueHint": "如 b.txt"
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制重命名只读或隐藏项目"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "返回重命名后的项目对象"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<批处理表达式>",
+          "kind": "value",
+          "desc": "用脚本块批量生成新名字",
+          "valueHint": "如 { $_.Name + .bak }"
+        },
+        {
+          "token": "<旧名称>",
+          "kind": "value",
+          "desc": "当前的文件名，例如 a.txt",
+          "valueHint": "如 a.txt"
+        },
+        {
+          "token": "<新扩展名>",
+          "kind": "value",
+          "desc": "改名后使用的新扩展名",
+          "valueHint": "如 .log"
+        }
+      ]
+    },
+    {
+      "name": "Clear-Item",
+      "aliases": [
+        "cli"
+      ],
+      "title": "清空项目内容",
+      "desc": "把项目的值清空，但项目本身仍然保留。常见用法是清掉环境变量或注册表项的取值。文件系统上基本无效，清空文件内容应该用 Clear-Content。",
+      "usage": "Clear-Item [-Path] <string[]> [-Force] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "清空",
+        "环境变量",
+        "注册表"
+      ],
+      "examples": [
+        {
+          "cmd": "Clear-Item Env:TEMP",
+          "desc": "清空一个环境变量的值"
+        },
+        {
+          "cmd": "Clear-Item HKCU:\\Software\\Demo",
+          "desc": "清空注册表项的默认取值"
+        },
+        {
+          "cmd": "Clear-Item Env:DEMO -Force",
+          "desc": "强制清空只读环境变量"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "text",
+          "value": "Env:TEMP",
+          "hint": "要清空取值的项目路径"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "连只读项目一起清空"
+        },
+        {
+          "token": "-Filter",
+          "label": "过滤",
+          "type": "text",
+          "value": "",
+          "hint": "服务端通配符过滤"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "只清空匹配的项目"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "跳过匹配的项目"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要清空取值的项目路径",
+          "valueHint": "项目路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要清空的项目路径",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "项目路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制清空只读项目"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 Env:*"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只清空匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<环境变量路径>",
+          "kind": "value",
+          "desc": "变量驱动器路径，例如 Env:TEMP",
+          "valueHint": "如 Env:TEMP"
+        },
+        {
+          "token": "<注册表键>",
+          "kind": "value",
+          "desc": "要清空默认值的注册表键路径",
+          "valueHint": "如 HKCU:\\Software\\Demo"
+        },
+        {
+          "token": "<变量名>",
+          "kind": "value",
+          "desc": "只写变量名时的简写形式，前面省略 Env:",
+          "valueHint": "如 TEMP"
+        }
+      ]
+    },
+    {
+      "name": "Invoke-Item",
+      "aliases": [
+        "ii"
+      ],
+      "title": "打开文件或目录",
+      "desc": "用文件关联的默认程序打开文件，相当于资源管理器里双击。打开 exe 或脚本会真正运行它，打开目录则弹出资源管理器窗口。批量打开会一并启动多个程序，注意资源占用。",
+      "usage": "Invoke-Item [-Path] <string[]> [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "打开文件",
+        "运行",
+        "默认程序"
+      ],
+      "examples": [
+        {
+          "cmd": "Invoke-Item C:\\Temp\\readme.txt",
+          "desc": "用默认文本程序打开这个文件"
+        },
+        {
+          "cmd": "Invoke-Item C:\\Windows",
+          "desc": "在资源管理器里打开这个目录"
+        },
+        {
+          "cmd": "Invoke-Item C:\\Temp\\*.png",
+          "desc": "一次打开目录下所有图片"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Temp\\readme.txt",
+          "hint": "要打开的文件或目录"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "只打开匹配的项目"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "跳过匹配的项目"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要打开的文件或目录，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要打开的一个或多个路径",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件或目录",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 *.txt"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只打开匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<文档>",
+          "kind": "value",
+          "desc": "用默认关联程序打开的文档",
+          "valueHint": "如 readme.txt"
+        },
+        {
+          "token": "<图片>",
+          "kind": "value",
+          "desc": "用默认看图程序打开的图片",
+          "valueHint": "如 logo.png"
+        },
+        {
+          "token": "<目录>",
+          "kind": "value",
+          "desc": "用资源管理器打开该目录",
+          "valueHint": "如 C:\\Windows"
+        }
+      ]
+    },
+    {
+      "name": "Get-Content",
+      "aliases": [
+        "cat",
+        "gc",
+        "type"
+      ],
+      "title": "读取文本内容",
+      "desc": "逐行读取文件内容并输出到管道，是查看文本、统计数据、匹配关键字的基础命令。用 -Tail 看末尾、-Wait 实时跟踪新写入的行。读取大文件时建议配合 -TotalCount 或 -Raw 使用。",
+      "usage": "Get-Content [-Path] <string[]> [-ReadCount <long>] [-TotalCount <long>] [-Tail <int>] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Force] [-Credential <pscredential>] [-Delimiter <string>] [-Wait] [-Raw] [-Encoding <FileSystemCmdletProviderEncoding>] [-Stream <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "读取文本",
+        "日志",
+        "查看文件"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-Content C:\\Temp\\a.txt",
+          "desc": "逐行读取整个文本文件"
+        },
+        {
+          "cmd": "Get-Content C:\\Logs\\app.log -Tail 20 -Wait",
+          "desc": "显示最后 20 行并持续跟踪新日志"
+        },
+        {
+          "cmd": "Get-Content C:\\Temp\\a.txt -TotalCount 5",
+          "desc": "只读开头 5 行，用于快速预览"
+        },
+        {
+          "cmd": "Get-Content C:\\Temp\\data.csv -Raw",
+          "desc": "一次性把整个文件读成一个字符串"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Temp\\a.txt",
+          "hint": "要读取的文本文件"
+        },
+        {
+          "token": "-TotalCount",
+          "label": "读取行数",
+          "type": "number",
+          "value": "",
+          "hint": "从头开始最多读多少行"
+        },
+        {
+          "token": "-Tail",
+          "label": "末尾行数",
+          "type": "number",
+          "value": "",
+          "hint": "只读文件末尾若干行"
+        },
+        {
+          "token": "-Raw",
+          "label": "整体读取",
+          "type": "flag",
+          "value": "false",
+          "hint": "忽略换行，读成一个字符串"
+        },
+        {
+          "token": "-Wait",
+          "label": "持续跟踪",
+          "type": "flag",
+          "value": "false",
+          "hint": "文件追加内容时实时输出"
+        },
+        {
+          "token": "-Encoding",
+          "label": "编码",
+          "type": "select",
+          "value": "",
+          "hint": "按指定编码解读文件",
+          "options": [
+            "UTF8",
+            "Default",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF7",
+            "UTF32",
+            "Ascii",
+            "Oem",
+            "Byte",
+            "String",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-Delimiter",
+          "label": "分隔符",
+          "type": "text",
+          "value": "",
+          "hint": "按自定义分隔符切分内容"
+        },
+        {
+          "token": "-Force",
+          "label": "包含隐藏项",
+          "type": "flag",
+          "value": "false",
+          "hint": "读取隐藏文件的内容"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要读取的文件路径，支持通配符",
+          "valueHint": "文件路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要读取的一个或多个文件",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，方括号不当通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-TotalCount",
+          "kind": "option",
+          "desc": "从头最多读取多少行，读完即停",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "-Tail",
+          "kind": "option",
+          "desc": "只读取文件末尾的若干行",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "-ReadCount",
+          "kind": "option",
+          "desc": "每次从管道取多少行，默认一次全取",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "-Raw",
+          "kind": "flag",
+          "desc": "忽略换行符，把整个文件读成一个字符串"
+        },
+        {
+          "token": "-Wait",
+          "kind": "flag",
+          "desc": "文件被追加时实时输出新内容，需手动停止"
+        },
+        {
+          "token": "-Delimiter",
+          "kind": "option",
+          "desc": "自定义分隔符来切分读取内容",
+          "valueHint": "<分隔符>"
+        },
+        {
+          "token": "-Encoding",
+          "kind": "option",
+          "desc": "指定读取时使用的字符编码",
+          "valueHint": "<编码>",
+          "enum": [
+            "UTF8",
+            "Default",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF7",
+            "UTF32",
+            "Ascii",
+            "Oem",
+            "Byte",
+            "String",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-Stream",
+          "kind": "option",
+          "desc": "读取 NTFS 备用数据流的内容",
+          "valueHint": "<流名>"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "允许读取隐藏文件的内容"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只读取匹配的文件",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的文件",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Set-Content",
+      "aliases": [
+        "sc"
+      ],
+      "title": "写入文本内容",
+      "desc": "把内容写入文件并整体覆盖原内容，文件不存在时会自动创建。写配置文件、生成脚本、保存中间结果都常用它。要保留原内容请改用 Add-Content。",
+      "usage": "Set-Content [-Path] <string[]> [-Value] <Object[]> [-PassThru] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Force] [-Credential <pscredential>] [-NoNewline] [-Encoding <FileSystemCmdletProviderEncoding>] [-Stream <string>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "写文件",
+        "覆盖",
+        "保存文本"
+      ],
+      "examples": [
+        {
+          "cmd": "Set-Content C:\\Temp\\a.txt -Value hello",
+          "desc": "把一行文字写入文件并覆盖原内容"
+        },
+        {
+          "cmd": "Get-Process | Select-Object -First 5 | Set-Content C:\\Temp\\p.txt",
+          "desc": "把上游命令的输出保存成文本"
+        },
+        {
+          "cmd": "Set-Content C:\\Temp\\a.txt -Value A,B -Encoding UTF8",
+          "desc": "写入多行并按 UTF8 编码保存"
+        },
+        {
+          "cmd": "Set-Content C:\\Temp\\b.txt -Value x -NoNewline",
+          "desc": "写入后不加换行符"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Temp\\a.txt",
+          "hint": "要写入的文件，不存在则创建"
+        },
+        {
+          "token": "-Value",
+          "label": "内容",
+          "type": "text",
+          "value": "hello",
+          "hint": "要写入的内容，多个值分行写"
+        },
+        {
+          "token": "-Encoding",
+          "label": "编码",
+          "type": "select",
+          "value": "",
+          "hint": "写入时使用的字符编码",
+          "options": [
+            "UTF8",
+            "Default",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF7",
+            "UTF32",
+            "Ascii",
+            "Oem",
+            "Byte",
+            "String",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-NoNewline",
+          "label": "不加换行",
+          "type": "flag",
+          "value": "false",
+          "hint": "写入后不追加换行符"
+        },
+        {
+          "token": "-Force",
+          "label": "强制写入",
+          "type": "flag",
+          "value": "false",
+          "hint": "允许写入只读文件"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "把写入的内容输出到管道"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要写入的文件路径，支持通配符",
+          "valueHint": "文件路径",
+          "repeatable": true
+        },
+        {
+          "token": "<内容>",
+          "kind": "value",
+          "desc": "要写入的内容，多个值按行写入",
+          "valueHint": "内容",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要写入的文件路径",
+          "valueHint": "文件",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Value",
+          "kind": "option",
+          "desc": "<内容>",
+          "valueHint": "要写入的内容，可以传数组",
+          "children": [
+            {
+              "token": "<内容>",
+              "kind": "value",
+              "desc": "写入文件的内容",
+              "valueHint": "文本或对象"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Encoding",
+          "kind": "option",
+          "desc": "<编码>",
+          "valueHint": "写入时使用的字符编码",
+          "enum": [
+            "UTF8",
+            "Default",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF7",
+            "UTF32",
+            "Ascii",
+            "Oem",
+            "Byte",
+            "String",
+            "Unknown"
+          ],
+          "children": [
+            {
+              "token": "<编码>",
+              "kind": "value",
+              "desc": "编码名称，默认 Default",
+              "valueHint": "如 UTF8"
+            }
+          ]
+        },
+        {
+          "token": "-NoNewline",
+          "kind": "flag",
+          "desc": "写入后不追加换行符"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "允许写入只读文件或创建目录"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "把写入的内容继续输出到管道"
+        },
+        {
+          "token": "-Stream",
+          "kind": "option",
+          "desc": "<流名>",
+          "valueHint": "写入指定的 NTFS 备用数据流",
+          "children": [
+            {
+              "token": "<流名>",
+              "kind": "value",
+              "desc": "数据流名称",
+              "valueHint": "如 Zone.Identifier"
+            }
+          ]
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "<通配符>",
+          "valueHint": "服务端通配符过滤",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 *.txt"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只写入匹配的文件",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的文件",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Add-Content",
+      "aliases": [
+        "ac"
+      ],
+      "title": "追加文本内容",
+      "desc": "把内容追加到文件末尾，原有内容保持不变，是写日志和累积采集结果的标准做法。文件不存在时会自动创建。若只想整体替换内容，请用 Set-Content。",
+      "usage": "Add-Content [-Path] <string[]> [-Value] <Object[]> [-PassThru] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Force] [-Credential <pscredential>] [-NoNewline] [-Encoding <FileSystemCmdletProviderEncoding>] [-Stream <string>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "追加",
+        "写日志",
+        "记录"
+      ],
+      "examples": [
+        {
+          "cmd": "Add-Content C:\\Temp\\log.txt -Value start",
+          "desc": "在日志文件末尾追加一行"
+        },
+        {
+          "cmd": "Add-Content C:\\Temp\\log.txt -Value (Get-Date)",
+          "desc": "把当前时间追加成一行记录"
+        },
+        {
+          "cmd": "Add-Content C:\\Temp\\a.txt -Value x -Encoding UTF8 -NoNewline",
+          "desc": "追加内容且不换行，用于拼接"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Temp\\log.txt",
+          "hint": "要追加内容的文件"
+        },
+        {
+          "token": "-Value",
+          "label": "内容",
+          "type": "text",
+          "value": "start",
+          "hint": "追加到末尾的内容"
+        },
+        {
+          "token": "-Encoding",
+          "label": "编码",
+          "type": "select",
+          "value": "",
+          "hint": "追加时使用的字符编码",
+          "options": [
+            "UTF8",
+            "Default",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF7",
+            "UTF32",
+            "Ascii",
+            "Oem",
+            "Byte",
+            "String",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-NoNewline",
+          "label": "不加换行",
+          "type": "flag",
+          "value": "false",
+          "hint": "追加后不补换行符"
+        },
+        {
+          "token": "-Force",
+          "label": "强制追加",
+          "type": "flag",
+          "value": "false",
+          "hint": "允许写入只读文件"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "把追加的内容输出到管道"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要追加内容的文件路径",
+          "valueHint": "文件路径",
+          "repeatable": true
+        },
+        {
+          "token": "<内容>",
+          "kind": "value",
+          "desc": "追加到文件末尾的内容",
+          "valueHint": "内容",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要追加的文件路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Value",
+          "kind": "option",
+          "desc": "要追加的内容，可以传数组",
+          "valueHint": "<内容>",
+          "repeatable": true
+        },
+        {
+          "token": "-Encoding",
+          "kind": "option",
+          "desc": "追加时使用的字符编码",
+          "valueHint": "<编码>",
+          "enum": [
+            "UTF8",
+            "Default",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF7",
+            "UTF32",
+            "Ascii",
+            "Oem",
+            "Byte",
+            "String",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-NoNewline",
+          "kind": "flag",
+          "desc": "追加后不补换行符，紧接在原内容后面"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "允许向只读文件追加内容"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "把追加的内容继续输出到管道"
+        },
+        {
+          "token": "-Stream",
+          "kind": "option",
+          "desc": "写入指定的 NTFS 备用数据流",
+          "valueHint": "<流名>"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只追加到匹配的文件",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的文件",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Clear-Content",
+      "aliases": [
+        "clc"
+      ],
+      "title": "清空文件内容",
+      "desc": "把文件内容清空但保留文件本身，相当于把文件变成 0 字节。适合清日志、重置配置文件时使用。文件会被彻底抹掉内容，操作前请确认路径。",
+      "usage": "Clear-Content [-Path] <string[]> [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Force] [-Credential <pscredential>] [-Stream <string>]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "清空文件",
+        "重置",
+        "截断"
+      ],
+      "examples": [
+        {
+          "cmd": "Clear-Content C:\\Logs\\app.log",
+          "desc": "把日志文件清空成 0 字节"
+        },
+        {
+          "cmd": "Clear-Content C:\\Temp\\config.json -Force",
+          "desc": "强制清空只读配置文件的内容"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Logs -Filter *.log | Clear-Content",
+          "desc": "批量清空目录下所有日志文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Logs\\app.log",
+          "hint": "要清空内容的文件"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "清空只读文件的内容"
+        },
+        {
+          "token": "-Stream",
+          "label": "数据流",
+          "type": "text",
+          "value": "",
+          "hint": "只清空指定的备用数据流"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "只清空匹配的文件"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "跳过匹配的文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要清空内容的文件路径",
+          "valueHint": "文件路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要清空内容的文件路径",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "允许清空只读文件的内容"
+        },
+        {
+          "token": "-Stream",
+          "kind": "option",
+          "desc": "只清空指定的 NTFS 备用数据流",
+          "valueHint": "<流名>",
+          "children": [
+            {
+              "token": "<流名>",
+              "kind": "value",
+              "desc": "数据流名称",
+              "valueHint": "如 Zone.Identifier"
+            }
+          ]
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 *.log"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的文件",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的文件",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<日志文件>",
+          "kind": "value",
+          "desc": "常见用途是把日志文件清空成 0 字节",
+          "valueHint": "如 app.log"
+        }
+      ]
+    },
+    {
+      "name": "Test-Path",
+      "aliases": [],
+      "title": "测试路径是否存在",
+      "desc": "判断文件或目录是否存在，常用于脚本里执行前的条件检查。也可以用 -PathType 区分是文件还是目录。加上 -IsValid 只校验路径语法，不要求真的存在。",
+      "usage": "Test-Path [-Path] <string[]> [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-PathType <TestPathType>] [-IsValid] [-Credential <pscredential>] [-OlderThan <datetime>] [-NewerThan <datetime>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "路径",
+        "存在性",
+        "条件判断"
+      ],
+      "examples": [
+        {
+          "cmd": "Test-Path C:\\Windows",
+          "desc": "判断这个目录是否存在"
+        },
+        {
+          "cmd": "Test-Path C:\\boot.ini -PathType Leaf",
+          "desc": "判断这是不是一个文件"
+        },
+        {
+          "cmd": "Test-Path C:\\Logs\\a.log -NewerThan (Get-Date).AddDays(-1)",
+          "desc": "判断文件是不是最近一天内改过"
+        },
+        {
+          "cmd": "Test-Path C:\\Win*\\System32 -IsValid",
+          "desc": "只校验路径语法是否合法"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Windows",
+          "hint": "要测试的路径"
+        },
+        {
+          "token": "-PathType",
+          "label": "类型",
+          "type": "select",
+          "value": "Any",
+          "hint": "限定文件或目录",
+          "options": [
+            "Any",
+            "Leaf",
+            "Container"
+          ]
+        },
+        {
+          "token": "-IsValid",
+          "label": "只校验语法",
+          "type": "flag",
+          "value": "false",
+          "hint": "不要求路径真的存在"
+        },
+        {
+          "token": "-NewerThan",
+          "label": "晚于",
+          "type": "text",
+          "value": "",
+          "hint": "修改时间晚于该时间才为真"
+        },
+        {
+          "token": "-OlderThan",
+          "label": "早于",
+          "type": "text",
+          "value": "",
+          "hint": "修改时间早于该时间才为真"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要测试的路径，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要测试的一个或多个路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-PathType",
+          "kind": "option",
+          "desc": "限定类型：任意、文件或目录",
+          "valueHint": "<类型>",
+          "enum": [
+            "Any",
+            "Leaf",
+            "Container"
+          ]
+        },
+        {
+          "token": "-IsValid",
+          "kind": "flag",
+          "desc": "只校验路径语法是否合法，不要求存在"
+        },
+        {
+          "token": "-NewerThan",
+          "kind": "option",
+          "desc": "判断修改时间是否晚于指定时间",
+          "valueHint": "<时间>"
+        },
+        {
+          "token": "-OlderThan",
+          "kind": "option",
+          "desc": "判断修改时间是否早于指定时间",
+          "valueHint": "<时间>"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤，比 -Include 快",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "按通配符包含，需配合通配或递归",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "排除匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Resolve-Path",
+      "aliases": [
+        "rvpa"
+      ],
+      "title": "解析路径",
+      "desc": "把带通配符的相对路径展开成真实存在的绝对路径，确认脚本里的通配符到底匹配了哪些文件。加上 -Relative 可以输出相对当前目录的写法。路径不存在时会直接报错。",
+      "usage": "Resolve-Path [-Path] <string[]> [-Relative] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "路径解析",
+        "通配符",
+        "绝对路径"
+      ],
+      "examples": [
+        {
+          "cmd": "Resolve-Path C:\\Win*",
+          "desc": "把通配符展开成实际匹配的目录"
+        },
+        {
+          "cmd": "Resolve-Path .\\*.json -Relative",
+          "desc": "以相对路径形式输出匹配结果"
+        },
+        {
+          "cmd": "Resolve-Path ~",
+          "desc": "查看当前用户主目录的真实路径"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Win*",
+          "hint": "要解析的路径，可带通配符"
+        },
+        {
+          "token": "-Relative",
+          "label": "相对路径",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出相对当前目录的写法"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要解析的路径，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要解析的一个或多个路径",
+          "valueHint": "路径",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Relative",
+          "kind": "flag",
+          "desc": "输出相对当前目录的路径写法"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<相对路径>",
+          "kind": "value",
+          "desc": "以点号开头的相对路径，例如 .\\logs",
+          "valueHint": "如 .\\logs"
+        },
+        {
+          "token": "<主目录路径>",
+          "kind": "value",
+          "desc": "波浪号表示当前用户主目录",
+          "valueHint": "如 ~"
+        },
+        {
+          "token": "<通配路径>",
+          "kind": "value",
+          "desc": "含通配符的路径，例如 C:\\Win*",
+          "valueHint": "如 C:\\Win*"
+        },
+        {
+          "token": "<驱动器路径>",
+          "kind": "value",
+          "desc": "变量或注册表驱动器路径，例如 Env:windir",
+          "valueHint": "驱动路径"
+        },
+        {
+          "token": "<绝对路径>",
+          "kind": "value",
+          "desc": "直接写完整路径，例如 C:\\Windows\\System32",
+          "valueHint": "如 C:\\Windows\\System32",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "name": "Split-Path",
+      "aliases": [],
+      "title": "拆分路径",
+      "desc": "把一个路径拆成父目录、文件名、盘符或去掉盘符的部分，编写脚本处理路径时很常用。默认返回父目录，加 -Leaf 取文件名。这是纯字符串运算，路径不必真实存在。",
+      "usage": "Split-Path [-Path] <string[]> [-Parent] [-Resolve] [-Credential <pscredential>]  （另有 -Qualifier / -NoQualifier / -Leaf / -Resolve -IsAbsolute 参数集）",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "路径",
+        "拆分",
+        "取文件名"
+      ],
+      "examples": [
+        {
+          "cmd": "Split-Path C:\\Temp\\a.txt",
+          "desc": "取路径的父目录部分"
+        },
+        {
+          "cmd": "Split-Path C:\\Temp\\a.txt -Leaf",
+          "desc": "只取最后的文件名"
+        },
+        {
+          "cmd": "Split-Path C:\\Temp\\a.txt -Qualifier",
+          "desc": "只取盘符 C:"
+        },
+        {
+          "cmd": "Split-Path C:\\Temp -IsAbsolute",
+          "desc": "判断这个路径是不是绝对路径"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Temp\\a.txt",
+          "hint": "要拆分的路径"
+        },
+        {
+          "token": "-Parent",
+          "label": "取父目录",
+          "type": "flag",
+          "value": "false",
+          "hint": "返回父目录部分，这是默认行为"
+        },
+        {
+          "token": "-Leaf",
+          "label": "取文件名",
+          "type": "flag",
+          "value": "false",
+          "hint": "只返回最后一段名称"
+        },
+        {
+          "token": "-Qualifier",
+          "label": "取盘符",
+          "type": "flag",
+          "value": "false",
+          "hint": "只返回盘符部分"
+        },
+        {
+          "token": "-NoQualifier",
+          "label": "去掉盘符",
+          "type": "flag",
+          "value": "false",
+          "hint": "返回不含盘符的剩余路径"
+        },
+        {
+          "token": "-IsAbsolute",
+          "label": "判断绝对路径",
+          "type": "flag",
+          "value": "false",
+          "hint": "返回该路径是否为绝对路径"
+        },
+        {
+          "token": "-Resolve",
+          "label": "解析通配符",
+          "type": "flag",
+          "value": "false",
+          "hint": "先展开通配符再拆分"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要拆分的路径，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要拆分的一个或多个路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Parent",
+          "kind": "flag",
+          "desc": "返回父目录，是默认行为"
+        },
+        {
+          "token": "-Leaf",
+          "kind": "flag",
+          "desc": "只返回路径最后一段，例如文件名"
+        },
+        {
+          "token": "-Qualifier",
+          "kind": "flag",
+          "desc": "只返回盘符部分，例如 C:"
+        },
+        {
+          "token": "-NoQualifier",
+          "kind": "flag",
+          "desc": "返回去掉盘符后的路径部分"
+        },
+        {
+          "token": "-IsAbsolute",
+          "kind": "flag",
+          "desc": "返回是否为绝对路径的布尔值"
+        },
+        {
+          "token": "-Resolve",
+          "kind": "flag",
+          "desc": "先解析通配符得到真实路径再拆分"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Join-Path",
+      "aliases": [],
+      "title": "拼接路径",
+      "desc": "把父路径和子路径拼成一个完整路径，自动补上合适的分隔符。脚本里生成文件路径时用它比手写反斜杠更稳。加 -Resolve 可以在拼接的同时验证结果存在。",
+      "usage": "Join-Path [-Path] <string[]> [-ChildPath] <string> [-Resolve] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "路径",
+        "拼接",
+        "组合"
+      ],
+      "examples": [
+        {
+          "cmd": "Join-Path C:\\Temp a.txt",
+          "desc": "拼出 C:\\Temp\\a.txt 这样的完整路径"
+        },
+        {
+          "cmd": "Join-Path $env:USERPROFILE Documents",
+          "desc": "在用户主目录下拼出子目录路径"
+        },
+        {
+          "cmd": "Join-Path C:\\Windows *.exe -Resolve",
+          "desc": "拼接并解析成真实存在的路径"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "父路径",
+          "type": "path",
+          "value": "C:\\Temp",
+          "hint": "基础路径，可以是数组"
+        },
+        {
+          "token": "-ChildPath",
+          "label": "子路径",
+          "type": "text",
+          "value": "a.txt",
+          "hint": "追加到父路径后面的部分"
+        },
+        {
+          "token": "-Resolve",
+          "label": "解析",
+          "type": "flag",
+          "value": "false",
+          "hint": "拼接后解析通配符并验证存在"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<父路径>",
+          "kind": "value",
+          "desc": "基础路径，支持通配符",
+          "valueHint": "父路径",
+          "repeatable": true
+        },
+        {
+          "token": "<子路径>",
+          "kind": "value",
+          "desc": "拼接到父路径后面的子路径",
+          "valueHint": "子路径"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定作为前缀的一个或多个路径",
+          "valueHint": "父目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "父目录",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-ChildPath",
+          "kind": "option",
+          "desc": "<子路径>",
+          "valueHint": "拼接在父路径后面的子路径",
+          "children": [
+            {
+              "token": "<子路径>",
+              "kind": "value",
+              "desc": "子目录名或文件名",
+              "valueHint": "如 2024\\logs"
+            }
+          ]
+        },
+        {
+          "token": "-Resolve",
+          "kind": "flag",
+          "desc": "拼接后解析通配符，结果必须真实存在"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<父目录>",
+          "kind": "value",
+          "desc": "作为前缀的目录，例如 C:\\Temp",
+          "valueHint": "如 C:\\Temp"
+        },
+        {
+          "token": "<子名称>",
+          "kind": "value",
+          "desc": "追加到父目录后的名称",
+          "valueHint": "如 a.txt"
+        },
+        {
+          "token": "<相对父路径>",
+          "kind": "value",
+          "desc": "相对写法的基础路径，例如 .\\out",
+          "valueHint": "如 .\\out"
+        },
+        {
+          "token": "<通配子路径>",
+          "kind": "value",
+          "desc": "子路径也可以带通配符",
+          "valueHint": "如 *.log"
+        }
+      ]
+    },
+    {
+      "name": "Convert-Path",
+      "aliases": [
+        "cvpa"
+      ],
+      "title": "转换为文件系统路径",
+      "desc": "把 PowerShell 提供程序路径转换成标准的 Windows 文件系统路径，例如把注册表或变量驱动器的写法还原成真实路径。转换结果会随当前目录变化，适合在调用外部程序前使用。",
+      "usage": "Convert-Path [-Path] <string[]>",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "路径转换",
+        "绝对路径",
+        "提供程序"
+      ],
+      "examples": [
+        {
+          "cmd": "Convert-Path .\\a.txt",
+          "desc": "把相对路径转成标准绝对路径"
+        },
+        {
+          "cmd": "Convert-Path HKLM:\\Software",
+          "desc": "把注册表提供程序路径转成真实路径"
+        },
+        {
+          "cmd": "Convert-Path Env:windir",
+          "desc": "把变量驱动器写法转成目录路径"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": ".\\a.txt",
+          "hint": "要转换的 PowerShell 路径"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要转换的路径，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要转换的一个或多个路径",
+          "valueHint": "文件或目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件或目录",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "<驱动器路径>",
+          "kind": "value",
+          "desc": "变量或注册表驱动器路径，例如 Env:windir",
+          "valueHint": "驱动路径"
+        },
+        {
+          "token": "<通配路径>",
+          "kind": "value",
+          "desc": "带通配符的路径，例如 C:\\Win*",
+          "valueHint": "如 C:\\Win*"
+        },
+        {
+          "token": "<相对路径>",
+          "kind": "value",
+          "desc": "以点号开头的相对路径，例如 .\\a.txt",
+          "valueHint": "如 .\\a.txt"
+        },
+        {
+          "token": "<注册表路径>",
+          "kind": "value",
+          "desc": "注册表提供程序路径，例如 HKLM:\\Software",
+          "valueHint": "如 HKLM:\\Software"
+        },
+        {
+          "token": "<变量路径>",
+          "kind": "value",
+          "desc": "环境变量路径，例如 Env:windir",
+          "valueHint": "如 Env:windir"
+        },
+        {
+          "token": "<别名路径>",
+          "kind": "value",
+          "desc": "别名驱动器路径，例如 Alias:dir",
+          "valueHint": "如 Alias:dir"
+        },
+        {
+          "token": "<根目录路径>",
+          "kind": "value",
+          "desc": "盘符根目录，例如 C:\\",
+          "valueHint": "如 C:\\"
+        }
+      ]
+    },
+    {
+      "name": "Get-PSDrive",
+      "aliases": [
+        "gdr"
+      ],
+      "title": "查看驱动器",
+      "desc": "列出当前会话里所有 PowerShell 驱动器，包括磁盘分区、注册表、环境变量等提供程序。用 -PSProvider 只看某一类。输出里含已用和剩余空间，适合快速看磁盘余量。",
+      "usage": "Get-PSDrive [[-Name] <string[]>] [-Scope <string>] [-PSProvider <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "驱动器",
+        "磁盘空间",
+        "提供程序"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-PSDrive",
+          "desc": "列出当前会话中所有驱动器"
+        },
+        {
+          "cmd": "Get-PSDrive -PSProvider FileSystem",
+          "desc": "只看文件系统驱动器及其剩余空间"
+        },
+        {
+          "cmd": "Get-PSDrive C",
+          "desc": "只看 C 盘的挂载信息"
+        },
+        {
+          "cmd": "Get-PSDrive -PSProvider Registry",
+          "desc": "列出当前可用的注册表驱动器"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Name",
+          "label": "驱动器名",
+          "type": "text",
+          "value": "",
+          "hint": "只看指定名字的驱动器"
+        },
+        {
+          "token": "-PSProvider",
+          "label": "提供程序",
+          "type": "select",
+          "value": "",
+          "hint": "按提供程序筛选",
+          "options": [
+            "",
+            "FileSystem",
+            "Registry",
+            "Environment",
+            "Variable",
+            "Certificate",
+            "Function",
+            "Alias"
+          ]
+        },
+        {
+          "token": "-Scope",
+          "label": "作用域",
+          "type": "select",
+          "value": "",
+          "hint": "限定会话作用域",
+          "options": [
+            "",
+            "Global",
+            "Local",
+            "Script",
+            "0",
+            "1",
+            "2"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<驱动器名>",
+          "kind": "value",
+          "desc": "要查看的驱动器名称，例如 C",
+          "valueHint": "驱动器名",
+          "repeatable": true
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "<名称>",
+          "valueHint": "指定要查看的驱动器名称",
+          "children": [
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "驱动器名，例如 C 或 HKLM",
+              "valueHint": "如 C、D、HKLM"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralName",
+          "kind": "option",
+          "desc": "<名称>",
+          "valueHint": "按字面量匹配名称，不当作通配符",
+          "children": [
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "驱动器名字面量，例如 C",
+              "valueHint": "如 C"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-PSProvider",
+          "kind": "option",
+          "desc": "按提供程序筛选，例如 FileSystem",
+          "valueHint": "<提供程序>",
+          "enum": [
+            "FileSystem",
+            "Registry",
+            "Environment",
+            "Variable",
+            "Certificate",
+            "Alias",
+            "Function"
+          ],
+          "children": [
+            {
+              "token": "<提供程序>",
+              "kind": "value",
+              "desc": "提供程序名称，例如 FileSystem",
+              "valueHint": "如 FileSystem"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Scope",
+          "kind": "option",
+          "desc": "限定作用域，例如 Global 或数字层级",
+          "valueHint": "<作用域>",
+          "enum": [
+            "Global",
+            "Local",
+            "Script",
+            "0",
+            "1",
+            "2"
+          ],
+          "children": [
+            {
+              "token": "<作用域>",
+              "kind": "value",
+              "desc": "作用域名称或层级数字",
+              "valueHint": "如 Global"
+            }
+          ]
+        },
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "文件系统驱动器盘符，如 C、D",
+          "valueHint": "如 C"
+        },
+        {
+          "token": "<注册表驱动器>",
+          "kind": "value",
+          "desc": "注册表驱动器名，如 HKLM、HKCU",
+          "valueHint": "如 HKLM"
+        },
+        {
+          "token": "<变量驱动器>",
+          "kind": "value",
+          "desc": "变量驱动器名，如 Env、Variable",
+          "valueHint": "如 Env"
+        },
+        {
+          "token": "<证书驱动器>",
+          "kind": "value",
+          "desc": "证书驱动器名，如 Cert",
+          "valueHint": "如 Cert"
+        },
+        {
+          "token": "<别名驱动器>",
+          "kind": "value",
+          "desc": "别名驱动器名，如 Alias",
+          "valueHint": "如 Alias"
+        }
+      ]
+    },
+    {
+      "name": "New-PSDrive",
+      "aliases": [
+        "mount",
+        "ndr"
+      ],
+      "title": "创建驱动器映射",
+      "desc": "在当前会话里新建一个驱动器映射，把网络共享、注册表路径或变量目录挂成一个盘符。加 -Persist 能把映射保留到下次登录，此选项只对文件系统网络路径有效。",
+      "usage": "New-PSDrive [-Name] <string> [-PSProvider] <string> [-Root] <string> [-Description <string>] [-Scope <string>] [-Persist] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "映射盘符",
+        "网络共享",
+        "挂载"
+      ],
+      "examples": [
+        {
+          "cmd": "New-PSDrive -Name X -PSProvider FileSystem -Root D:\\Data",
+          "desc": "把本地目录挂成 X 盘"
+        },
+        {
+          "cmd": "New-PSDrive -Name S -PSProvider FileSystem -Root \\\\server\\share -Persist",
+          "desc": "映射网络共享并保留到下次登录"
+        },
+        {
+          "cmd": "New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT",
+          "desc": "把注册表根键挂成一个驱动器"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Name",
+          "label": "驱动器名",
+          "type": "text",
+          "value": "X",
+          "hint": "新驱动器的名称，例如 X"
+        },
+        {
+          "token": "-PSProvider",
+          "label": "提供程序",
+          "type": "select",
+          "value": "FileSystem",
+          "hint": "要挂载的提供程序类型",
+          "options": [
+            "FileSystem",
+            "Registry",
+            "Environment",
+            "Variable",
+            "Certificate",
+            "Alias",
+            "Function"
+          ]
+        },
+        {
+          "token": "-Root",
+          "label": "根位置",
+          "type": "text",
+          "value": "D:\\Data",
+          "hint": "映射到的真实位置或共享路径"
+        },
+        {
+          "token": "-Description",
+          "label": "描述",
+          "type": "text",
+          "value": "",
+          "hint": "给这个映射写一句说明"
+        },
+        {
+          "token": "-Scope",
+          "label": "作用域",
+          "type": "select",
+          "value": "",
+          "hint": "映射生效的范围",
+          "options": [
+            "",
+            "Global",
+            "Local",
+            "Script",
+            "0",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "token": "-Persist",
+          "label": "持久映射",
+          "type": "flag",
+          "value": "false",
+          "hint": "保留到下次登录，仅文件系统网络路径"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<驱动器名>",
+          "kind": "value",
+          "desc": "新驱动器的名称，例如 X",
+          "valueHint": "驱动器名"
+        },
+        {
+          "token": "<提供程序>",
+          "kind": "value",
+          "desc": "挂载使用的提供程序，例如 FileSystem",
+          "valueHint": "提供程序"
+        },
+        {
+          "token": "<根位置>",
+          "kind": "value",
+          "desc": "映射指向的真实位置或共享路径",
+          "valueHint": "根路径"
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "指定新驱动器的名称",
+          "valueHint": "<名称>"
+        },
+        {
+          "token": "-PSProvider",
+          "kind": "option",
+          "desc": "指定挂载使用的提供程序",
+          "valueHint": "<提供程序>",
+          "enum": [
+            "FileSystem",
+            "Registry",
+            "Environment",
+            "Variable",
+            "Certificate",
+            "Alias",
+            "Function"
+          ]
+        },
+        {
+          "token": "-Root",
+          "kind": "option",
+          "desc": "映射指向的根位置，可写共享路径",
+          "valueHint": "<根路径>"
+        },
+        {
+          "token": "-Description",
+          "kind": "option",
+          "desc": "给驱动器映射添加说明文字",
+          "valueHint": "<说明>"
+        },
+        {
+          "token": "-Scope",
+          "kind": "option",
+          "desc": "限定映射生效的作用域",
+          "valueHint": "<作用域>"
+        },
+        {
+          "token": "-Persist",
+          "kind": "flag",
+          "desc": "创建持久映射，重启登录后依然存在"
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "访问目标位置所使用的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Remove-PSDrive",
+      "aliases": [
+        "rdr"
+      ],
+      "title": "移除驱动器映射",
+      "desc": "删除当前会话中的驱动器映射，只影响 PowerShell 会话本身，不会删除磁盘上的数据。使用 -Persist 创建的真实网络映射需要用 net use 删除，否则会再次出现。",
+      "usage": "Remove-PSDrive [-Name] <string[]> [-PSProvider <string[]>] [-Scope <string>] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "移除映射",
+        "断开",
+        "驱动器"
+      ],
+      "examples": [
+        {
+          "cmd": "Remove-PSDrive -Name X",
+          "desc": "移除名为 X 的驱动器映射"
+        },
+        {
+          "cmd": "Remove-PSDrive -Name X -Force",
+          "desc": "强制移除正在被占用的映射"
+        },
+        {
+          "cmd": "Remove-PSDrive -Name HKCR",
+          "desc": "移除临时挂载的注册表驱动器"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Name",
+          "label": "驱动器名",
+          "type": "text",
+          "value": "X",
+          "hint": "要移除的驱动器名称"
+        },
+        {
+          "token": "-PSProvider",
+          "label": "提供程序",
+          "type": "select",
+          "value": "",
+          "hint": "按提供程序筛选要移除的映射",
+          "options": [
+            "",
+            "FileSystem",
+            "Registry",
+            "Environment",
+            "Variable",
+            "Certificate",
+            "Alias",
+            "Function"
+          ]
+        },
+        {
+          "token": "-Scope",
+          "label": "作用域",
+          "type": "select",
+          "value": "",
+          "hint": "限定作用域",
+          "options": [
+            "",
+            "Global",
+            "Local",
+            "Script",
+            "0",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "即使驱动器被占用也移除"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<驱动器名>",
+          "kind": "value",
+          "desc": "要移除的驱动器名称，可写多个",
+          "valueHint": "驱动器名",
+          "repeatable": true
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "<名称>",
+          "valueHint": "指定要移除的驱动器名称",
+          "children": [
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "驱动器名，例如 X",
+              "valueHint": "如 X"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralName",
+          "kind": "option",
+          "desc": "<名称>",
+          "valueHint": "按字面量匹配名称，不当作通配符",
+          "children": [
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "驱动器名字面量，例如 X",
+              "valueHint": "如 X"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-PSProvider",
+          "kind": "option",
+          "desc": "按提供程序筛选要移除的驱动器",
+          "valueHint": "<提供程序>",
+          "enum": [
+            "FileSystem",
+            "Registry",
+            "Environment",
+            "Variable",
+            "Certificate",
+            "Alias",
+            "Function"
+          ],
+          "children": [
+            {
+              "token": "<提供程序>",
+              "kind": "value",
+              "desc": "提供程序名称，例如 FileSystem",
+              "valueHint": "如 FileSystem"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Scope",
+          "kind": "option",
+          "desc": "限定要移除的映射所在作用域",
+          "valueHint": "<作用域>",
+          "enum": [
+            "Global",
+            "Local",
+            "Script",
+            "0",
+            "1",
+            "2"
+          ],
+          "children": [
+            {
+              "token": "<作用域>",
+              "kind": "value",
+              "desc": "作用域名称或层级数字",
+              "valueHint": "如 Global"
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制移除，即使驱动器当前被占用"
+        },
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "文件系统驱动器盘符，如 X",
+          "valueHint": "如 X"
+        },
+        {
+          "token": "<注册表驱动器>",
+          "kind": "value",
+          "desc": "注册表驱动器名，如 HKCR",
+          "valueHint": "如 HKCR"
+        },
+        {
+          "token": "<变量驱动器>",
+          "kind": "value",
+          "desc": "变量驱动器名，如 Env",
+          "valueHint": "如 Env"
+        },
+        {
+          "token": "<证书驱动器>",
+          "kind": "value",
+          "desc": "证书驱动器名，如 Cert",
+          "valueHint": "如 Cert"
+        }
+      ]
+    },
+    {
+      "name": "Get-FileHash",
+      "aliases": [],
+      "title": "计算文件哈希",
+      "desc": "计算文件的哈希值，用来校验下载是否完整、对比两份文件是否一致。默认使用 SHA256，可用 -Algorithm 指定其它算法。校验大文件耗时较长，但不会修改文件。",
+      "usage": "Get-FileHash [-Path] <string[]> [-Algorithm <string>]  （另有 -LiteralPath 与 -InputStream 参数集）",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "哈希",
+        "校验",
+        "完整性"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-FileHash C:\\Temp\\setup.exe",
+          "desc": "算出该文件的 SHA256 哈希值"
+        },
+        {
+          "cmd": "Get-FileHash C:\\Temp\\a.iso -Algorithm MD5",
+          "desc": "改用 MD5 算法计算哈希"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Temp\\*.zip | Get-FileHash",
+          "desc": "批量计算多个压缩包的哈希"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Temp\\setup.exe",
+          "hint": "要计算哈希的文件"
+        },
+        {
+          "token": "-Algorithm",
+          "label": "算法",
+          "type": "select",
+          "value": "SHA256",
+          "hint": "哈希算法，默认 SHA256",
+          "options": [
+            "SHA1",
+            "SHA256",
+            "SHA384",
+            "SHA512",
+            "MACTripleDES",
+            "MD5",
+            "RIPEMD160"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要计算哈希的文件，支持通配符",
+          "valueHint": "文件路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要计算哈希的一个或多个文件",
+          "valueHint": "文件",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-InputStream",
+          "kind": "option",
+          "desc": "<流对象>",
+          "valueHint": "直接对输入流计算哈希，不写临时文件",
+          "children": [
+            {
+              "token": "<流对象>",
+              "kind": "value",
+              "desc": "可读的流对象，例如文件流或内存流",
+              "valueHint": "如 FileStream"
+            }
+          ]
+        },
+        {
+          "token": "-Algorithm",
+          "kind": "option",
+          "desc": "<算法>",
+          "valueHint": "指定哈希算法，默认 SHA256",
+          "enum": [
+            "SHA1",
+            "SHA256",
+            "SHA384",
+            "SHA512",
+            "MACTripleDES",
+            "MD5",
+            "RIPEMD160"
+          ],
+          "children": [
+            {
+              "token": "<算法>",
+              "kind": "value",
+              "desc": "哈希算法名称，默认 SHA256",
+              "valueHint": "如 SHA256"
+            }
+          ]
+        },
+        {
+          "token": "<安装包>",
+          "kind": "value",
+          "desc": "下载后要校验的安装包",
+          "valueHint": "如 setup.exe"
+        },
+        {
+          "token": "<镜像文件>",
+          "kind": "value",
+          "desc": "体积较大的镜像文件",
+          "valueHint": "如 a.iso"
+        },
+        {
+          "token": "<压缩包>",
+          "kind": "value",
+          "desc": "要计算校验值的压缩包",
+          "valueHint": "如 data.zip"
+        },
+        {
+          "token": "<文件列表>",
+          "kind": "value",
+          "desc": "批量计算多个文件的哈希",
+          "valueHint": "多个文件"
+        },
+        {
+          "token": "<流名称>",
+          "kind": "value",
+          "desc": "备用数据流，例如 Zone.Identifier",
+          "valueHint": "如 Zone.Identifier"
+        }
+      ]
+    },
+    {
+      "name": "Select-String",
+      "aliases": [
+        "sls"
+      ],
+      "title": "在文本中搜索",
+      "desc": "按正则表达式或纯文本在文件内容里查找匹配行，类似命令行的 findstr，但结果是对象、便于后续筛选。用 -SimpleMatch 关闭正则、-NotMatch 反向匹配。搜索大目录时建议配合通配符缩小范围。",
+      "usage": "Select-String [-Pattern] <string[]> [-Path] <string[]> [-SimpleMatch] [-CaseSensitive] [-Quiet] [-List] [-Include <string[]>] [-Exclude <string[]>] [-NotMatch] [-AllMatches] [-Encoding <string>] [-Context <int[]>]  （另有 -InputObject 与 -LiteralPath 参数集）",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "文本搜索",
+        "正则",
+        "grep"
+      ],
+      "examples": [
+        {
+          "cmd": "Select-String -Path C:\\Logs\\*.log -Pattern 'error'",
+          "desc": "在日志里查找包含 error 的行"
+        },
+        {
+          "cmd": "Select-String -Path C:\\Temp\\a.txt -Pattern 'a.b' -SimpleMatch",
+          "desc": "按纯文本匹配，不把点当正则符号"
+        },
+        {
+          "cmd": "Get-Content C:\\Temp\\a.txt | Select-String -Pattern 'warn' -Context 1,1",
+          "desc": "同时显示匹配行的前后各一行"
+        },
+        {
+          "cmd": "Select-String -Path C:\\Temp\\*.txt -Pattern 'todo' -List",
+          "desc": "每个文件只返回第一条匹配结果"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Pattern",
+          "label": "查找内容",
+          "type": "text",
+          "value": "error",
+          "hint": "要搜索的正则或文本"
+        },
+        {
+          "token": "-Path",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Logs\\*.log",
+          "hint": "在哪些文件里搜索，可带通配符"
+        },
+        {
+          "token": "-SimpleMatch",
+          "label": "纯文本匹配",
+          "type": "flag",
+          "value": "false",
+          "hint": "关闭正则，按字面查找"
+        },
+        {
+          "token": "-CaseSensitive",
+          "label": "区分大小写",
+          "type": "flag",
+          "value": "false",
+          "hint": "默认不区分大小写"
+        },
+        {
+          "token": "-NotMatch",
+          "label": "反向匹配",
+          "type": "flag",
+          "value": "false",
+          "hint": "返回不匹配的行"
+        },
+        {
+          "token": "-List",
+          "label": "每文件一条",
+          "type": "flag",
+          "value": "false",
+          "hint": "每个文件只返回首个匹配"
+        },
+        {
+          "token": "-Quiet",
+          "label": "只要布尔",
+          "type": "flag",
+          "value": "false",
+          "hint": "只返回是否匹配，不输出内容"
+        },
+        {
+          "token": "-AllMatches",
+          "label": "全部匹配",
+          "type": "flag",
+          "value": "false",
+          "hint": "一行里匹配到的全部返回"
+        },
+        {
+          "token": "-Encoding",
+          "label": "编码",
+          "type": "select",
+          "value": "",
+          "hint": "按指定编码读取文件",
+          "options": [
+            "",
+            "unicode",
+            "utf7",
+            "utf8",
+            "utf32",
+            "ascii",
+            "bigendianunicode",
+            "default",
+            "oem"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<查找内容>",
+          "kind": "value",
+          "desc": "要搜索的正则表达式或纯文本",
+          "valueHint": "模式",
+          "repeatable": true
+        },
+        {
+          "token": "<文件>",
+          "kind": "value",
+          "desc": "要搜索的文件路径，支持通配符",
+          "valueHint": "文件路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Pattern",
+          "kind": "option",
+          "desc": "要匹配的正则表达式或文本",
+          "valueHint": "<模式>",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要搜索的文件，支持通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-InputObject",
+          "kind": "option",
+          "desc": "对管道传入的文本直接搜索",
+          "valueHint": "<文本对象>"
+        },
+        {
+          "token": "-SimpleMatch",
+          "kind": "flag",
+          "desc": "按纯文本查找，不解释正则元字符"
+        },
+        {
+          "token": "-CaseSensitive",
+          "kind": "flag",
+          "desc": "区分大小写，默认不区分"
+        },
+        {
+          "token": "-NotMatch",
+          "kind": "flag",
+          "desc": "返回不匹配的行"
+        },
+        {
+          "token": "-List",
+          "kind": "flag",
+          "desc": "每个文件只返回第一处匹配"
+        },
+        {
+          "token": "-Quiet",
+          "kind": "flag",
+          "desc": "只返回布尔值表示是否匹配"
+        },
+        {
+          "token": "-AllMatches",
+          "kind": "flag",
+          "desc": "返回一行中匹配到的所有结果"
+        },
+        {
+          "token": "-Context",
+          "kind": "option",
+          "desc": "同时输出匹配行前后的若干行",
+          "valueHint": "<前,后>"
+        },
+        {
+          "token": "-Encoding",
+          "kind": "option",
+          "desc": "指定读取文件时使用的编码",
+          "valueHint": "<编码>",
+          "enum": [
+            "unicode",
+            "utf7",
+            "utf8",
+            "utf32",
+            "ascii",
+            "bigendianunicode",
+            "default",
+            "oem"
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只搜索匹配通配符的文件",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配通配符的文件",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "name": "Out-File",
+      "aliases": [],
+      "title": "输出重定向到文件",
+      "desc": "把上游命令的输出发送到文件，相当于重定向符号大于号的对象版本。它按 PowerShell 的格式化结果写盘，便于直接阅读。已有文件会被覆盖，追加请加 -Append。",
+      "usage": "Out-File [-FilePath] <string> [[-Encoding] <string>] [-Append] [-Force] [-NoClobber] [-Width <int>] [-NoNewline] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "重定向",
+        "保存到文件",
+        "输出"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-Process | Out-File C:\\Temp\\p.txt",
+          "desc": "把进程列表保存成文本文件"
+        },
+        {
+          "cmd": "Get-Date | Out-File C:\\Temp\\log.txt -Append",
+          "desc": "把当前时间追加到文件末尾"
+        },
+        {
+          "cmd": "Get-Service | Out-File C:\\Temp\\s.txt -Encoding UTF8 -Width 200",
+          "desc": "用较宽的行宽和 UTF8 编码写出"
+        },
+        {
+          "cmd": "Get-Content C:\\Temp\\a.txt | Out-File C:\\Temp\\b.txt -NoClobber",
+          "desc": "目标已存在时直接报错，不覆盖"
+        }
+      ],
+      "form": [
+        {
+          "token": "-FilePath",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Temp\\p.txt",
+          "hint": "输出写入的目标文件"
+        },
+        {
+          "token": "-Encoding",
+          "label": "编码",
+          "type": "select",
+          "value": "",
+          "hint": "写入文件时使用的编码",
+          "options": [
+            "",
+            "unknown",
+            "string",
+            "unicode",
+            "bigendianunicode",
+            "utf8",
+            "utf7",
+            "utf32",
+            "ascii",
+            "default",
+            "oem"
+          ]
+        },
+        {
+          "token": "-Append",
+          "label": "追加",
+          "type": "flag",
+          "value": "false",
+          "hint": "写到文件末尾而不是覆盖"
+        },
+        {
+          "token": "-Force",
+          "label": "强制覆盖",
+          "type": "flag",
+          "value": "false",
+          "hint": "允许覆盖只读文件"
+        },
+        {
+          "token": "-NoClobber",
+          "label": "不覆盖",
+          "type": "flag",
+          "value": "false",
+          "hint": "目标已存在时报错，不覆盖"
+        },
+        {
+          "token": "-Width",
+          "label": "行宽",
+          "type": "number",
+          "value": "",
+          "hint": "每行最多多少字符"
+        },
+        {
+          "token": "-NoNewline",
+          "label": "不加换行",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出后不追加换行符"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件路径>",
+          "kind": "value",
+          "desc": "输出写入的目标文件路径",
+          "valueHint": "文件路径"
+        },
+        {
+          "token": "<编码>",
+          "kind": "value",
+          "desc": "写入文件时使用的字符编码",
+          "valueHint": "编码名"
+        },
+        {
+          "token": "-FilePath",
+          "kind": "option",
+          "desc": "指定输出写入的文件路径",
+          "valueHint": "<路径>"
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>"
+        },
+        {
+          "token": "-Encoding",
+          "kind": "option",
+          "desc": "指定写入文件时使用的字符编码",
+          "valueHint": "<编码>",
+          "enum": [
+            "unknown",
+            "string",
+            "unicode",
+            "bigendianunicode",
+            "utf8",
+            "utf7",
+            "utf32",
+            "ascii",
+            "default",
+            "oem"
+          ]
+        },
+        {
+          "token": "-Append",
+          "kind": "flag",
+          "desc": "把输出追加到文件末尾而不是覆盖"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "允许覆盖只读文件的已有内容"
+        },
+        {
+          "token": "-NoClobber",
+          "kind": "flag",
+          "desc": "目标文件已存在时直接报错"
+        },
+        {
+          "token": "-Width",
+          "kind": "option",
+          "desc": "限制每行输出的最大字符数",
+          "valueHint": "<列数>"
+        },
+        {
+          "token": "-NoNewline",
+          "kind": "flag",
+          "desc": "输出内容后不追加换行符"
+        },
+        {
+          "token": "-InputObject",
+          "kind": "option",
+          "desc": "直接指定要写入的对象，代替管道",
+          "valueHint": "<对象>"
+        }
+      ]
+    },
+    {
+      "name": "Tee-Object",
+      "aliases": [
+        "tee"
+      ],
+      "title": "分流输出到文件",
+      "desc": "把管道内容同时送往文件或变量，并在屏幕上继续往后传递，便于一边看结果一边留档。用 -Variable 可以存到变量而不是文件。文件默认覆盖，追加请加 -Append。",
+      "usage": "Tee-Object [-FilePath] <string> [-InputObject <psobject>] [-Append]  （另有 -LiteralPath 与 -Variable 参数集）",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "分流",
+        "同时保存",
+        "管道"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-Process | Tee-Object -FilePath C:\\Temp\\p.txt",
+          "desc": "结果同时显示在屏幕并写入文件"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Windows | Tee-Object -Variable items",
+          "desc": "把结果存进变量 items 继续处理"
+        },
+        {
+          "cmd": "Get-Date | Tee-Object -FilePath C:\\Temp\\log.txt -Append",
+          "desc": "把输出追加到文件且继续传递"
+        },
+        {
+          "cmd": "Get-Process | Tee-Object -FilePath C:\\Temp\\p.txt | Where-Object { $_.CPU -gt 10 }",
+          "desc": "分流存盘后再筛选出高占用进程"
+        }
+      ],
+      "form": [
+        {
+          "token": "-FilePath",
+          "label": "文件",
+          "type": "path",
+          "value": "C:\\Temp\\p.txt",
+          "hint": "内容同时写入的文件"
+        },
+        {
+          "token": "-Variable",
+          "label": "变量",
+          "type": "text",
+          "value": "",
+          "hint": "改成保存到指定变量名"
+        },
+        {
+          "token": "-Append",
+          "label": "追加",
+          "type": "flag",
+          "value": "false",
+          "hint": "写入文件末尾而不是覆盖"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件路径>",
+          "kind": "value",
+          "desc": "内容同时写入的文件路径",
+          "valueHint": "文件路径"
+        },
+        {
+          "token": "<变量名>",
+          "kind": "value",
+          "desc": "把内容保存到该名称的变量",
+          "valueHint": "变量名"
+        },
+        {
+          "token": "-FilePath",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "指定同时写入的文件路径",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要写入的文件路径",
+              "valueHint": "如 C:\\Temp\\p.txt"
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "按字面量解释路径，不展开通配符",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要写入的字面量路径",
+              "valueHint": "如 C:\\Temp\\a[1].txt"
+            }
+          ]
+        },
+        {
+          "token": "-Variable",
+          "kind": "option",
+          "desc": "<变量名>",
+          "valueHint": "把内容保存到指定名称的变量",
+          "children": [
+            {
+              "token": "<变量名>",
+              "kind": "value",
+              "desc": "变量名，不带美元符号",
+              "valueHint": "如 items"
+            }
+          ]
+        },
+        {
+          "token": "-Append",
+          "kind": "flag",
+          "desc": "把内容追加到文件末尾而不是覆盖"
+        },
+        {
+          "token": "-InputObject",
+          "kind": "option",
+          "desc": "<对象>",
+          "valueHint": "直接指定要分流的对象，代替管道",
+          "children": [
+            {
+              "token": "<对象>",
+              "kind": "value",
+              "desc": "要分流输出的对象或内容",
+              "valueHint": "如 Get-Date"
+            }
+          ]
+        },
+        {
+          "token": "<日志文件>",
+          "kind": "value",
+          "desc": "用来留存运行记录的文本文件",
+          "valueHint": "如 C:\\Temp\\log.txt"
+        },
+        {
+          "token": "<变量名称>",
+          "kind": "value",
+          "desc": "接收结果的自定义变量名",
+          "valueHint": "如 result"
+        },
+        {
+          "token": "<结果文件>",
+          "kind": "value",
+          "desc": "保存筛选前完整结果的文件",
+          "valueHint": "如 C:\\Temp\\all.txt"
+        }
+      ]
+    },
+    {
+      "name": "Expand-Archive",
+      "aliases": [],
+      "title": "解压 ZIP 压缩包",
+      "desc": "把 zip 压缩包解压到目标目录，目标目录不存在时会自动创建。目标已有同名文件时需要用 -Force 才会覆盖，否则会报错。只支持 zip 格式，不能解开 cab 或 7z。",
+      "usage": "Expand-Archive [-Path] <string> [[-DestinationPath] <string>] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "解压",
+        "zip",
+        "解压缩"
+      ],
+      "examples": [
+        {
+          "cmd": "Expand-Archive C:\\Temp\\a.zip -DestinationPath C:\\Temp\\out",
+          "desc": "把压缩包解到指定目录"
+        },
+        {
+          "cmd": "Expand-Archive C:\\Temp\\a.zip -DestinationPath C:\\Temp\\out -Force",
+          "desc": "覆盖目标目录里已有的同名文件"
+        },
+        {
+          "cmd": "Get-ChildItem C:\\Temp -Filter *.zip | Expand-Archive -DestinationPath C:\\Temp\\out",
+          "desc": "管道批量解开目录下的压缩包"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "压缩包",
+          "type": "path",
+          "value": "C:\\Temp\\a.zip",
+          "hint": "要解压的 zip 文件"
+        },
+        {
+          "token": "-DestinationPath",
+          "label": "目标目录",
+          "type": "path",
+          "value": "C:\\Temp\\out",
+          "hint": "解压到哪里，可省略"
+        },
+        {
+          "token": "-Force",
+          "label": "强制覆盖",
+          "type": "flag",
+          "value": "false",
+          "hint": "覆盖目标中已存在的同名文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<压缩包>",
+          "kind": "value",
+          "desc": "要解压的 zip 文件路径",
+          "valueHint": "zip 文件"
+        },
+        {
+          "token": "<目标目录>",
+          "kind": "value",
+          "desc": "解压到的目标目录，默认当前目录",
+          "valueHint": "目标目录"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "指定要解压的压缩包路径",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "zip 压缩包路径，支持通配符",
+              "valueHint": "如 C:\\Temp\\a.zip"
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "按字面量解释路径，不展开通配符",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "zip 压缩包的字面量路径",
+              "valueHint": "如 C:\\Temp\\[a].zip"
+            }
+          ]
+        },
+        {
+          "token": "-DestinationPath",
+          "kind": "option",
+          "desc": "<目录>",
+          "valueHint": "解压的目标目录，不存在会自动创建",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "解压输出的目录路径",
+              "valueHint": "如 C:\\Temp\\out"
+            }
+          ]
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "覆盖目标目录中已存在的同名文件"
+        },
+        {
+          "token": "<zip 文件>",
+          "kind": "value",
+          "desc": "扩展名为 zip 的压缩包",
+          "valueHint": "如 C:\\Temp\\a.zip"
+        },
+        {
+          "token": "<输出目录>",
+          "kind": "value",
+          "desc": "解压结果存放的目录",
+          "valueHint": "如 C:\\Temp\\out"
+        },
+        {
+          "token": "<通配压缩包>",
+          "kind": "value",
+          "desc": "用通配符一次匹配多个压缩包",
+          "valueHint": "如 C:\\Temp\\*.zip"
+        },
+        {
+          "token": "<相对路径包>",
+          "kind": "value",
+          "desc": "相对当前目录的压缩包路径",
+          "valueHint": "如 .\\a.zip"
+        }
+      ]
+    },
+    {
+      "name": "Compress-Archive",
+      "aliases": [],
+      "title": "打包成 ZIP",
+      "desc": "把文件或目录压缩成 zip 包，可以一次传入多个路径。用 -Update 往已有压缩包里加东西，用 -Force 覆盖同名压缩包。中文文件名打包后在不同系统上可能出现乱码。",
+      "usage": "Compress-Archive [-Path] <string[]> [-DestinationPath] <string> [-CompressionLevel <string>] [-Update] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "压缩",
+        "zip",
+        "打包"
+      ],
+      "examples": [
+        {
+          "cmd": "Compress-Archive -Path C:\\Temp\\data -DestinationPath C:\\Temp\\data.zip",
+          "desc": "把整个目录打包成一个 zip"
+        },
+        {
+          "cmd": "Compress-Archive -Path C:\\Temp\\a.txt,C:\\Temp\\b.txt -DestinationPath C:\\Temp\\ab.zip",
+          "desc": "把多个文件一起打包"
+        },
+        {
+          "cmd": "Compress-Archive -Path C:\\Temp\\c.txt -DestinationPath C:\\Temp\\ab.zip -Update",
+          "desc": "往已有压缩包里追加文件"
+        },
+        {
+          "cmd": "Compress-Archive -Path C:\\Temp\\data -DestinationPath C:\\Temp\\data.zip -Force -CompressionLevel Fastest",
+          "desc": "覆盖旧包并用最快速度压缩"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "来源",
+          "type": "text",
+          "value": "C:\\Temp\\data",
+          "hint": "要压缩的文件或目录，多个用逗号分隔"
+        },
+        {
+          "token": "-DestinationPath",
+          "label": "压缩包",
+          "type": "path",
+          "value": "C:\\Temp\\data.zip",
+          "hint": "生成的 zip 文件路径"
+        },
+        {
+          "token": "-CompressionLevel",
+          "label": "压缩级别",
+          "type": "select",
+          "value": "Optimal",
+          "hint": "速度与体积的取舍",
+          "options": [
+            "Optimal",
+            "Fastest",
+            "NoCompression"
+          ]
+        },
+        {
+          "token": "-Update",
+          "label": "更新已有包",
+          "type": "flag",
+          "value": "false",
+          "hint": "向已有压缩包中新增内容"
+        },
+        {
+          "token": "-Force",
+          "label": "覆盖",
+          "type": "flag",
+          "value": "false",
+          "hint": "覆盖已存在的同名压缩包"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<来源路径>",
+          "kind": "value",
+          "desc": "要压缩的文件或目录，可写多个",
+          "valueHint": "源路径",
+          "repeatable": true
+        },
+        {
+          "token": "<压缩包>",
+          "kind": "value",
+          "desc": "生成的 zip 文件路径",
+          "valueHint": "目标 zip"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "指定要压缩的文件或目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要加入压缩包的来源路径",
+              "valueHint": "如 C:\\Temp\\data"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "按字面量解释路径，不展开通配符",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "来源的字面量路径",
+              "valueHint": "如 C:\\Temp\\[a].txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-DestinationPath",
+          "kind": "option",
+          "desc": "<路径>",
+          "valueHint": "生成的压缩包路径，建议带 zip 后缀",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "输出的 zip 文件路径",
+              "valueHint": "如 C:\\Temp\\data.zip"
+            }
+          ]
+        },
+        {
+          "token": "-CompressionLevel",
+          "kind": "option",
+          "desc": "<级别>",
+          "valueHint": "压缩级别：最优、最快或不压缩",
+          "enum": [
+            "Optimal",
+            "Fastest",
+            "NoCompression"
+          ],
+          "children": [
+            {
+              "token": "<级别>",
+              "kind": "value",
+              "desc": "压缩级别，默认 Optimal",
+              "valueHint": "如 Fastest"
+            }
+          ]
+        },
+        {
+          "token": "-Update",
+          "kind": "flag",
+          "desc": "用新内容更新已存在的压缩包"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "覆盖已存在的同名压缩包"
+        },
+        {
+          "token": "<多个来源>",
+          "kind": "value",
+          "desc": "多个文件路径用逗号分隔",
+          "valueHint": "如 a.txt,b.txt"
+        },
+        {
+          "token": "<目标 zip>",
+          "kind": "value",
+          "desc": "生成的压缩包完整路径",
+          "valueHint": "如 C:\\Temp\\ab.zip"
+        }
+      ]
+    },
+    {
+      "name": "Get-Acl",
+      "aliases": [],
+      "title": "查看访问控制列表",
+      "desc": "读取文件、目录或注册表键的权限清单，看看谁能读、谁能改。查看系统文件的权限通常需要管理员权限，普通账户可能报拒绝访问。结果可以直接交给 Set-Acl 复用到别处。",
+      "usage": "Get-Acl [[-Path] <string[]>] [-Audit] [-AllCentralAccessPolicies] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "权限",
+        "ACL",
+        "安全"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-Acl C:\\Temp | Format-List",
+          "desc": "查看目录的完整权限信息"
+        },
+        {
+          "cmd": "Get-Acl C:\\Windows\\System32\\config\\SAM",
+          "desc": "查看受保护文件的权限，通常要管理员"
+        },
+        {
+          "cmd": "(Get-Acl C:\\Temp).Access | Format-Table",
+          "desc": "只列出权限条目，看得更清楚"
+        },
+        {
+          "cmd": "Get-Acl C:\\Windows\\System32\\config -Audit",
+          "desc": "同时读取系统访问控制策略中的审核规则"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Temp",
+          "hint": "要查看权限的文件或目录"
+        },
+        {
+          "token": "-Audit",
+          "label": "含审核规则",
+          "type": "flag",
+          "value": "false",
+          "hint": "一并读取审核项"
+        },
+        {
+          "token": "-AllCentralAccessPolicies",
+          "label": "中央访问策略",
+          "type": "flag",
+          "value": "false",
+          "hint": "获取所有中央访问策略信息"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要查看权限的文件、目录或注册表键",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要查看权限的一个或多个路径",
+          "valueHint": "文件或目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "文件或目录",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-InputObject",
+          "kind": "option",
+          "desc": "<对象>",
+          "valueHint": "直接指定要取权限的对象",
+          "children": [
+            {
+              "token": "<对象>",
+              "kind": "value",
+              "desc": "要查询权限的文件或目录对象",
+              "valueHint": "如 Get-Item C:\\Temp"
+            }
+          ]
+        },
+        {
+          "token": "-Audit",
+          "kind": "flag",
+          "desc": "同时读取系统访问控制列表中的审核规则"
+        },
+        {
+          "token": "-AllCentralAccessPolicies",
+          "kind": "flag",
+          "desc": "获取本机上所有中央访问策略"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "<通配符>",
+          "valueHint": "服务端通配符过滤",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 *.txt"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "<目录>",
+          "kind": "value",
+          "desc": "要查看权限的目录，例如 C:\\Temp",
+          "valueHint": "如 C:\\Temp"
+        }
+      ]
+    },
+    {
+      "name": "Set-Acl",
+      "aliases": [],
+      "title": "设置访问控制列表",
+      "desc": "把一份权限对象完整应用到目标文件或目录，覆盖原有的访问控制列表。通常先用 Get-Acl 取一份模板再套用，用于批量统一权限。改系统目录权限需要管理员权限，写错可能导致无法访问。",
+      "usage": "Set-Acl [-Path] <string[]> [-AclObject] <Object> [[-CentralAccessPolicy] <string>] [-ClearCentralAccessPolicy] [-Passthru] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "权限",
+        "ACL",
+        "高危"
+      ],
+      "examples": [
+        {
+          "cmd": "$acl = Get-Acl C:\\Temp\\source; Set-Acl C:\\Temp\\target $acl",
+          "desc": "先取一份权限当模板，再整体套用到目标目录"
+        },
+        {
+          "cmd": "Set-Acl -Path C:\\Temp -AclObject (Get-Acl C:\\Temp) -Passthru",
+          "desc": "应用权限并返回修改后的结果"
+        },
+        {
+          "cmd": "Set-Acl -LiteralPath C:\\Temp -AclObject (Get-Acl C:\\Temp) -ClearCentralAccessPolicy",
+          "desc": "应用权限时清掉中央访问策略"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "path",
+          "value": "C:\\Temp",
+          "hint": "要应用权限的目标路径"
+        },
+        {
+          "token": "-AclObject",
+          "label": "权限对象",
+          "type": "text",
+          "value": "$acl",
+          "hint": "由 Get-Acl 得到的权限对象"
+        },
+        {
+          "token": "-CentralAccessPolicy",
+          "label": "中央访问策略",
+          "type": "text",
+          "value": "",
+          "hint": "要应用的中央访问策略名称"
+        },
+        {
+          "token": "-ClearCentralAccessPolicy",
+          "label": "清除中央策略",
+          "type": "flag",
+          "value": "false",
+          "hint": "移除目标上的中央访问策略"
+        },
+        {
+          "token": "-Passthru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出应用后的权限对象"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要应用权限的目标路径",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "<权限对象>",
+          "kind": "value",
+          "desc": "要应用的 ACL 对象，通常来自 Get-Acl",
+          "valueHint": "ACL 对象"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要应用权限的目标路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-AclObject",
+          "kind": "option",
+          "desc": "要写入目标的权限对象",
+          "valueHint": "<ACL 对象>"
+        },
+        {
+          "token": "-InputObject",
+          "kind": "option",
+          "desc": "直接指定要改权限的对象，代替 -Path",
+          "valueHint": "<对象>"
+        },
+        {
+          "token": "-CentralAccessPolicy",
+          "kind": "option",
+          "desc": "为目标指定中央访问策略名称",
+          "valueHint": "<策略名>"
+        },
+        {
+          "token": "-ClearCentralAccessPolicy",
+          "kind": "flag",
+          "desc": "清除目标上已有的中央访问策略"
+        },
+        {
+          "token": "-Passthru",
+          "kind": "flag",
+          "desc": "返回应用权限后的安全描述符对象"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "name": "Get-ItemProperty",
+      "aliases": [
+        "gp"
+      ],
+      "title": "读取项目属性",
+      "desc": "读取注册表键里的值项，或者文件的属性字段，是把注册表内容取出来查看的主力命令。用 -Name 只看指定值项。读 HKLM 下的键一般不需要管理员权限。",
+      "usage": "Get-ItemProperty [-Path] <string[]> [[-Name] <string[]>] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "注册表",
+        "属性值",
+        "读取"
+      ],
+      "examples": [
+        {
+          "cmd": "Get-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+          "desc": "查看当前用户的开机启动项"
+        },
+        {
+          "cmd": "Get-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run -Name *One*",
+          "desc": "只取出系统版本名称这一个值"
+        },
+        {
+          "cmd": "(Get-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run).PSChildName",
+          "desc": "直接读取桌面壁纸的路径"
+        },
+        {
+          "cmd": "Get-ItemProperty C:\\Temp\\a.txt",
+          "desc": "查看该文件对象携带的属性字段"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "text",
+          "value": "HKCU:\\Software",
+          "hint": "注册表键或文件路径"
+        },
+        {
+          "token": "-Name",
+          "label": "值项名",
+          "type": "text",
+          "value": "",
+          "hint": "只看指定的属性名，支持通配符"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "只读取匹配的项目"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "跳过匹配的项目"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要读取属性的注册表键或文件路径",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "<值项名>",
+          "kind": "value",
+          "desc": "要读取的属性名称，支持通配符",
+          "valueHint": "属性名",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要读取属性的一个或多个路径",
+          "valueHint": "注册表键",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的路径",
+              "valueHint": "注册表键",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要处理的字面量路径",
+              "valueHint": "路径",
+              "repeatable": true
+            }
+          ]
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "<属性名>",
+          "valueHint": "只读取指定名称的属性值项",
+          "children": [
+            {
+              "token": "<属性名>",
+              "kind": "value",
+              "desc": "注册表值项名称，支持通配符",
+              "valueHint": "如 ProductName"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "<通配符>",
+          "valueHint": "服务端通配符过滤",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "服务端过滤通配符",
+              "valueHint": "如 *.txt"
+            }
+          ]
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要包含的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "children": [
+            {
+              "token": "<通配符>",
+              "kind": "value",
+              "desc": "要排除的通配符",
+              "valueHint": "如 *.txt"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>",
+          "children": [
+            {
+              "token": "<凭据>",
+              "kind": "value",
+              "desc": "由 Get-Credential 得到的凭据对象",
+              "valueHint": "PSCredential"
+            }
+          ]
+        },
+        {
+          "token": "<注册表键>",
+          "kind": "value",
+          "desc": "要读取的注册表路径，如 HKCU:\\Software",
+          "valueHint": "如 HKCU:\\Software"
+        }
+      ]
+    },
+    {
+      "name": "Set-ItemProperty",
+      "aliases": [
+        "sp"
+      ],
+      "title": "修改项目属性值",
+      "desc": "修改已存在的属性值，最常用于设置注册表值项和切换文件的只读属性。属性值项不存在时会报错，需要先用 New-ItemProperty 创建。改 HKLM 下的系统设置通常需要管理员权限。",
+      "usage": "Set-ItemProperty [-Path] <string[]> [-Name] <string> [-Value] <Object> [-PassThru] [-Force] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "注册表",
+        "修改属性",
+        "只读标记"
+      ],
+      "examples": [
+        {
+          "cmd": "Set-ItemProperty HKCU:\\Software\\Demo -Name Version -Value 3.0",
+          "desc": "修改注册表值项的取值"
+        },
+        {
+          "cmd": "Set-ItemProperty C:\\Temp\\a.txt -Name IsReadOnly -Value $true",
+          "desc": "把文件标记为只读，值为真则只读"
+        },
+        {
+          "cmd": "Set-ItemProperty C:\\Temp\\a.txt -Name IsReadOnly -Value $false -PassThru",
+          "desc": "取消只读标记并用 -PassThru 返回结果"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "text",
+          "value": "HKCU:\\Software\\Demo",
+          "hint": "要修改属性的路径"
+        },
+        {
+          "token": "-Name",
+          "label": "属性名",
+          "type": "text",
+          "value": "Version",
+          "hint": "要修改的属性或值项名称"
+        },
+        {
+          "token": "-Value",
+          "label": "新值",
+          "type": "text",
+          "value": "",
+          "hint": "该属性的新取值"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "连只读属性也一起修改"
+        },
+        {
+          "token": "-PassThru",
+          "label": "返回对象",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出修改后的属性对象"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要修改属性的路径，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "<属性名>",
+          "kind": "value",
+          "desc": "要修改的属性或注册表值项名称",
+          "valueHint": "属性名"
+        },
+        {
+          "token": "<新值>",
+          "kind": "value",
+          "desc": "分配给该属性的新值",
+          "valueHint": "值"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定要修改属性的一项或多项路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "要修改的属性或值项名称",
+          "valueHint": "<属性名>"
+        },
+        {
+          "token": "-Value",
+          "kind": "option",
+          "desc": "属性要设置成的新值",
+          "valueHint": "<值>"
+        },
+        {
+          "token": "-InputObject",
+          "kind": "option",
+          "desc": "用带属性的对象来批量设置，代替 -Name",
+          "valueHint": "<对象>"
+        },
+        {
+          "token": "-PassThru",
+          "kind": "flag",
+          "desc": "返回被修改的属性对象"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制修改只读属性"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "New-ItemProperty",
+      "aliases": [],
+      "title": "新建属性值项",
+      "desc": "在注册表键里新建一个值项，或用 -PropertyType 指定数据类型。同名值项已存在时会失败，需要加 -Force 覆盖。常见的类型有 String、DWord、ExpandString 和 MultiString。",
+      "usage": "New-ItemProperty [-Path] <string[]> [-Name] <string> [-PropertyType <string>] [-Value <Object>] [-Force] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "注册表",
+        "新建值",
+        "配置"
+      ],
+      "examples": [
+        {
+          "cmd": "New-ItemProperty -Path HKCU:\\Software\\Demo -Name Version -Value 1.0",
+          "desc": "在注册表键下新建一个字符串值项"
+        },
+        {
+          "cmd": "New-ItemProperty -Path HKCU:\\Software\\Demo -Name Count -PropertyType DWord -Value 3",
+          "desc": "新建一个 32 位整数类型的值项"
+        },
+        {
+          "cmd": "New-ItemProperty -Path HKCU:\\Software\\Demo -Name Version -Value 2.0 -Force",
+          "desc": "同名值项已存在时强制覆盖"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "text",
+          "value": "HKCU:\\Software\\Demo",
+          "hint": "要新建值项所在的路径"
+        },
+        {
+          "token": "-Name",
+          "label": "名称",
+          "type": "text",
+          "value": "Version",
+          "hint": "新值项的名称"
+        },
+        {
+          "token": "-PropertyType",
+          "label": "数据类型",
+          "type": "select",
+          "value": "String",
+          "hint": "注册表值项的数据类型",
+          "options": [
+            "String",
+            "ExpandString",
+            "Binary",
+            "DWord",
+            "MultiString",
+            "QWord",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-Value",
+          "label": "初始值",
+          "type": "text",
+          "value": "1.0",
+          "hint": "新值项的初始数据"
+        },
+        {
+          "token": "-Force",
+          "label": "强制覆盖",
+          "type": "flag",
+          "value": "false",
+          "hint": "同名值项已存在时直接覆盖"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要新建值项所在的路径",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "<名称>",
+          "kind": "value",
+          "desc": "新值项的名称，支持通配符",
+          "valueHint": "名称"
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定新值项所在的路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "新值项的名称",
+          "valueHint": "<名称>"
+        },
+        {
+          "token": "-PropertyType",
+          "kind": "option",
+          "desc": "值项的数据类型，例如 DWord",
+          "valueHint": "<类型>",
+          "enum": [
+            "String",
+            "ExpandString",
+            "Binary",
+            "DWord",
+            "MultiString",
+            "QWord",
+            "Unknown"
+          ]
+        },
+        {
+          "token": "-Value",
+          "kind": "option",
+          "desc": "新值项的初始数据",
+          "valueHint": "<值>"
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "同名值项已存在时强制覆盖"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Remove-ItemProperty",
+      "aliases": [
+        "rp"
+      ],
+      "title": "删除属性值项",
+      "desc": "从注册表键里删除指定的值项，或用 -Name 通配符批量删除。删除后该配置即失效，属于会改变系统配置的操作。值项不存在时会报错，可以先查一遍再删。",
+      "usage": "Remove-ItemProperty [-Path] <string[]> [-Name] <string[]> [-Force] [-Filter <string>] [-Include <string[]>] [-Exclude <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "注册表",
+        "删除值项",
+        "清理"
+      ],
+      "examples": [
+        {
+          "cmd": "Remove-ItemProperty -Path HKCU:\\Software\\Demo -Name Version",
+          "desc": "删掉注册表键下指定的值项"
+        },
+        {
+          "cmd": "Remove-ItemProperty -Path HKCU:\\Software\\Demo -Name Test*",
+          "desc": "用通配符批量删除一组值项"
+        },
+        {
+          "cmd": "Get-ItemProperty HKCU:\\Software\\Demo | Remove-ItemProperty -Name Version -Force",
+          "desc": "管道传入对象并强制删除该值项"
+        }
+      ],
+      "form": [
+        {
+          "token": "-Path",
+          "label": "路径",
+          "type": "text",
+          "value": "HKCU:\\Software\\Demo",
+          "hint": "值项所在的注册表键"
+        },
+        {
+          "token": "-Name",
+          "label": "名称",
+          "type": "text",
+          "value": "Version",
+          "hint": "要删除的值项名称，支持通配符"
+        },
+        {
+          "token": "-Force",
+          "label": "强制",
+          "type": "flag",
+          "value": "false",
+          "hint": "强制删除只读值项"
+        },
+        {
+          "token": "-Include",
+          "label": "包含",
+          "type": "text",
+          "value": "",
+          "hint": "只删除匹配的项目"
+        },
+        {
+          "token": "-Exclude",
+          "label": "排除",
+          "type": "text",
+          "value": "",
+          "hint": "跳过匹配的项目"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "值项所在的路径，支持通配符",
+          "valueHint": "路径",
+          "repeatable": true
+        },
+        {
+          "token": "<名称>",
+          "kind": "value",
+          "desc": "要删除的值项名称",
+          "valueHint": "名称",
+          "repeatable": true
+        },
+        {
+          "token": "-Path",
+          "kind": "option",
+          "desc": "指定值项所在的一项或多项路径",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-LiteralPath",
+          "kind": "option",
+          "desc": "按字面量解释路径，不展开通配符",
+          "valueHint": "<路径>",
+          "repeatable": true
+        },
+        {
+          "token": "-Name",
+          "kind": "option",
+          "desc": "要删除的值项名称，支持通配符",
+          "valueHint": "<名称>",
+          "repeatable": true
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "强制删除只读的值项"
+        },
+        {
+          "token": "-Filter",
+          "kind": "option",
+          "desc": "服务端通配符过滤",
+          "valueHint": "<通配符>"
+        },
+        {
+          "token": "-Include",
+          "kind": "option",
+          "desc": "只处理匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Exclude",
+          "kind": "option",
+          "desc": "跳过匹配的项目",
+          "valueHint": "<通配符>",
+          "repeatable": true
+        },
+        {
+          "token": "-Credential",
+          "kind": "option",
+          "desc": "指定执行操作的凭据",
+          "valueHint": "<凭据>"
+        }
+      ]
+    },
+    {
+      "name": "Clear-RecycleBin",
+      "aliases": [],
+      "title": "清空回收站",
+      "desc": "永久删除回收站里的内容，释放磁盘空间。可以用 -DriveLetter 只清理指定分区。清空之后无法通过回收站还原，执行前务必确认。",
+      "usage": "Clear-RecycleBin [[-DriveLetter] <string[]>] [-Force]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "回收站",
+        "清理",
+        "高危"
+      ],
+      "examples": [
+        {
+          "cmd": "Clear-RecycleBin -Force",
+          "desc": "清空所有驱动器的回收站且不再询问"
+        },
+        {
+          "cmd": "Clear-RecycleBin -DriveLetter C -Force",
+          "desc": "只清空 C 盘的回收站"
+        },
+        {
+          "cmd": "Clear-RecycleBin -DriveLetter C,D -Force",
+          "desc": "一次清空多个分区的回收站"
+        }
+      ],
+      "form": [
+        {
+          "token": "-DriveLetter",
+          "label": "盘符",
+          "type": "text",
+          "value": "C",
+          "hint": "只清理指定分区，多个用逗号分隔"
+        },
+        {
+          "token": "-Force",
+          "label": "不再确认",
+          "type": "flag",
+          "value": "false",
+          "hint": "跳过确认提示直接清空"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要清空的驱动器盘符，例如 C",
+          "valueHint": "盘符",
+          "repeatable": true
+        },
+        {
+          "token": "-DriveLetter",
+          "kind": "option",
+          "desc": "指定要清空回收站的驱动器盘符",
+          "valueHint": "<盘符>",
+          "children": [
+            {
+              "token": "<盘符>",
+              "kind": "value",
+              "desc": "驱动器字母，不带冒号",
+              "valueHint": "如 C"
+            },
+            {
+              "token": "<盘符列表>",
+              "kind": "value",
+              "desc": "多个盘符用逗号分隔",
+              "valueHint": "如 C,D"
+            }
+          ],
+          "repeatable": true
+        },
+        {
+          "token": "-Force",
+          "kind": "flag",
+          "desc": "不再弹出确认提示，直接清空"
+        },
+        {
+          "token": "<单个盘符>",
+          "kind": "value",
+          "desc": "只清空一个分区的回收站",
+          "valueHint": "如 C"
+        },
+        {
+          "token": "<多个盘符>",
+          "kind": "value",
+          "desc": "一次清空多个分区的回收站",
+          "valueHint": "如 C,D"
+        },
+        {
+          "token": "<系统盘>",
+          "kind": "value",
+          "desc": "安装了系统的分区，通常是 C",
+          "valueHint": "如 C"
+        },
+        {
+          "token": "<数据盘>",
+          "kind": "value",
+          "desc": "存放个人数据的分区",
+          "valueHint": "如 D"
+        },
+        {
+          "token": "<可移动盘>",
+          "kind": "value",
+          "desc": "U 盘等可移动介质的分区",
+          "valueHint": "如 E"
+        },
+        {
+          "token": "<全部分区>",
+          "kind": "value",
+          "desc": "省略盘符即清空所有分区的回收站",
+          "valueHint": "所有驱动器"
+        },
+        {
+          "token": "<无盘符>",
+          "kind": "value",
+          "desc": "不写盘符时对所有驱动器生效",
+          "valueHint": "留空"
+        }
+      ]
+    }
+  ]
+}

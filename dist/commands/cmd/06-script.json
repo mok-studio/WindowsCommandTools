@@ -1,0 +1,3513 @@
+{
+  "schema": 1,
+  "category": "命令解释器与批处理",
+  "icon": "script",
+  "commands": [
+    {
+      "name": "cmd",
+      "title": "启动新的命令解释器",
+      "desc": "启动一个新的 cmd.exe 实例，可以执行一条命令后立刻退出，也可以保留窗口继续交互。批处理里常用 cmd /c 调用子环境，用 /v:on 打开延迟变量扩展来解决同一行取不到新变量的问题。",
+      "usage": "cmd [/a|/u] [/q] [/d] [/e:on|/e:off] [/f:on|/f:off] [/v:on|/v:off] [/s] [/c|/k] 命令",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "命令行",
+        "解释器",
+        "子进程",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "cmd /c dir /b",
+          "desc": "在子解释器里执行 dir /b，执行完立即退出"
+        },
+        {
+          "cmd": "cmd /k cd /d D:\\",
+          "desc": "切换到 D 盘盘符并保留窗口继续操作"
+        },
+        {
+          "cmd": "cmd /v:on /c \"set N=1 & echo !N!\"",
+          "desc": "开启延迟变量扩展，同一行里也能读到刚设置的变量"
+        },
+        {
+          "cmd": "cmd /q /c echo off 测试",
+          "desc": "以关闭回显的方式执行一条命令"
+        }
+      ],
+      "form": [
+        {
+          "token": "/c",
+          "label": "执行后退出",
+          "type": "flag",
+          "value": "false",
+          "hint": "执行命令后关闭新实例"
+        },
+        {
+          "token": "/k",
+          "label": "执行后保留",
+          "type": "flag",
+          "value": "false",
+          "hint": "执行命令后保留新窗口"
+        },
+        {
+          "token": "/v:on",
+          "label": "延迟扩展",
+          "type": "flag",
+          "value": "false",
+          "hint": "用 !变量! 在运行时取值"
+        },
+        {
+          "token": "",
+          "label": "命令字符串",
+          "type": "text",
+          "value": "echo hello",
+          "hint": "交给新解释器执行的命令"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/c",
+          "kind": "flag",
+          "desc": "执行后面的命令字符串，然后立即结束",
+          "children": [
+            {
+              "token": "<命令>",
+              "kind": "value",
+              "desc": "要执行的完整命令，含空格时用引号括起",
+              "valueHint": "echo hello",
+              "children": [
+                {
+                  "token": "&",
+                  "kind": "subcommand",
+                  "desc": "在同一命令行里顺序执行多条命令"
+                },
+                {
+                  "token": "&&",
+                  "kind": "subcommand",
+                  "desc": "前一条命令成功后再执行后一条"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/k",
+          "kind": "flag",
+          "desc": "执行命令后不退出，保留新窗口与现场",
+          "children": [
+            {
+              "token": "<命令>",
+              "kind": "value",
+              "desc": "执行后仍停留在新窗口里的命令",
+              "valueHint": "cd /d D:\\work"
+            }
+          ]
+        },
+        {
+          "token": "/a",
+          "kind": "flag",
+          "desc": "输出到管道或文件时使用 ANSI 编码"
+        },
+        {
+          "token": "/u",
+          "kind": "flag",
+          "desc": "输出到管道或文件时使用 Unicode 编码"
+        },
+        {
+          "token": "/q",
+          "kind": "flag",
+          "desc": "关闭命令回显"
+        },
+        {
+          "token": "/d",
+          "kind": "flag",
+          "desc": "跳过注册表里配置的 AutoRun 命令"
+        },
+        {
+          "token": "/s",
+          "kind": "flag",
+          "desc": "修改 /c 或 /k 后面字符串的引号处理方式"
+        },
+        {
+          "token": "/e:",
+          "kind": "option",
+          "desc": "启用或禁用命令扩展，默认启用",
+          "valueHint": "on 或 off",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/f:",
+          "kind": "option",
+          "desc": "启用或禁用文件名与目录名补全字符",
+          "valueHint": "on 或 off",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/v:",
+          "kind": "option",
+          "desc": "启用或禁用延迟环境变量扩展",
+          "valueHint": "on 或 off",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/t:",
+          "kind": "option",
+          "desc": "设置新窗口的前景色与背景色",
+          "valueHint": "fg，例如 0a"
+        }
+      ]
+    },
+    {
+      "name": "echo",
+      "title": "显示文本或开关回显",
+      "desc": "输出文本、变量或空行，也用来打开和关闭批处理的命令回显。@echo off 几乎出现在每个批处理的第一行；要输出空行必须写 echo. 而不是单独的 echo，后者会显示当前的回显状态。",
+      "usage": "echo [on|off] 或 echo [文本] 或 echo.",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "输出",
+        "回显",
+        "批处理",
+        "重定向"
+      ],
+      "examples": [
+        {
+          "cmd": "@echo off",
+          "desc": "关闭后续命令的回显，常放在批处理第一行"
+        },
+        {
+          "cmd": "echo 当前目录是 %cd%",
+          "desc": "输出环境变量 %cd% 的当前值"
+        },
+        {
+          "cmd": "echo.",
+          "desc": "输出一个空行，只能写成 echo. 这种形式"
+        },
+        {
+          "cmd": "echo 你好 > hello.txt",
+          "desc": "把一句文本写入文件，原有内容会被覆盖"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "输出内容",
+          "type": "text",
+          "value": "处理完成",
+          "hint": "要显示的文本或 %变量%"
+        },
+        {
+          "token": ">",
+          "label": "写入文件",
+          "type": "path",
+          "value": "",
+          "hint": "留空则只输出到屏幕"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "on",
+          "kind": "value",
+          "desc": "打开命令回显，显示每条被执行的命令",
+          "valueHint": "on"
+        },
+        {
+          "token": "off",
+          "kind": "value",
+          "desc": "关闭命令回显，只显示执行结果",
+          "valueHint": "off"
+        },
+        {
+          "token": "<文本>",
+          "kind": "value",
+          "desc": "原样显示的文字，可以包含空格",
+          "valueHint": "任意文本"
+        },
+        {
+          "token": "%变量%",
+          "kind": "syntax",
+          "desc": "输出环境变量的值，如 %cd%",
+          "valueHint": "%cd%"
+        },
+        {
+          "token": "@",
+          "kind": "flag",
+          "desc": "只关闭当前这一行的回显"
+        },
+        {
+          "token": ".",
+          "kind": "flag",
+          "desc": "输出一个空行，点和 echo 之间不能有空格"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把输出写入文件，覆盖原有内容",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": ">>",
+          "kind": "option",
+          "desc": "把输出追加到文件末尾",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把输出通过管道交给下一条命令",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": ">nul",
+          "kind": "option",
+          "desc": "丢弃输出，屏幕上什么都不显示",
+          "valueHint": "nul"
+        }
+      ]
+    },
+    {
+      "name": "set",
+      "title": "查看与设置环境变量",
+      "desc": "显示、设置或删除环境变量，还能做整数运算和读取用户输入。/a 把等号右侧当表达式计算，/p 读取一行输入，%变量:~起始,长度% 可以截取子串。变量只对当前进程有效，窗口关闭就消失。",
+      "usage": "set [变量=[值]] 或 set /a 变量=表达式 或 set /p 变量=[提示文字]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "变量",
+        "赋值",
+        "字符串处理",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "set",
+          "desc": "列出当前全部环境变量及其值"
+        },
+        {
+          "cmd": "set PATH",
+          "desc": "只显示名字以 PATH 开头的变量"
+        },
+        {
+          "cmd": "set /a total=3*7+1",
+          "desc": "计算表达式并把结果赋给 total，命令本身也会输出结果"
+        },
+        {
+          "cmd": "set /p ans=请输入内容: ",
+          "desc": "等待用户输入一行并保存到 ans"
+        },
+        {
+          "cmd": "set NAME=",
+          "desc": "等号后留空表示删除这个变量"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "变量名",
+          "type": "text",
+          "value": "MYNAME",
+          "hint": "不含空格，建议用大写"
+        },
+        {
+          "token": "=",
+          "label": "变量值",
+          "type": "text",
+          "value": "Tom",
+          "hint": "等号两侧都不要加空格"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<变量名>",
+          "kind": "value",
+          "desc": "要查看或设置的变量名",
+          "valueHint": "MYNAME"
+        },
+        {
+          "token": "<值>",
+          "kind": "value",
+          "desc": "变量内容，含空格时用引号包裹",
+          "valueHint": "文本"
+        },
+        {
+          "token": "<变量>=",
+          "kind": "value",
+          "desc": "等号后留空即删除这个变量",
+          "valueHint": "MYNAME="
+        },
+        {
+          "token": "=",
+          "kind": "subcommand",
+          "desc": "赋值符号，等号两边不要加空格"
+        },
+        {
+          "token": "/a",
+          "kind": "flag",
+          "desc": "把等号右侧当作整数表达式计算",
+          "children": [
+            {
+              "token": "<变量>",
+              "kind": "value",
+              "desc": "接收计算结果的变量名",
+              "valueHint": "total",
+              "children": [
+                {
+                  "token": "<表达式>",
+                  "kind": "value",
+                  "desc": "支持加减乘除、取余、括号和位运算",
+                  "valueHint": "3*7+1"
+                },
+                {
+                  "token": "=",
+                  "kind": "subcommand",
+                  "desc": "赋值符号，两侧不要留空格"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/p",
+          "kind": "flag",
+          "desc": "读取用户输入的一行文本存入变量",
+          "children": [
+            {
+              "token": "<变量>",
+              "kind": "value",
+              "desc": "保存输入内容的变量名",
+              "valueHint": "ans",
+              "children": [
+                {
+                  "token": "<提示文字>",
+                  "kind": "value",
+                  "desc": "光标前显示的提示语，可以省略",
+                  "valueHint": "请输入: "
+                },
+                {
+                  "token": "=",
+                  "kind": "subcommand",
+                  "desc": "变量名与提示文字之间的等号"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": ":~",
+          "kind": "option",
+          "desc": "截取子串，写法 %变量:~起始,长度%",
+          "valueHint": "0,3"
+        },
+        {
+          "token": ":",
+          "kind": "option",
+          "desc": "字符串替换，写法 %变量:旧=新%",
+          "valueHint": "旧=新"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示帮助以及完整的替换语法说明"
+        }
+      ]
+    },
+    {
+      "name": "setx",
+      "title": "永久写入环境变量",
+      "desc": "把环境变量写进注册表，之后新开的窗口都会生效，但当前窗口不会立刻生效。默认写入当前用户，加 /m 写入系统级需要管理员权限。值过长（超过 1024 字符）时会被截断。",
+      "usage": "setx [/s 计算机 [/u 用户 [/p 密码]]] 变量 值 [/m]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "环境变量",
+        "永久生效",
+        "注册表"
+      ],
+      "examples": [
+        {
+          "cmd": "setx TOOLS_HOME D:\\Tools",
+          "desc": "把 TOOLS_HOME 永久写入当前用户环境变量"
+        },
+        {
+          "cmd": "setx PATH \"%PATH%;D:\\Tools\\bin\"",
+          "desc": "在原有 PATH 基础上追加一个目录，新窗口生效"
+        },
+        {
+          "cmd": "setx MYVAR hello /m",
+          "desc": "写入系统级变量，需要管理员权限"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "变量名",
+          "type": "text",
+          "value": "MYVAR",
+          "hint": "要创建或修改的变量名"
+        },
+        {
+          "token": "",
+          "label": "变量值",
+          "type": "text",
+          "value": "hello",
+          "hint": "写入注册表的值"
+        },
+        {
+          "token": "/m",
+          "label": "系统级",
+          "type": "flag",
+          "value": "false",
+          "hint": "写入 HKLM，需要管理员权限"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<变量>",
+          "kind": "value",
+          "desc": "要创建或修改的环境变量名",
+          "valueHint": "MYVAR"
+        },
+        {
+          "token": "<值>",
+          "kind": "value",
+          "desc": "要写入的变量内容",
+          "valueHint": "hello"
+        },
+        {
+          "token": "/m",
+          "kind": "flag",
+          "desc": "写入系统级环境变量，需要管理员权限"
+        },
+        {
+          "token": "/s",
+          "kind": "option",
+          "desc": "对远程计算机设置变量",
+          "valueHint": "<计算机名>"
+        },
+        {
+          "token": "/u",
+          "kind": "option",
+          "desc": "远程操作使用的用户账户",
+          "valueHint": "[域\\]用户"
+        },
+        {
+          "token": "/p",
+          "kind": "option",
+          "desc": "远程操作使用的密码，省略时会提示输入",
+          "valueHint": "<密码>"
+        },
+        {
+          "token": "/k",
+          "kind": "option",
+          "desc": "用注册表里的某个键值作为变量内容",
+          "valueHint": "注册表路径"
+        },
+        {
+          "token": "/f",
+          "kind": "option",
+          "desc": "从文本文件里按行列坐标取值",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/a",
+          "kind": "option",
+          "desc": "绝对坐标：第 x 行第 y 项",
+          "valueHint": "x,y"
+        },
+        {
+          "token": "/r",
+          "kind": "option",
+          "desc": "相对坐标：以某个字符串为基准定位",
+          "valueHint": "x,y 字符串"
+        },
+        {
+          "token": "/x",
+          "kind": "flag",
+          "desc": "配合 /f 显示文件内容及其坐标"
+        },
+        {
+          "token": "/d",
+          "kind": "option",
+          "desc": "为 /f 指定附加的分隔符",
+          "valueHint": "<分隔符>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示完整的参数说明与示例"
+        }
+      ]
+    },
+    {
+      "name": "setlocal",
+      "title": "开启局部环境作用域",
+      "desc": "进入局部环境，之后用 set 改的变量和用 cd 切换的目录都会在 endlocal 或脚本结束时自动还原。写循环时通常配合 enabledelayedexpansion，让 !变量! 在运行时才展开。",
+      "usage": "setlocal [enableextensions|disableextensions] [enabledelayedexpansion|disabledelayedexpansion]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "局部变量",
+        "作用域",
+        "延迟扩展"
+      ],
+      "examples": [
+        {
+          "cmd": "setlocal enabledelayedexpansion",
+          "desc": "开启局部作用域并启用延迟变量扩展"
+        },
+        {
+          "cmd": "cmd /v:on /c \"set T=1 & echo !T!\"",
+          "desc": "延迟扩展必须在新的一行或 /v:on 的子解释器里才生效"
+        },
+        {
+          "cmd": "setlocal & cd /d %TEMP% & endlocal",
+          "desc": "局部作用域里切换目录，endlocal 后自动还原"
+        }
+      ],
+      "form": [
+        {
+          "token": "enabledelayedexpansion",
+          "label": "延迟扩展",
+          "type": "flag",
+          "value": "false",
+          "hint": "循环里用 !变量! 取值必备"
+        },
+        {
+          "token": "enableextensions",
+          "label": "命令扩展",
+          "type": "flag",
+          "value": "false",
+          "hint": "默认已启用，一般不用写"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "enabledelayedexpansion",
+          "kind": "value",
+          "desc": "启用延迟变量扩展，循环里用 !变量!",
+          "valueHint": "enabledelayedexpansion"
+        },
+        {
+          "token": "disabledelayedexpansion",
+          "kind": "value",
+          "desc": "禁用延迟变量扩展",
+          "valueHint": "disabledelayedexpansion"
+        },
+        {
+          "token": "enableextensions",
+          "kind": "value",
+          "desc": "启用命令扩展，默认就是启用状态",
+          "valueHint": "enableextensions"
+        },
+        {
+          "token": "disableextensions",
+          "kind": "value",
+          "desc": "禁用命令扩展",
+          "valueHint": "disableextensions"
+        },
+        {
+          "token": "!变量!",
+          "kind": "value",
+          "desc": "延迟引用，执行到该命令时才展开取值",
+          "valueHint": "!var!"
+        },
+        {
+          "token": "endlocal",
+          "kind": "subcommand",
+          "desc": "结束对应的局部作用域并还原设置"
+        },
+        {
+          "token": "set",
+          "kind": "subcommand",
+          "desc": "在局部作用域内修改的变量会被自动还原"
+        },
+        {
+          "token": "cd",
+          "kind": "subcommand",
+          "desc": "作用域内切换的目录同样会被还原"
+        },
+        {
+          "token": "%变量%",
+          "kind": "syntax",
+          "desc": "普通引用，整行解析时就已经展开",
+          "valueHint": "%var%"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明与可选参数"
+        }
+      ]
+    },
+    {
+      "name": "endlocal",
+      "title": "结束局部环境作用域",
+      "desc": "结束由 setlocal 开启的局部环境，把变量和当前目录还原到 setlocal 之前的状态。批处理结束时系统会自动执行一次，所以通常不用手写，但要把局部值带出去就必须在 endlocal 之前先保存。",
+      "usage": "endlocal",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "局部变量",
+        "作用域",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "endlocal",
+          "desc": "结束局部作用域，变量与当前目录还原到 setlocal 之前"
+        },
+        {
+          "cmd": "endlocal & set GLOBAL=1",
+          "desc": "先还原环境再设置全局变量，这个值不会被还原"
+        },
+        {
+          "cmd": "setlocal & set TMP=1 & endlocal",
+          "desc": "作用域内的临时变量在 endlocal 之后消失"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "无需参数",
+          "type": "text",
+          "value": "",
+          "hint": "该命令不接受参数，直接执行即可"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "同一行连接后续命令，常见写法 endlocal & set 全局=%局部%"
+        },
+        {
+          "token": "set",
+          "kind": "subcommand",
+          "desc": "先把局部变量的值带出去，再结束作用域"
+        },
+        {
+          "token": "setlocal",
+          "kind": "subcommand",
+          "desc": "与之配对的开始语句，必须成对出现"
+        },
+        {
+          "token": "exit /b",
+          "kind": "subcommand",
+          "desc": "退出批处理或子过程时会自动结束局部作用域"
+        },
+        {
+          "token": "goto :eof",
+          "kind": "subcommand",
+          "desc": "跳到脚本末尾，同样触发自动还原"
+        },
+        {
+          "token": "call",
+          "kind": "subcommand",
+          "desc": "被调用的子过程拥有自己独立的局部作用域"
+        },
+        {
+          "token": "%变量%",
+          "kind": "syntax",
+          "desc": "取值必须写在 endlocal 之前，之后已被还原",
+          "valueHint": "%var%"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的帮助说明"
+        }
+      ]
+    },
+    {
+      "name": "if",
+      "title": "条件判断与分支",
+      "desc": "根据条件决定执行哪条命令，支持比较字符串、比较数字、判断文件是否存在和判断返回码。写括号块时左括号前必须有空格，else 必须和右括号写在同一行，否则会报语法错误。",
+      "usage": "if [not] <条件> (命令) else (命令)",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "条件",
+        "分支",
+        "判断",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "if exist C:\\Windows (echo 存在) else (echo 不存在)",
+          "desc": "判断目录是否存在并输出结果"
+        },
+        {
+          "cmd": "if /i \"a\"==\"A\" echo 忽略大小写后相等",
+          "desc": "字符串比较时忽略大小写"
+        },
+        {
+          "cmd": "if %errorlevel% equ 0 (echo 成功) else (echo 失败)",
+          "desc": "根据上一条命令的返回码分支"
+        },
+        {
+          "cmd": "if defined PATH echo PATH 变量已经定义",
+          "desc": "判断环境变量是否已经定义"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "条件",
+          "type": "text",
+          "value": "exist C:\\Windows",
+          "hint": "如 exist 文件、%errorlevel% equ 0"
+        },
+        {
+          "token": "",
+          "label": "成立时执行",
+          "type": "text",
+          "value": "(echo 存在)",
+          "hint": "多条命令用括号包住"
+        },
+        {
+          "token": "else",
+          "label": "否则执行",
+          "type": "text",
+          "value": "(echo 不存在)",
+          "hint": "留空则不生成 else 分支"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "exist",
+          "kind": "subcommand",
+          "desc": "判断文件或目录是否存在",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "文件或目录路径，含空格时用引号括起",
+              "valueHint": "C:\\Windows\\win.ini"
+            }
+          ]
+        },
+        {
+          "token": "defined",
+          "kind": "subcommand",
+          "desc": "判断环境变量是否已经定义",
+          "children": [
+            {
+              "token": "<变量名>",
+              "kind": "value",
+              "desc": "要检查的变量名，不需要写百分号",
+              "valueHint": "PATH"
+            }
+          ]
+        },
+        {
+          "token": "errorlevel",
+          "kind": "subcommand",
+          "desc": "上一条命令的返回码大于等于该值时成立",
+          "children": [
+            {
+              "token": "<数字>",
+              "kind": "value",
+              "desc": "0 表示成功，非 0 表示失败或异常",
+              "valueHint": "0"
+            }
+          ]
+        },
+        {
+          "token": "cmdextversion",
+          "kind": "subcommand",
+          "desc": "命令扩展版本号大于等于该值时成立",
+          "children": [
+            {
+              "token": "<版本号>",
+              "kind": "value",
+              "desc": "现代 Windows 通常是 2",
+              "valueHint": "2"
+            }
+          ]
+        },
+        {
+          "token": "==",
+          "kind": "subcommand",
+          "desc": "字符串完全相等比较，两侧建议都加引号",
+          "children": [
+            {
+              "token": "<字符串>",
+              "kind": "value",
+              "desc": "要比较的另一个字符串",
+              "valueHint": "yes"
+            }
+          ]
+        },
+        {
+          "token": "(",
+          "kind": "subcommand",
+          "desc": "命令组开始括号，括号前必须有空格",
+          "children": [
+            {
+              "token": "<命令>",
+              "kind": "value",
+              "desc": "条件成立时要执行的命令",
+              "valueHint": "echo 成立"
+            }
+          ]
+        },
+        {
+          "token": ")",
+          "kind": "subcommand",
+          "desc": "命令组结束括号，else 要写在它后面"
+        },
+        {
+          "token": "else",
+          "kind": "subcommand",
+          "desc": "条件不成立时执行，必须与右括号同一行",
+          "children": [
+            {
+              "token": "<命令>",
+              "kind": "value",
+              "desc": "条件不成立时执行的命令",
+              "valueHint": "echo 不成立"
+            },
+            {
+              "token": "(",
+              "kind": "subcommand",
+              "desc": "else 后面的命令组开始括号"
+            }
+          ]
+        },
+        {
+          "token": "else if",
+          "kind": "subcommand",
+          "desc": "继续判断下一个条件，用来实现多分支"
+        },
+        {
+          "token": "not",
+          "kind": "flag",
+          "desc": "对条件取反，条件不成立时才执行"
+        },
+        {
+          "token": "/i",
+          "kind": "flag",
+          "desc": "字符串比较时忽略大小写"
+        },
+        {
+          "token": "equ",
+          "kind": "option",
+          "desc": "数值相等比较",
+          "valueHint": "<数字>"
+        },
+        {
+          "token": "neq",
+          "kind": "option",
+          "desc": "数值不相等比较",
+          "valueHint": "<数字>"
+        },
+        {
+          "token": "lss",
+          "kind": "option",
+          "desc": "数值小于比较",
+          "valueHint": "<数字>"
+        },
+        {
+          "token": "leq",
+          "kind": "option",
+          "desc": "数值小于或等于比较",
+          "valueHint": "<数字>"
+        },
+        {
+          "token": "gtr",
+          "kind": "option",
+          "desc": "数值大于比较",
+          "valueHint": "<数字>"
+        },
+        {
+          "token": "geq",
+          "kind": "option",
+          "desc": "数值大于或等于比较",
+          "valueHint": "<数字>"
+        }
+      ]
+    },
+    {
+      "name": "for",
+      "title": "批处理循环与逐行处理",
+      "desc": "在批处理中对文件集合、目录、命令输出或文本逐项执行操作。是 cmd 里最强大的语法，配合 /f 可以逐行解析文本和 CSV。",
+      "usage": "for [/d|/r|/l|/f] [选项] %变量 in (集合) do 命令",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "循环",
+        "批处理",
+        "文本解析"
+      ],
+      "examples": [
+        {
+          "cmd": "for %i in (*.txt) do echo %i",
+          "desc": "列出当前目录下所有 txt 文件名"
+        },
+        {
+          "cmd": "for /f \"tokens=1,2 delims=,\" %i in (data.csv) do @echo %i %j",
+          "desc": "按逗号切分 CSV，取前两列"
+        }
+      ],
+      "form": [
+        {
+          "token": "/f",
+          "label": "逐行解析",
+          "type": "flag",
+          "value": "false",
+          "hint": "解析文件或命令输出"
+        },
+        {
+          "token": "",
+          "label": "集合",
+          "type": "text",
+          "value": "(*.txt)",
+          "hint": "文件集合或 (命令)"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<变量>",
+          "kind": "value",
+          "desc": "循环变量，批处理中用 %%i，命令行中用 %i",
+          "valueHint": "%i 或 %%i"
+        },
+        {
+          "token": "in",
+          "kind": "subcommand",
+          "desc": "指定要遍历的集合",
+          "children": [
+            {
+              "token": "(集合)",
+              "kind": "value",
+              "desc": "文件通配符、目录或 (命令)",
+              "valueHint": "(集合)"
+            },
+            {
+              "token": "do",
+              "kind": "subcommand",
+              "desc": "对每一项执行的命令",
+              "children": [
+                {
+                  "token": "<命令>",
+                  "kind": "value",
+                  "desc": "要重复执行的命令，%i 代表当前项",
+                  "valueHint": "<命令>"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/d",
+          "kind": "flag",
+          "desc": "只遍历目录名，不遍历文件名"
+        },
+        {
+          "token": "/r",
+          "kind": "flag",
+          "desc": "递归遍历指定目录及其所有子目录"
+        },
+        {
+          "token": "/l",
+          "kind": "flag",
+          "desc": "按起始值、步长、结束值生成序列循环"
+        },
+        {
+          "token": "/f",
+          "kind": "flag",
+          "desc": "逐行解析文件、字符串或命令输出"
+        },
+        {
+          "token": "tokens=",
+          "kind": "option",
+          "desc": "配合 /f 取第几列，可用 1,2 或 1-3",
+          "valueHint": "<列号>"
+        },
+        {
+          "token": "delims=",
+          "kind": "option",
+          "desc": "配合 /f 指定分隔符集合",
+          "valueHint": "<分隔符>"
+        },
+        {
+          "token": "skip=",
+          "kind": "option",
+          "desc": "配合 /f 跳过开头若干行",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "eol=",
+          "kind": "option",
+          "desc": "配合 /f 指定行尾注释字符",
+          "valueHint": "<字符>"
+        },
+        {
+          "token": "usebackq",
+          "kind": "flag",
+          "desc": "允许用反引号执行命令、单引号作字符串"
+        }
+      ]
+    },
+    {
+      "name": "goto",
+      "title": "跳转到标签继续执行",
+      "desc": "跳转到批处理里的 :标签 处继续执行，是实现循环和分支的基础。标签要单独占一行并以冒号开头，用 goto :eof 可以立即结束当前脚本或从子过程返回。",
+      "usage": "goto <标签> 或 goto :eof",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "跳转",
+        "标签",
+        "流程控制"
+      ],
+      "examples": [
+        {
+          "cmd": "goto :eof",
+          "desc": "立即结束当前批处理，或从子过程返回到调用处"
+        },
+        {
+          "cmd": "goto install",
+          "desc": "无条件跳到 :install 标签处继续执行"
+        },
+        {
+          "cmd": "if not exist config.ini goto :create",
+          "desc": "配置文件不存在就跳到创建分支"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标标签",
+          "type": "text",
+          "value": ":eof",
+          "hint": "写 :eof 表示结束当前脚本"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<标签>",
+          "kind": "value",
+          "desc": "要跳转到的标签名，冒号可以省略",
+          "valueHint": "install"
+        },
+        {
+          "token": ":eof",
+          "kind": "value",
+          "desc": "跳到当前批处理文件末尾，常用于提前结束",
+          "valueHint": ":eof"
+        },
+        {
+          "token": ":",
+          "kind": "subcommand",
+          "desc": "标签定义前缀，标签必须单独占一行"
+        },
+        {
+          "token": "call",
+          "kind": "subcommand",
+          "desc": "用 call :标签 调用子过程，执行到 goto :eof 返回"
+        },
+        {
+          "token": "exit /b",
+          "kind": "subcommand",
+          "desc": "在子过程里返回，并可带上返回码"
+        },
+        {
+          "token": "if",
+          "kind": "subcommand",
+          "desc": "配合 if 实现条件跳转"
+        },
+        {
+          "token": "set /p",
+          "kind": "subcommand",
+          "desc": "常用来写交互菜单：读入选择后再跳转"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        }
+      ]
+    },
+    {
+      "name": "call",
+      "title": "调用批处理或子过程",
+      "desc": "在一个批处理里调用另一个批处理文件，或调用本文件内部的 :标签 子过程，被调用者执行完会回到调用处继续。和直接运行脚本不同，call 不会把控制权交出去。",
+      "usage": "call [驱动器:][路径]脚本 [参数] 或 call :标签 [参数]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "子过程",
+        "调用",
+        "参数",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "call other.bat arg1 arg2",
+          "desc": "调用另一个批处理并把两个参数传过去"
+        },
+        {
+          "cmd": "call :sub 你好",
+          "desc": "调用本文件中的 :sub 子过程并传入一个参数"
+        },
+        {
+          "cmd": "call set /a n=1+1",
+          "desc": "用 call 做二次解析，让赋值在同一条命令里完成"
+        },
+        {
+          "cmd": "call :show %*",
+          "desc": "把当前脚本的全部参数原样转交给子过程"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标",
+          "type": "text",
+          "value": ":sub",
+          "hint": ":标签 或 另一个 bat 文件"
+        },
+        {
+          "token": "",
+          "label": "参数",
+          "type": "text",
+          "value": "",
+          "hint": "用空格分隔，子过程里用 %1 %2 读取"
+        }
+      ],
+      "nodes": [
+        {
+          "token": ":<标签>",
+          "kind": "value",
+          "desc": "调用本文件内的标签子过程",
+          "valueHint": ":sub"
+        },
+        {
+          "token": "<脚本>",
+          "kind": "value",
+          "desc": "要调用的批处理文件路径",
+          "valueHint": "other.bat"
+        },
+        {
+          "token": "<参数>",
+          "kind": "value",
+          "desc": "传给脚本或子过程的参数，用空格分隔",
+          "valueHint": "arg1 arg2"
+        },
+        {
+          "token": "goto :eof",
+          "kind": "subcommand",
+          "desc": "子过程末尾返回调用处"
+        },
+        {
+          "token": "exit /b",
+          "kind": "subcommand",
+          "desc": "返回调用处并可设置 errorlevel"
+        },
+        {
+          "token": "shift",
+          "kind": "subcommand",
+          "desc": "在子过程里逐个处理数量不定的参数"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "%1",
+          "kind": "syntax",
+          "desc": "子过程里引用第一个参数",
+          "valueHint": "%1"
+        },
+        {
+          "token": "%*",
+          "kind": "syntax",
+          "desc": "脚本收到的全部参数，可一次性转发",
+          "valueHint": "%*"
+        },
+        {
+          "token": "%~",
+          "kind": "option",
+          "desc": "参数修饰符，如 %~nx1 只取文件名和扩展名",
+          "valueHint": "f|d|p|n|x"
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "title": "启动程序或打开窗口",
+      "desc": "在新窗口或后台启动程序、打开文档或网址，默认不等待它结束，是并行执行任务的主要手段。第一个引号参数会被当成窗口标题，所以打开带空格路径的文件时要先写一对空引号占位。",
+      "usage": "start [\"标题\"] [/d 目录] [/min|/max] [/wait] [/b] 程序 [参数]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "启动程序",
+        "新窗口",
+        "并行",
+        "打开文件"
+      ],
+      "examples": [
+        {
+          "cmd": "start notepad",
+          "desc": "新开一个窗口运行记事本，不等待它结束"
+        },
+        {
+          "cmd": "start \"\" \"%USERPROFILE%\"",
+          "desc": "用资源管理器打开用户主目录，空引号占住标题位置"
+        },
+        {
+          "cmd": "start /wait setup.exe",
+          "desc": "启动安装程序并等它结束后再继续"
+        },
+        {
+          "cmd": "start /min cmd /c ping -n 10 127.0.0.1",
+          "desc": "最小化窗口后台执行，不阻塞当前窗口"
+        },
+        {
+          "cmd": "start https://www.example.com",
+          "desc": "用默认浏览器打开网址"
+        }
+      ],
+      "form": [
+        {
+          "token": "/wait",
+          "label": "等待结束",
+          "type": "flag",
+          "value": "false",
+          "hint": "等启动的程序退出后再继续"
+        },
+        {
+          "token": "/min",
+          "label": "最小化",
+          "type": "flag",
+          "value": "false",
+          "hint": "以最小化窗口启动"
+        },
+        {
+          "token": "/d",
+          "label": "工作目录",
+          "type": "path",
+          "value": "",
+          "hint": "程序启动时所在的目录"
+        },
+        {
+          "token": "",
+          "label": "程序或文件",
+          "type": "text",
+          "value": "notepad.exe",
+          "hint": "可执行文件、文档或网址"
+        },
+        {
+          "token": "",
+          "label": "参数",
+          "type": "text",
+          "value": "",
+          "hint": "传给程序的命令行参数"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<标题>",
+          "kind": "value",
+          "desc": "窗口标题，含空格时必须用引号括起",
+          "valueHint": "\"我的窗口\""
+        },
+        {
+          "token": "<程序>",
+          "kind": "value",
+          "desc": "要启动的程序、文档或网址",
+          "valueHint": "notepad.exe",
+          "children": [
+            {
+              "token": "<参数>",
+              "kind": "value",
+              "desc": "传给程序的命令行参数",
+              "valueHint": "C:\\test.txt",
+              "children": [
+                {
+                  "token": "&",
+                  "kind": "subcommand",
+                  "desc": "在同一行再启动一个进程"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/d",
+          "kind": "option",
+          "desc": "指定新进程的起始工作目录",
+          "valueHint": "<目录>",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "程序启动时所在的目录路径",
+              "valueHint": "D:\\work"
+            }
+          ]
+        },
+        {
+          "token": "/wait",
+          "kind": "flag",
+          "desc": "等待启动的程序结束后才继续执行"
+        },
+        {
+          "token": "/min",
+          "kind": "flag",
+          "desc": "以最小化窗口启动"
+        },
+        {
+          "token": "/max",
+          "kind": "flag",
+          "desc": "以最大化窗口启动"
+        },
+        {
+          "token": "/b",
+          "kind": "flag",
+          "desc": "不新建窗口，在当前控制台里启动"
+        },
+        {
+          "token": "/i",
+          "kind": "flag",
+          "desc": "使用原始环境而不是当前环境"
+        },
+        {
+          "token": "/high",
+          "kind": "flag",
+          "desc": "以高优先级启动程序"
+        },
+        {
+          "token": "/low",
+          "kind": "flag",
+          "desc": "以空闲优先级启动程序"
+        },
+        {
+          "token": "/normal",
+          "kind": "flag",
+          "desc": "以普通优先级启动程序"
+        },
+        {
+          "token": "/abovenormal",
+          "kind": "flag",
+          "desc": "以高于普通优先级启动"
+        },
+        {
+          "token": "/belownormal",
+          "kind": "flag",
+          "desc": "以低于普通优先级启动"
+        },
+        {
+          "token": "/node",
+          "kind": "option",
+          "desc": "指定首选的 NUMA 节点编号",
+          "valueHint": "<节点号>"
+        },
+        {
+          "token": "/affinity",
+          "kind": "option",
+          "desc": "用十六进制掩码限定可用的处理器",
+          "valueHint": "0x3"
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "title": "暂停等待按键",
+      "desc": "暂停批处理执行，显示「请按任意键继续」并等待用户按键。常放在脚本结尾，避免双击运行时窗口一闪而过看不清结果；加 >nul 可以隐藏提示文字做静默等待。",
+      "usage": "pause",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "暂停",
+        "等待按键",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "pause",
+          "desc": "显示提示并等待用户按任意键继续"
+        },
+        {
+          "cmd": "pause >nul",
+          "desc": "不显示提示文字，静默等待按键"
+        },
+        {
+          "cmd": "echo 处理完成，按任意键退出 & pause >nul",
+          "desc": "先输出自定义提示语再静默等待"
+        }
+      ],
+      "form": [
+        {
+          "token": ">nul",
+          "label": "静默等待",
+          "type": "flag",
+          "value": "false",
+          "hint": "不显示请按任意键继续的提示"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与后续命令写在同一行"
+        },
+        {
+          "token": "&&",
+          "kind": "subcommand",
+          "desc": "前一条命令成功后再执行后一条"
+        },
+        {
+          "token": "echo",
+          "kind": "subcommand",
+          "desc": "先输出自定义提示文字再暂停"
+        },
+        {
+          "token": "exit",
+          "kind": "subcommand",
+          "desc": "按键之后立即关闭窗口"
+        },
+        {
+          "token": "cls",
+          "kind": "subcommand",
+          "desc": "暂停之前先清屏"
+        },
+        {
+          "token": "goto :eof",
+          "kind": "subcommand",
+          "desc": "暂停后结束当前批处理或子过程"
+        },
+        {
+          "token": ">nul",
+          "kind": "option",
+          "desc": "不显示请按任意键继续的提示文字",
+          "valueHint": "nul"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "exit",
+      "title": "退出解释器或脚本",
+      "desc": "退出 cmd.exe 或当前批处理脚本，并可用返回码告诉调用者执行结果。加 /b 只结束当前脚本或子过程而不关闭窗口，写自动化脚本时几乎都用 exit /b。",
+      "usage": "exit [/b] [返回码]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "退出",
+        "返回码",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "exit /b 0",
+          "desc": "以成功状态结束当前批处理，窗口保持打开"
+        },
+        {
+          "cmd": "exit /b 1",
+          "desc": "以失败状态返回，供调用者判断"
+        },
+        {
+          "cmd": "if %errorlevel% neq 0 exit /b %errorlevel%",
+          "desc": "出错时把原始返回码继续往上抛"
+        },
+        {
+          "cmd": "exit",
+          "desc": "直接关闭当前命令行窗口，在脚本里会中断脚本"
+        }
+      ],
+      "form": [
+        {
+          "token": "/b",
+          "label": "只退出脚本",
+          "type": "flag",
+          "value": "true",
+          "hint": "不关闭窗口，只结束当前批处理"
+        },
+        {
+          "token": "",
+          "label": "返回码",
+          "type": "number",
+          "value": "0",
+          "hint": "0 表示成功，非 0 表示失败"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<返回码>",
+          "kind": "value",
+          "desc": "退出码，0 表示成功，非 0 表示失败",
+          "valueHint": "0"
+        },
+        {
+          "token": "0",
+          "kind": "value",
+          "desc": "成功返回码",
+          "valueHint": "0"
+        },
+        {
+          "token": "1",
+          "kind": "value",
+          "desc": "通用的失败返回码",
+          "valueHint": "1"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "pause",
+          "kind": "subcommand",
+          "desc": "退出之前先暂停，方便看清输出"
+        },
+        {
+          "token": "goto :eof",
+          "kind": "subcommand",
+          "desc": "在子过程里等价于 exit /b"
+        },
+        {
+          "token": "%errorlevel%",
+          "kind": "syntax",
+          "desc": "把上一条命令的返回码原样传出去",
+          "valueHint": "%errorlevel%"
+        },
+        {
+          "token": "/b",
+          "kind": "flag",
+          "desc": "只结束当前批处理或子过程，不关闭窗口"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "rem",
+      "title": "添加注释与说明",
+      "desc": "在批处理和 CONFIG.SYS 里写注释，rem 后面的内容不会被执行。也可以用两个冒号 :: 作注释，写法更短，但在括号块里使用可能出错。注意 rem 行里的重定向和管道依然会被解析。",
+      "usage": "rem [注释内容]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "注释",
+        "说明",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "rem 这是注释，不会被执行",
+          "desc": "最常用的注释写法"
+        },
+        {
+          "cmd": "echo 开始处理 & rem 后面的内容是说明",
+          "desc": "在命令末尾追加注释"
+        },
+        {
+          "cmd": ":: 用双冒号写注释",
+          "desc": "更短的注释写法，适合放在脚本开头"
+        }
+      ],
+      "form": [
+        {
+          "token": "rem",
+          "label": "注释内容",
+          "type": "text",
+          "value": "说明文字",
+          "hint": "不会被执行的内容"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<注释文字>",
+          "kind": "value",
+          "desc": "不会被执行的说明文字",
+          "valueHint": "任意说明"
+        },
+        {
+          "token": "<被屏蔽的命令>",
+          "kind": "value",
+          "desc": "临时屏蔽一条命令而不删除它",
+          "valueHint": "echo 测试"
+        },
+        {
+          "token": "::",
+          "kind": "subcommand",
+          "desc": "更短的注释写法，但不要在括号块里使用"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "在一条命令后面追加注释"
+        },
+        {
+          "token": "@",
+          "kind": "flag",
+          "desc": "关闭这一行注释自身的回显"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "注意：rem 行里的重定向依然会执行并创建文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "rem 行里的管道同样会被解析，建议避免",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "shift",
+      "title": "移动批处理参数位置",
+      "desc": "把批处理的参数向左移动一位，原来的 %2 就变成 %1。批处理最多只有 %0 到 %9 十个位置参数，参数超过九个时必须用 shift 配合循环逐个读取。",
+      "usage": "shift [/n]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "参数",
+        "批处理",
+        "循环"
+      ],
+      "examples": [
+        {
+          "cmd": "shift",
+          "desc": "把参数整体左移一位，%2 变成 %1"
+        },
+        {
+          "cmd": "shift /2",
+          "desc": "从第 2 个参数开始左移，%0 和 %1 不受影响"
+        },
+        {
+          "cmd": "echo %1 & shift",
+          "desc": "先输出当前第一个参数，再左移一位"
+        }
+      ],
+      "form": [
+        {
+          "token": "/",
+          "label": "起始位置",
+          "type": "number",
+          "value": "",
+          "hint": "留空表示从 %1 开始整体左移"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "goto",
+          "kind": "subcommand",
+          "desc": "跳到循环标签继续处理下一个参数"
+        },
+        {
+          "token": "if",
+          "kind": "subcommand",
+          "desc": "判断 %1 是否为空以结束循环"
+        },
+        {
+          "token": "call",
+          "kind": "subcommand",
+          "desc": "被调用的子过程里同样可以使用 shift"
+        },
+        {
+          "token": "%1",
+          "kind": "syntax",
+          "desc": "移动之后代表原来的 %2",
+          "valueHint": "%1"
+        },
+        {
+          "token": "%*",
+          "kind": "syntax",
+          "desc": "脚本的全部参数，shift 不会改变它",
+          "valueHint": "%*"
+        },
+        {
+          "token": "%0",
+          "kind": "syntax",
+          "desc": "第零个参数是脚本自身的路径",
+          "valueHint": "%0"
+        },
+        {
+          "token": "/n",
+          "kind": "option",
+          "desc": "从第 n 个参数开始左移，n 取 0 到 8",
+          "valueHint": "<数字>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "choice",
+      "title": "让用户选择选项",
+      "desc": "显示一组选项并等待用户按键，把选择结果放进 errorlevel，第一个选项对应 1，依次递增。比 set /p 更适合固定的单选交互，还能设置超时自动选择默认项。",
+      "usage": "choice [/c 选项集合] [/n] [/cs] [/t 秒数 /d 默认项] [/m 提示文字]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "交互",
+        "菜单",
+        "选择",
+        "errorlevel"
+      ],
+      "examples": [
+        {
+          "cmd": "choice /c ync /m \"继续吗\"",
+          "desc": "显示三个选项并等待用户按键"
+        },
+        {
+          "cmd": "choice /t 5 /c yn /d y /m \"5 秒后自动继续\"",
+          "desc": "5 秒内没有按键就自动选择 y"
+        },
+        {
+          "cmd": "choice /c ab /n /m \"请选择 a 或 b\"",
+          "desc": "隐藏默认的选项列表，只显示自定义提示"
+        },
+        {
+          "cmd": "if errorlevel 2 (echo 选了后一项) else (echo 选了前一项)",
+          "desc": "用 if errorlevel 从大到小判断选择结果"
+        }
+      ],
+      "form": [
+        {
+          "token": "/c",
+          "label": "选项集合",
+          "type": "text",
+          "value": "ync",
+          "hint": "可用的按键，默认是 yn"
+        },
+        {
+          "token": "/m",
+          "label": "提示文字",
+          "type": "text",
+          "value": "请选择",
+          "hint": "显示在选项前面的说明"
+        },
+        {
+          "token": "/n",
+          "label": "隐藏选项",
+          "type": "flag",
+          "value": "false",
+          "hint": "不显示 [Y,N] 这样的列表"
+        },
+        {
+          "token": "/t",
+          "label": "超时秒数",
+          "type": "number",
+          "value": "",
+          "hint": "配合 /d 使用，0 到 9999"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<选项字母>",
+          "kind": "value",
+          "desc": "作为 /c 的值使用的按键集合",
+          "valueHint": "ync"
+        },
+        {
+          "token": "if errorlevel",
+          "kind": "subcommand",
+          "desc": "用 if errorlevel n 判断用户的选择结果"
+        },
+        {
+          "token": "/c",
+          "kind": "option",
+          "desc": "定义可选的按键集合，默认是 yn",
+          "valueHint": "<选项字母>"
+        },
+        {
+          "token": "/n",
+          "kind": "flag",
+          "desc": "隐藏选项列表，只显示提示文字"
+        },
+        {
+          "token": "/cs",
+          "kind": "flag",
+          "desc": "区分按键的大小写"
+        },
+        {
+          "token": "/t",
+          "kind": "option",
+          "desc": "等待多少秒后自动选择默认项",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "/d",
+          "kind": "option",
+          "desc": "超时后自动选择的项，必须和 /t 一起用",
+          "valueHint": "<默认项>"
+        },
+        {
+          "token": "/m",
+          "kind": "option",
+          "desc": "自定义提示文字，替代默认的选项提示",
+          "valueHint": "<提示文字>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示参数说明与官方示例"
+        }
+      ]
+    },
+    {
+      "name": "clip",
+      "title": "把输出复制到剪贴板",
+      "desc": "接收管道输入或文件内容并写入 Windows 剪贴板，之后可以直接粘贴到别的地方。常用来复制命令输出、文件列表或整段文本，是最省事的取结果方式。",
+      "usage": "命令 | clip 或 clip < 文件",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "剪贴板",
+        "管道",
+        "复制"
+      ],
+      "examples": [
+        {
+          "cmd": "echo 你好，剪贴板 | clip",
+          "desc": "把一行文字复制到剪贴板"
+        },
+        {
+          "cmd": "clip < readme.txt",
+          "desc": "把文本文件的内容复制到剪贴板"
+        },
+        {
+          "cmd": "dir | clip",
+          "desc": "复制当前目录的文件列表"
+        },
+        {
+          "cmd": "ipconfig | clip",
+          "desc": "复制网络配置信息，便于粘贴给别人"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "来源命令",
+          "type": "text",
+          "value": "dir",
+          "hint": "该命令的输出会被复制到剪贴板"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要复制的文本文件",
+          "valueHint": "readme.txt"
+        },
+        {
+          "token": "echo",
+          "kind": "subcommand",
+          "desc": "echo 文本 | clip 可以复制一行文字"
+        },
+        {
+          "token": "type",
+          "kind": "subcommand",
+          "desc": "type 文件 | clip 可以复制整个文件"
+        },
+        {
+          "token": "dir",
+          "kind": "subcommand",
+          "desc": "dir | clip 可以复制当前目录列表"
+        },
+        {
+          "token": "&&",
+          "kind": "subcommand",
+          "desc": "复制完成后再执行后续命令"
+        },
+        {
+          "token": "<",
+          "kind": "option",
+          "desc": "输入重定向，把文件内容送进剪贴板",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道写法，命令 | clip",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明与官方示例"
+        }
+      ]
+    },
+    {
+      "name": "chcp",
+      "title": "查看或切换代码页",
+      "desc": "显示或更改控制台的代码页，用来解决中文乱码。中文系统默认 936（GBK），处理 UTF-8 文本时常切成 65001，切换只影响当前窗口，重开窗口又回到默认值。",
+      "usage": "chcp [代码页编号]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "代码页",
+        "乱码",
+        "编码",
+        "UTF-8"
+      ],
+      "examples": [
+        {
+          "cmd": "chcp",
+          "desc": "显示当前活动的代码页编号"
+        },
+        {
+          "cmd": "chcp 65001",
+          "desc": "切换成 UTF-8，解决输出中文乱码"
+        },
+        {
+          "cmd": "chcp 65001 >nul",
+          "desc": "静默切换代码页，不显示提示信息"
+        },
+        {
+          "cmd": "chcp 936",
+          "desc": "切回简体中文 GBK 代码页"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "代码页",
+          "type": "select",
+          "value": "65001",
+          "hint": "936 为简体中文，65001 为 UTF-8",
+          "options": [
+            "936",
+            "65001",
+            "437",
+            "1252"
+          ]
+        },
+        {
+          "token": ">nul",
+          "label": "静默切换",
+          "type": "flag",
+          "value": "false",
+          "hint": "不显示切换提示"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<代码页>",
+          "kind": "value",
+          "desc": "目标代码页编号",
+          "valueHint": "936"
+        },
+        {
+          "token": "936",
+          "kind": "value",
+          "desc": "简体中文 GBK 代码页，中文系统默认",
+          "valueHint": "936"
+        },
+        {
+          "token": "65001",
+          "kind": "value",
+          "desc": "UTF-8 代码页，处理 UTF-8 文本时使用",
+          "valueHint": "65001"
+        },
+        {
+          "token": "437",
+          "kind": "value",
+          "desc": "美国英语默认代码页",
+          "valueHint": "437"
+        },
+        {
+          "token": "1252",
+          "kind": "value",
+          "desc": "西欧语言代码页",
+          "valueHint": "1252"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": ">nul",
+          "kind": "option",
+          "desc": "切换时不显示提示文字",
+          "valueHint": "nul"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "列出可用的代码页编号与用法"
+        }
+      ]
+    },
+    {
+      "name": "doskey",
+      "title": "定义命令别名宏",
+      "desc": "把常用命令定义成简短的宏，例如用 ls 代替 dir /b，减少重复输入。宏只对当前 cmd 窗口有效，关掉窗口就消失，可以用 /macros 随时查看已定义的宏。",
+      "usage": "doskey 宏名=命令 [$T 命令] 或 doskey /macros",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "宏",
+        "别名",
+        "快捷命令"
+      ],
+      "examples": [
+        {
+          "cmd": "doskey ls=dir /b $*",
+          "desc": "把 ls 定义成 dir /b，还可以继续接参数"
+        },
+        {
+          "cmd": "doskey gs=git status $T git log --oneline -5",
+          "desc": "用一个宏连续执行两条命令"
+        },
+        {
+          "cmd": "doskey /macros",
+          "desc": "查看当前窗口里已经定义的全部宏"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "宏名",
+          "type": "text",
+          "value": "ls",
+          "hint": "建议用简短好记的别名"
+        },
+        {
+          "token": "=",
+          "label": "展开命令",
+          "type": "text",
+          "value": "dir /b $*",
+          "hint": "$* 代表调用时跟的全部参数"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<宏名>",
+          "kind": "value",
+          "desc": "要定义的宏名称，建议用简短的别名",
+          "valueHint": "ls"
+        },
+        {
+          "token": "<命令>",
+          "kind": "value",
+          "desc": "宏展开后真正执行的命令",
+          "valueHint": "dir /b $*"
+        },
+        {
+          "token": "$*",
+          "kind": "value",
+          "desc": "代表调用宏时跟在后面的全部参数",
+          "valueHint": "$*"
+        },
+        {
+          "token": "$1",
+          "kind": "value",
+          "desc": "代表第一个参数，依次还有 $2 到 $9",
+          "valueHint": "$1"
+        },
+        {
+          "token": "=",
+          "kind": "subcommand",
+          "desc": "宏名与命令之间用等号连接，两侧不要加空格"
+        },
+        {
+          "token": "$T",
+          "kind": "flag",
+          "desc": "宏里的命令分隔符，可串联多条命令"
+        },
+        {
+          "token": "/macros",
+          "kind": "option",
+          "desc": "显示已定义的宏，可指定某个程序",
+          "valueHint": "[:all|:exename]"
+        },
+        {
+          "token": "/macrofile",
+          "kind": "option",
+          "desc": "从文件里批量载入宏定义",
+          "valueHint": "=<文件名>"
+        },
+        {
+          "token": "/exename",
+          "kind": "option",
+          "desc": "指定宏归属的程序，例如 cmd.exe",
+          "valueHint": "=<程序名>"
+        },
+        {
+          "token": "/insert",
+          "kind": "flag",
+          "desc": "设置为插入模式"
+        },
+        {
+          "token": "/overstrike",
+          "kind": "flag",
+          "desc": "设置为改写模式"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示全部参数与特殊代码说明"
+        }
+      ]
+    },
+    {
+      "name": "help",
+      "title": "查询命令用法说明",
+      "desc": "列出系统支持的全部命令，或显示某条命令的详细语法。效果与在命令后面加 /? 相同，忘了参数怎么写时用它最快，也可以把帮助内容保存成文件慢慢看。",
+      "usage": "help [命令]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "帮助",
+        "语法",
+        "查询"
+      ],
+      "examples": [
+        {
+          "cmd": "help",
+          "desc": "列出系统支持的全部命令"
+        },
+        {
+          "cmd": "help for",
+          "desc": "查看 for 命令的完整语法"
+        },
+        {
+          "cmd": "help cd > cd_help.txt",
+          "desc": "把帮助内容保存到文本文件"
+        },
+        {
+          "cmd": "cmd /?",
+          "desc": "查看命令解释器自身的全部开关"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "命令名",
+          "type": "text",
+          "value": "for",
+          "hint": "留空则列出全部命令"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<命令>",
+          "kind": "value",
+          "desc": "要查询用法的命令名，省略则列出全部",
+          "valueHint": "for"
+        },
+        {
+          "token": "clip",
+          "kind": "subcommand",
+          "desc": "help for | clip 直接把帮助复制到剪贴板"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "pause",
+          "kind": "subcommand",
+          "desc": "帮助内容较长时在末尾暂停窗口"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把帮助文本重定向写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": ">>",
+          "kind": "option",
+          "desc": "把帮助文本追加到文件末尾",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把帮助文本通过管道交给其它命令",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令自身的说明"
+        }
+      ]
+    },
+    {
+      "name": "color",
+      "title": "设置控制台配色",
+      "desc": "更改当前控制台窗口的前景色和背景色，参数是两个十六进制数字，前一个是背景、后一个是前景。只对当前窗口有效，不带参数时恢复 cmd 启动时的配色。",
+      "usage": "color [背景色][前景色]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "配色",
+        "颜色",
+        "控制台"
+      ],
+      "examples": [
+        {
+          "cmd": "color 0A",
+          "desc": "黑底亮绿色文字，经典的终端配色"
+        },
+        {
+          "cmd": "color 07",
+          "desc": "黑底白字，控制台的默认配色"
+        },
+        {
+          "cmd": "color fc",
+          "desc": "亮白色背景配亮红色文字"
+        },
+        {
+          "cmd": "color",
+          "desc": "不带参数，恢复 cmd 启动时的配色"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "颜色属性",
+          "type": "text",
+          "value": "0A",
+          "hint": "两位十六进制，前背景后前景"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<背景色><前景色>",
+          "kind": "value",
+          "desc": "两个十六进制数字，前者背景后者前景",
+          "valueHint": "0A"
+        },
+        {
+          "token": "0",
+          "kind": "value",
+          "desc": "黑色",
+          "valueHint": "0"
+        },
+        {
+          "token": "1",
+          "kind": "value",
+          "desc": "蓝色",
+          "valueHint": "1"
+        },
+        {
+          "token": "2",
+          "kind": "value",
+          "desc": "绿色",
+          "valueHint": "2"
+        },
+        {
+          "token": "3",
+          "kind": "value",
+          "desc": "浅蓝色（青色）",
+          "valueHint": "3"
+        },
+        {
+          "token": "4",
+          "kind": "value",
+          "desc": "红色",
+          "valueHint": "4"
+        },
+        {
+          "token": "5",
+          "kind": "value",
+          "desc": "紫色",
+          "valueHint": "5"
+        },
+        {
+          "token": "6",
+          "kind": "value",
+          "desc": "黄色",
+          "valueHint": "6"
+        },
+        {
+          "token": "7",
+          "kind": "value",
+          "desc": "白色",
+          "valueHint": "7"
+        },
+        {
+          "token": "8",
+          "kind": "value",
+          "desc": "灰色",
+          "valueHint": "8"
+        },
+        {
+          "token": "9",
+          "kind": "value",
+          "desc": "亮蓝色",
+          "valueHint": "9"
+        },
+        {
+          "token": "A",
+          "kind": "value",
+          "desc": "亮绿色",
+          "valueHint": "A"
+        },
+        {
+          "token": "B",
+          "kind": "value",
+          "desc": "亮浅蓝色",
+          "valueHint": "B"
+        },
+        {
+          "token": "C",
+          "kind": "value",
+          "desc": "亮红色",
+          "valueHint": "C"
+        },
+        {
+          "token": "D",
+          "kind": "value",
+          "desc": "亮紫色",
+          "valueHint": "D"
+        },
+        {
+          "token": "E",
+          "kind": "value",
+          "desc": "亮黄色",
+          "valueHint": "E"
+        },
+        {
+          "token": "F",
+          "kind": "value",
+          "desc": "亮白色",
+          "valueHint": "F"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示颜色取值对照表"
+        }
+      ]
+    },
+    {
+      "name": "mode",
+      "title": "配置控制台与设备",
+      "desc": "调整控制台窗口和缓冲区的行列数，也可以配置串口等设备参数。改窗口尺寸时通常要同时给出 cols 和 lines，只给一个会报参数无效。",
+      "usage": "mode con [cols=列数] [lines=行数] 或 mode 设备名 参数",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "窗口尺寸",
+        "控制台",
+        "串口",
+        "显示"
+      ],
+      "examples": [
+        {
+          "cmd": "mode con cols=120 lines=40",
+          "desc": "把控制台改成 120 列 40 行，两个参数要一起给"
+        },
+        {
+          "cmd": "mode con",
+          "desc": "查看当前控制台的尺寸和状态"
+        },
+        {
+          "cmd": "mode con /status",
+          "desc": "显示控制台设备的状态信息"
+        },
+        {
+          "cmd": "mode com1: baud=9600 parity=n data=8 stop=1",
+          "desc": "配置串口 1 的通信参数"
+        }
+      ],
+      "form": [
+        {
+          "token": "cols=",
+          "label": "列数",
+          "type": "number",
+          "value": "120",
+          "hint": "每行显示的字符数"
+        },
+        {
+          "token": "lines=",
+          "label": "行数",
+          "type": "number",
+          "value": "40",
+          "hint": "屏幕显示的行数"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "com1:",
+          "kind": "value",
+          "desc": "串口设备名，可换成 com2: 等",
+          "valueHint": "com1:"
+        },
+        {
+          "token": "con",
+          "kind": "subcommand",
+          "desc": "控制台设备名，配置窗口尺寸时使用"
+        },
+        {
+          "token": "cp",
+          "kind": "subcommand",
+          "desc": "选择或查询代码页",
+          "children": [
+            {
+              "token": "select=",
+              "kind": "option",
+              "desc": "把控制台切换到指定代码页",
+              "valueHint": "<代码页>"
+            }
+          ]
+        },
+        {
+          "token": "cols=",
+          "kind": "option",
+          "desc": "设置每行显示的字符数",
+          "valueHint": "<列数>"
+        },
+        {
+          "token": "lines=",
+          "kind": "option",
+          "desc": "设置屏幕显示的行数",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "rate=",
+          "kind": "option",
+          "desc": "键盘字符重复速度，取值 1 到 32",
+          "valueHint": "<速率>"
+        },
+        {
+          "token": "delay=",
+          "kind": "option",
+          "desc": "按住键后开始重复的延迟级别，1 到 4",
+          "valueHint": "<级别>"
+        },
+        {
+          "token": "/status",
+          "kind": "flag",
+          "desc": "显示指定设备的状态信息"
+        },
+        {
+          "token": "baud=",
+          "kind": "option",
+          "desc": "串口通信速率，例如 9600",
+          "valueHint": "<波特率>"
+        },
+        {
+          "token": "parity=",
+          "kind": "option",
+          "desc": "串口校验方式",
+          "valueHint": "n|e|o|m|s",
+          "enum": [
+            "n",
+            "e",
+            "o",
+            "m",
+            "s"
+          ]
+        },
+        {
+          "token": "data=",
+          "kind": "option",
+          "desc": "串口数据位，通常是 7 或 8",
+          "valueHint": "<位数>"
+        },
+        {
+          "token": "stop=",
+          "kind": "option",
+          "desc": "串口停止位，1、1.5 或 2",
+          "valueHint": "<位数>"
+        },
+        {
+          "token": "to=",
+          "kind": "option",
+          "desc": "串口超时处理开关",
+          "valueHint": "on|off",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示全部设备配置语法"
+        }
+      ]
+    },
+    {
+      "name": "prompt",
+      "title": "自定义命令提示符",
+      "desc": "修改命令提示符显示的内容，可以用 $ 开头的特殊代码插入当前目录、日期时间、盘符等信息。只影响当前窗口，不带参数执行会恢复系统默认的 $p$g。",
+      "usage": "prompt [提示符文本]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "提示符",
+        "外观",
+        "个性化"
+      ],
+      "examples": [
+        {
+          "cmd": "prompt $p$g",
+          "desc": "恢复默认的「路径>」提示符"
+        },
+        {
+          "cmd": "prompt [$t] $p$g",
+          "desc": "在提示符前面加上当前时间"
+        },
+        {
+          "cmd": "prompt $d$s$t$_$p$g",
+          "desc": "显示日期和时间，换行后再显示路径"
+        },
+        {
+          "cmd": "prompt",
+          "desc": "不带参数，恢复系统默认提示符"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "提示符文本",
+          "type": "text",
+          "value": "[$t] $p$g",
+          "hint": "可混用普通字符和 $ 特殊代码"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "$p",
+          "kind": "value",
+          "desc": "当前驱动器和路径",
+          "valueHint": "$p"
+        },
+        {
+          "token": "$g",
+          "kind": "value",
+          "desc": "大于号 >",
+          "valueHint": "$g"
+        },
+        {
+          "token": "$l",
+          "kind": "value",
+          "desc": "小于号 <",
+          "valueHint": "$l"
+        },
+        {
+          "token": "$n",
+          "kind": "value",
+          "desc": "当前驱动器字母",
+          "valueHint": "$n"
+        },
+        {
+          "token": "$d",
+          "kind": "value",
+          "desc": "当前日期",
+          "valueHint": "$d"
+        },
+        {
+          "token": "$t",
+          "kind": "value",
+          "desc": "当前时间",
+          "valueHint": "$t"
+        },
+        {
+          "token": "$q",
+          "kind": "value",
+          "desc": "等号 =",
+          "valueHint": "$q"
+        },
+        {
+          "token": "$b",
+          "kind": "value",
+          "desc": "竖线 |",
+          "valueHint": "$b"
+        },
+        {
+          "token": "$a",
+          "kind": "value",
+          "desc": "与号 &",
+          "valueHint": "$a"
+        },
+        {
+          "token": "$c",
+          "kind": "value",
+          "desc": "左括号 (",
+          "valueHint": "$c"
+        },
+        {
+          "token": "$f",
+          "kind": "value",
+          "desc": "右括号 )",
+          "valueHint": "$f"
+        },
+        {
+          "token": "$s",
+          "kind": "value",
+          "desc": "一个空格",
+          "valueHint": "$s"
+        },
+        {
+          "token": "$h",
+          "kind": "value",
+          "desc": "退格，删除前一个字符",
+          "valueHint": "$h"
+        },
+        {
+          "token": "$e",
+          "kind": "value",
+          "desc": "转义字符，ASCII 码 27",
+          "valueHint": "$e"
+        },
+        {
+          "token": "$v",
+          "kind": "value",
+          "desc": "Windows 版本号",
+          "valueHint": "$v"
+        },
+        {
+          "token": "$_",
+          "kind": "value",
+          "desc": "回车换行",
+          "valueHint": "$_"
+        },
+        {
+          "token": "$$",
+          "kind": "value",
+          "desc": "美元符号本身",
+          "valueHint": "$$"
+        },
+        {
+          "token": "$+",
+          "kind": "value",
+          "desc": "按 pushd 目录栈深度显示若干个加号",
+          "valueHint": "$+"
+        },
+        {
+          "token": "$m",
+          "kind": "value",
+          "desc": "当前驱动器映射的网络名，非网络盘为空",
+          "valueHint": "$m"
+        }
+      ]
+    },
+    {
+      "name": "path",
+      "title": "查看或设置搜索路径",
+      "desc": "显示或修改可执行文件的搜索路径，改完之后当前窗口就能直接调用新目录里的程序。只影响当前会话，要永久生效需用 setx 写入注册表或在系统设置里修改。",
+      "usage": "path [;[盘符:]路径[;...][;%PATH%]] 或 path ;",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "搜索路径",
+        "环境变量",
+        "命令查找"
+      ],
+      "examples": [
+        {
+          "cmd": "path",
+          "desc": "显示当前的搜索路径"
+        },
+        {
+          "cmd": "path %path%;C:\\Tools\\bin",
+          "desc": "在现有路径末尾追加一个工具目录"
+        },
+        {
+          "cmd": "path C:\\Tools\\bin;%path%",
+          "desc": "把工具目录放到最前面，优先被搜索"
+        },
+        {
+          "cmd": "where cmd",
+          "desc": "确认 cmd 实际从哪个目录被找到"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "追加目录",
+          "type": "path",
+          "value": "C:\\Tools\\bin",
+          "hint": "会拼接到现有路径后面"
+        },
+        {
+          "token": "",
+          "label": "放在最前",
+          "type": "flag",
+          "value": "false",
+          "hint": "勾选则新目录优先被搜索"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<目录>",
+          "kind": "value",
+          "desc": "要加入或替换的目录路径",
+          "valueHint": "C:\\Tools\\bin"
+        },
+        {
+          "token": ";",
+          "kind": "value",
+          "desc": "分隔多个目录；单独写一个分号会清空搜索路径",
+          "valueHint": ";"
+        },
+        {
+          "token": "setx",
+          "kind": "subcommand",
+          "desc": "用 setx PATH 可以把路径永久写入注册表"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "where",
+          "kind": "subcommand",
+          "desc": "用 where 确认程序从哪个目录被找到"
+        },
+        {
+          "token": "%path%",
+          "kind": "syntax",
+          "desc": "输出当前搜索路径",
+          "valueHint": "%path%"
+        },
+        {
+          "token": "%path%;<目录>",
+          "kind": "syntax",
+          "desc": "在原有路径后面追加目录",
+          "valueHint": "%path%;C:\\Tools\\bin"
+        },
+        {
+          "token": "<目录>;%path%",
+          "kind": "syntax",
+          "desc": "把新目录放到最前面，优先被找到",
+          "valueHint": "C:\\Tools\\bin;%path%"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "pathext",
+      "title": "可执行扩展名列表",
+      "desc": "PATHEXT 决定 cmd 认为哪些扩展名可以直接运行，默认是 .COM;.EXE;.BAT;.CMD，顺序就是搜索顺序。它不是独立命令，单独输入 pathext 会被当成未知命令，要用 echo %pathext% 查看、set pathext=... 修改。",
+      "usage": "echo %pathext%  或  set pathext=.COM;.EXE;.BAT;.CMD",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "扩展名",
+        "环境变量",
+        "命令查找"
+      ],
+      "examples": [
+        {
+          "cmd": "echo %pathext%",
+          "desc": "查看当前生效的可执行扩展名列表"
+        },
+        {
+          "cmd": "set pathext=%pathext%;.PY",
+          "desc": "当前窗口临时把 .PY 也视为可执行扩展名"
+        },
+        {
+          "cmd": "setx PATHEXT \"%PATHEXT%;.PY\"",
+          "desc": "永久添加扩展名，新开的窗口才会生效"
+        },
+        {
+          "cmd": "echo %pathext% > pathext.txt",
+          "desc": "把扩展名列表保存到文件备查"
+        }
+      ],
+      "form": [
+        {
+          "token": "set pathext=",
+          "label": "扩展名列表",
+          "type": "text",
+          "value": "%pathext%;.PY",
+          "hint": "分号分隔，顺序即搜索优先级"
+        }
+      ],
+      "nodes": [
+        {
+          "token": ".COM",
+          "kind": "value",
+          "desc": "最优先匹配的可执行扩展名",
+          "valueHint": ".COM"
+        },
+        {
+          "token": ".EXE",
+          "kind": "value",
+          "desc": "标准可执行文件扩展名",
+          "valueHint": ".EXE"
+        },
+        {
+          "token": ".BAT",
+          "kind": "value",
+          "desc": "批处理文件扩展名",
+          "valueHint": ".BAT"
+        },
+        {
+          "token": ".CMD",
+          "kind": "value",
+          "desc": "命令脚本扩展名",
+          "valueHint": ".CMD"
+        },
+        {
+          "token": ".VBS",
+          "kind": "value",
+          "desc": "VBScript 脚本扩展名",
+          "valueHint": ".VBS"
+        },
+        {
+          "token": ".PS1",
+          "kind": "value",
+          "desc": "PowerShell 脚本扩展名，默认不在列表里",
+          "valueHint": ".PS1"
+        },
+        {
+          "token": ";",
+          "kind": "value",
+          "desc": "各项之间用分号分隔，顺序即搜索顺序",
+          "valueHint": ";"
+        },
+        {
+          "token": "<扩展名>",
+          "kind": "value",
+          "desc": "要加入列表的新扩展名",
+          "valueHint": ".PY"
+        },
+        {
+          "token": "setx",
+          "kind": "subcommand",
+          "desc": "永久修改要写到注册表，用 setx PATHEXT ..."
+        },
+        {
+          "token": "%pathext%",
+          "kind": "syntax",
+          "desc": "输出当前生效的扩展名列表",
+          "valueHint": "%pathext%"
+        }
+      ]
+    },
+    {
+      "name": "verify",
+      "title": "开关写文件校验",
+      "desc": "打开或关闭「写入文件后校验数据是否正确写入」的功能，会影响 copy 等命令的写盘行为。不带参数时显示当前状态，默认是关闭的。",
+      "usage": "verify [on|off]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "校验",
+        "写文件",
+        "开关"
+      ],
+      "examples": [
+        {
+          "cmd": "verify",
+          "desc": "显示当前的写文件校验状态"
+        },
+        {
+          "cmd": "verify on",
+          "desc": "打开写入校验，复制文件后会核对写入的数据"
+        },
+        {
+          "cmd": "verify off",
+          "desc": "关闭写入校验，写盘速度更快"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "状态",
+          "type": "select",
+          "value": "off",
+          "hint": "留空则只查看当前状态",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "token": "on",
+          "kind": "value",
+          "desc": "打开写入校验",
+          "valueHint": "on"
+        },
+        {
+          "token": "off",
+          "kind": "value",
+          "desc": "关闭写入校验，也是默认状态",
+          "valueHint": "off"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "copy",
+          "kind": "subcommand",
+          "desc": "校验功能主要作用于 copy 这类写文件操作"
+        },
+        {
+          "token": "xcopy",
+          "kind": "subcommand",
+          "desc": "xcopy 写盘同样受这个开关影响"
+        },
+        {
+          "token": "echo",
+          "kind": "subcommand",
+          "desc": "用 echo 输出当前开关状态"
+        },
+        {
+          "token": ">nul",
+          "kind": "option",
+          "desc": "不显示状态提示文字",
+          "valueHint": "nul"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "break",
+      "title": "Ctrl+C 检查开关",
+      "desc": "为兼容早期 MS-DOS 保留的开关，用来设置是否扩大 Ctrl+C 的检查范围。在现在的 Windows 下它基本没有实际作用，只在被调试器调试时才会触发一个断点。",
+      "usage": "break [on|off]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "中断",
+        "兼容命令",
+        "开关"
+      ],
+      "examples": [
+        {
+          "cmd": "break off",
+          "desc": "关闭扩展的 Ctrl+C 检查，这也是默认状态"
+        },
+        {
+          "cmd": "break on",
+          "desc": "打开扩展的 Ctrl+C 检查，只对旧程序有意义"
+        },
+        {
+          "cmd": "break /?",
+          "desc": "查看官方说明：该命令仅为兼容 DOS 而保留"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "状态",
+          "type": "select",
+          "value": "off",
+          "hint": "on 或 off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "token": "on",
+          "kind": "value",
+          "desc": "打开扩展的 Ctrl+C 检查",
+          "valueHint": "on"
+        },
+        {
+          "token": "off",
+          "kind": "value",
+          "desc": "关闭扩展检查，默认就是关闭状态",
+          "valueHint": "off"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "echo",
+          "kind": "subcommand",
+          "desc": "输出提示信息，确认设置已执行"
+        },
+        {
+          "token": "rem",
+          "kind": "subcommand",
+          "desc": "在脚本里标注这是兼容性命令"
+        },
+        {
+          "token": "pause",
+          "kind": "subcommand",
+          "desc": "暂停窗口，方便查看输出"
+        },
+        {
+          "token": "cmd /c",
+          "kind": "subcommand",
+          "desc": "在子解释器里执行不会影响当前窗口的设置"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的官方说明"
+        }
+      ]
+    },
+    {
+      "name": "date",
+      "title": "查看或设置系统日期",
+      "desc": "显示当前日期，也可以修改系统日期（修改通常需要管理员权限）。/t 只输出日期而不提示输入，适合在脚本里取值，也可以用 %date% 变量直接引用。",
+      "usage": "date [/t] [新日期]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "日期",
+        "系统时间",
+        "脚本"
+      ],
+      "examples": [
+        {
+          "cmd": "date /t",
+          "desc": "只输出当前日期，不进入交互输入"
+        },
+        {
+          "cmd": "date",
+          "desc": "显示当前日期并等待输入新日期，直接回车保持不变"
+        },
+        {
+          "cmd": "echo %date%",
+          "desc": "在命令行或脚本里读取日期变量"
+        },
+        {
+          "cmd": "date /t > today.txt",
+          "desc": "把当天日期写入文本文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "/t",
+          "label": "只显示",
+          "type": "flag",
+          "value": "true",
+          "hint": "不提示输入新日期"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<日期>",
+          "kind": "value",
+          "desc": "要设置的新日期，格式随区域设置变化",
+          "valueHint": "2024-05-01"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "time",
+          "kind": "subcommand",
+          "desc": "配合 time 命令一起调整系统时间"
+        },
+        {
+          "token": "set",
+          "kind": "subcommand",
+          "desc": "用 set today=%date% 把日期保存到变量"
+        },
+        {
+          "token": "%date%",
+          "kind": "syntax",
+          "desc": "日期环境变量，脚本里可直接引用",
+          "valueHint": "%date%"
+        },
+        {
+          "token": "/t",
+          "kind": "flag",
+          "desc": "只显示当前日期，不提示输入新日期"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把当前日期写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "time",
+      "title": "查看或设置系统时间",
+      "desc": "显示当前时间，也可以修改系统时间（修改通常需要管理员权限）。/t 只输出时间而不提示输入，脚本里常用 %time% 变量记录开始和结束时刻来估算耗时。",
+      "usage": "time [/t] [新时间]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "时间",
+        "系统时间",
+        "耗时"
+      ],
+      "examples": [
+        {
+          "cmd": "time /t",
+          "desc": "只输出当前时间，不进入交互输入"
+        },
+        {
+          "cmd": "time",
+          "desc": "显示当前时间并等待输入新时间，直接回车保持不变"
+        },
+        {
+          "cmd": "echo %time%",
+          "desc": "读取时间变量，常用来估算脚本耗时"
+        }
+      ],
+      "form": [
+        {
+          "token": "/t",
+          "label": "只显示",
+          "type": "flag",
+          "value": "true",
+          "hint": "不提示输入新时间"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<时间>",
+          "kind": "value",
+          "desc": "要设置的新时间",
+          "valueHint": "14:30:00"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "date",
+          "kind": "subcommand",
+          "desc": "配合 date 命令一起调整系统日期"
+        },
+        {
+          "token": "set",
+          "kind": "subcommand",
+          "desc": "用 set t=%time% 把时间保存到变量"
+        },
+        {
+          "token": "%time%",
+          "kind": "syntax",
+          "desc": "时间环境变量，脚本里可直接引用",
+          "valueHint": "%time%"
+        },
+        {
+          "token": "/t",
+          "kind": "flag",
+          "desc": "只显示当前时间，不提示输入新时间"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把当前时间写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "title",
+      "title": "设置窗口标题",
+      "desc": "修改当前控制台窗口标题栏显示的文字，方便在开了一堆窗口时快速辨认。标题只在当前窗口有效，关掉窗口就恢复默认。",
+      "usage": "title [标题文字]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "窗口标题",
+        "外观",
+        "多窗口"
+      ],
+      "examples": [
+        {
+          "cmd": "title 我的批处理工具",
+          "desc": "把窗口标题改成自定义文字"
+        },
+        {
+          "cmd": "title %~nx0",
+          "desc": "用当前脚本的文件名作为窗口标题"
+        },
+        {
+          "cmd": "title %cd%",
+          "desc": "标题显示当前目录，便于区分多个窗口"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "标题文字",
+          "type": "text",
+          "value": "我的批处理工具",
+          "hint": "可以包含空格"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<标题文字>",
+          "kind": "value",
+          "desc": "标题栏显示的文字，可以包含空格",
+          "valueHint": "构建脚本"
+        },
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "if",
+          "kind": "subcommand",
+          "desc": "按条件给窗口设置不同的标题"
+        },
+        {
+          "token": "start",
+          "kind": "subcommand",
+          "desc": "新开的窗口同样可以用 title 命名"
+        },
+        {
+          "token": "%~nx0",
+          "kind": "syntax",
+          "desc": "用当前脚本的文件名作为标题",
+          "valueHint": "%~nx0"
+        },
+        {
+          "token": "%cd%",
+          "kind": "syntax",
+          "desc": "用当前目录作为标题，便于区分窗口",
+          "valueHint": "%cd%"
+        },
+        {
+          "token": "%time%",
+          "kind": "syntax",
+          "desc": "把当前时间也写进标题",
+          "valueHint": "%time%"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "cls",
+      "title": "清空屏幕内容",
+      "desc": "清除控制台窗口里已经显示的全部内容，只留下提示符。写菜单类脚本时常在重新绘制界面前先清屏，也可以和 color 一起用来刷新整体外观。",
+      "usage": "cls",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "清屏",
+        "界面",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "cls",
+          "desc": "清空当前窗口的所有内容"
+        },
+        {
+          "cmd": "cls & color 0A",
+          "desc": "清屏之后把配色改成黑底绿字"
+        },
+        {
+          "cmd": "cls & echo 正在重新绘制菜单",
+          "desc": "清屏后立刻输出新的界面内容"
+        }
+      ],
+      "form": [
+        {
+          "token": "& color 0A",
+          "label": "同时换配色",
+          "type": "flag",
+          "value": "false",
+          "hint": "清屏后套用黑底绿字"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "&",
+          "kind": "subcommand",
+          "desc": "与其它命令写在同一行"
+        },
+        {
+          "token": "echo",
+          "kind": "subcommand",
+          "desc": "清屏后立即输出新的内容"
+        },
+        {
+          "token": "color",
+          "kind": "subcommand",
+          "desc": "清屏并切换配色，常用于重绘菜单"
+        },
+        {
+          "token": "title",
+          "kind": "subcommand",
+          "desc": "重绘界面时顺便更新窗口标题"
+        },
+        {
+          "token": "pause",
+          "kind": "subcommand",
+          "desc": "清屏展示结果后暂停等待按键"
+        },
+        {
+          "token": "goto",
+          "kind": "subcommand",
+          "desc": "配合标签实现循环刷新的菜单"
+        },
+        {
+          "token": "for",
+          "kind": "subcommand",
+          "desc": "在循环里每次清屏刷新显示内容"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的说明"
+        }
+      ]
+    },
+    {
+      "name": "doskey-history",
+      "title": "管理命令历史缓冲区",
+      "desc": "查看当前窗口执行过的命令、调整历史缓冲区大小，或重新安装命令行编辑功能。命令历史只保存在当前 cmd 窗口里，关掉窗口就没了，可以用管道把历史复制出来。",
+      "usage": "doskey /history | /listsize=行数 | /reinstall | /insert | /overstrike",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "命令历史",
+        "缓冲区",
+        "编辑模式"
+      ],
+      "examples": [
+        {
+          "cmd": "doskey /history",
+          "desc": "查看本次窗口里输入过的全部命令"
+        },
+        {
+          "cmd": "doskey /listsize=200",
+          "desc": "把命令历史缓冲区扩大到 200 行"
+        },
+        {
+          "cmd": "doskey /history | clip",
+          "desc": "把历史记录一次性复制到剪贴板"
+        },
+        {
+          "cmd": "doskey /reinstall",
+          "desc": "重新加载命令行编辑功能并清空历史"
+        }
+      ],
+      "form": [
+        {
+          "token": "/listsize=",
+          "label": "历史行数",
+          "type": "number",
+          "value": "200",
+          "hint": "缓冲区能保存的命令行数"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<宏名>",
+          "kind": "value",
+          "desc": "只查看某一个宏的定义",
+          "valueHint": "ls"
+        },
+        {
+          "token": "/history",
+          "kind": "flag",
+          "desc": "列出本次会话执行过的全部命令"
+        },
+        {
+          "token": "/listsize",
+          "kind": "option",
+          "desc": "设置命令历史缓冲区保存的行数",
+          "valueHint": "=<行数>"
+        },
+        {
+          "token": "/reinstall",
+          "kind": "flag",
+          "desc": "重新安装命令行编辑与历史功能，会清空历史"
+        },
+        {
+          "token": "/insert",
+          "kind": "flag",
+          "desc": "新输入的字符插入到光标位置"
+        },
+        {
+          "token": "/overstrike",
+          "kind": "flag",
+          "desc": "新输入的字符覆盖原有字符"
+        },
+        {
+          "token": "/macros",
+          "kind": "option",
+          "desc": "查看已定义的宏，可指定某个程序",
+          "valueHint": "[:all|:exename]"
+        },
+        {
+          "token": "/macrofile",
+          "kind": "option",
+          "desc": "从文本文件批量载入宏定义",
+          "valueHint": "=<文件名>"
+        },
+        {
+          "token": "/exename",
+          "kind": "option",
+          "desc": "指定要管理宏或历史的程序",
+          "valueHint": "=<程序名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把历史记录通过管道交给 clip 等命令",
+          "valueHint": "<命令>"
+        }
+      ]
+    }
+  ]
+}

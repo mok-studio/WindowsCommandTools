@@ -1,0 +1,1455 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "脚本、模块与语言",
+  "icon": "script",
+  "commands": [
+    {
+      "name": "Get-Help",
+      "aliases": ["help", "man"],
+      "title": "查看帮助文档",
+      "desc": "显示 cmdlet、函数、脚本或概念主题的帮助内容，是学习任何 PowerShell 命令的第一入口。-Examples 直接看示例代码，-Full 展开全部内容，-Online 用浏览器打开官方文档。",
+      "usage": "Get-Help [[-Name] <String>] [-Path <String>] [-Category <String[]>] [-Full] [-Detailed] [-Examples] [-Parameter <String>] [-Online] [-ShowWindow]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["帮助", "示例", "语法"],
+      "examples": [
+        { "cmd": "Get-Help Get-ChildItem -Examples", "desc": "只看 Get-ChildItem 的使用示例" },
+        { "cmd": "Get-Help about_Execution_Policies", "desc": "查看执行策略的概念性帮助主题" },
+        { "cmd": "Get-Help Get-Date -Parameter Format", "desc": "查看 Format 这一个参数的详细说明" },
+        { "cmd": "help Get-Service -Full", "desc": "用 help 函数分页浏览完整帮助" }
+      ],
+      "form": [
+        { "token": "", "label": "帮助主题", "type": "text", "value": "Get-ChildItem", "hint": "命令名或 about_ 主题名" },
+        { "token": "-Examples", "label": "只看示例", "type": "flag", "value": "false", "hint": "直接列出示例代码" },
+        { "token": "-Parameter", "label": "指定参数", "type": "text", "value": "Path", "hint": "查看某个参数的说明" },
+        { "token": "-Online", "label": "网页文档", "type": "flag", "value": "false", "hint": "用默认浏览器打开在线帮助" }
+      ],
+      "nodes": [
+        { "token": "<帮助主题>", "kind": "value", "desc": "要查询的命令名、别名或 about_ 主题名", "valueHint": "命令名或主题" },
+        { "token": "-Name", "kind": "option", "desc": "帮助主题名称，支持通配符", "valueHint": "<主题名>" },
+        { "token": "-Category", "kind": "option", "desc": "按帮助类别筛选，如 Cmdlet、Provider", "valueHint": "<类别>", "enum": ["Alias", "Cmdlet", "Provider", "General", "FAQ", "Glossary", "HelpFile", "ScriptCommand", "Function", "Filter", "ExternalScript", "All"] },
+        { "token": "-Component", "kind": "option", "desc": "按组件名筛选相关帮助主题", "valueHint": "<组件>" },
+        { "token": "-Functionality", "kind": "option", "desc": "按功能分类筛选帮助主题", "valueHint": "<功能>" },
+        { "token": "-Role", "kind": "option", "desc": "按角色分类筛选帮助主题", "valueHint": "<角色>" },
+        { "token": "-Path", "kind": "option", "desc": "指定帮助文件所在的实际路径", "valueHint": "<路径>" },
+        { "token": "-Detailed", "kind": "flag", "desc": "显示参数说明与示例等较详细内容" },
+        { "token": "-Full", "kind": "flag", "desc": "显示帮助的全部内容，相当于最详细视图" },
+        { "token": "-Examples", "kind": "flag", "desc": "只显示示例部分" },
+        { "token": "-Parameter", "kind": "option", "desc": "只显示指定参数及其说明", "valueHint": "<参数名>" },
+        { "token": "-Online", "kind": "flag", "desc": "在默认浏览器中打开在线帮助页" },
+        { "token": "-ShowWindow", "kind": "flag", "desc": "在可搜索的独立窗口中显示帮助" }
+      ]
+    },
+    {
+      "name": "Update-Help",
+      "aliases": [],
+      "title": "更新本机帮助",
+      "desc": "从微软官方源或指定目录下载最新帮助文件并安装到本机，替换旧版本。首次使用某模块或帮助内容过旧时执行；更新系统模块的帮助通常需要管理员权限。",
+      "usage": "Update-Help [[-Module] <String[]>] [[-SourcePath] <String[]>] [[-UICulture] <CultureInfo[]>] [-Recurse] [-Credential <PSCredential>] [-UseDefaultCredentials] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["帮助更新", "联网下载", "离线帮助"],
+      "examples": [
+        { "cmd": "Update-Help", "desc": "为所有已安装模块更新帮助" },
+        { "cmd": "Update-Help -Module Microsoft.PowerShell.Management -Force", "desc": "强制重新下载管理模块的帮助" },
+        { "cmd": "Update-Help -SourcePath \\\\srv\\share\\help", "desc": "从内网共享目录的 CAB 包更新帮助" },
+        { "cmd": "Update-Help -UICulture zh-CN", "desc": "只下载简体中文帮助文件" }
+      ],
+      "form": [
+        { "token": "-Module", "label": "模块", "type": "text", "value": "", "hint": "留空表示全部模块" },
+        { "token": "-SourcePath", "label": "帮助源目录", "type": "path", "value": "", "hint": "离线 CAB 包所在目录" },
+        { "token": "-UICulture", "label": "语言", "type": "select", "value": "zh-CN", "hint": "帮助文件语言代码", "options": ["zh-CN", "en-US"] },
+        { "token": "-Force", "label": "强制更新", "type": "flag", "value": "false", "hint": "忽略版本号重新下载" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要更新帮助的模块名，可写多个", "valueHint": "模块名" },
+        { "token": "-Module", "kind": "option", "desc": "指定模块，支持通配符；留空为全部", "valueHint": "<模块名>" },
+        { "token": "-SourcePath", "kind": "option", "desc": "从本地或共享目录读取帮助 Cab 包", "valueHint": "<目录>" },
+        { "token": "-UICulture", "kind": "option", "desc": "帮助语言代码，如 zh-CN、en-US", "valueHint": "<语言>", "enum": ["zh-CN", "en-US"] },
+        { "token": "-LiteralPath", "kind": "option", "desc": "与 SourcePath 类似，但不解释通配符", "valueHint": "<目录>" },
+        { "token": "-FullyQualifiedModule", "kind": "option", "desc": "用模块名加版本的全限定名指定模块", "valueHint": "<模块全名>" },
+        { "token": "-Recurse", "kind": "flag", "desc": "递归搜索 SourcePath 下的子目录" },
+        { "token": "-Credential", "kind": "option", "desc": "访问网络共享时使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-UseDefaultCredentials", "kind": "flag", "desc": "用当前登录用户的默认凭据访问源" },
+        { "token": "-Force", "kind": "flag", "desc": "忽略版本检查，强制重新下载安装" }
+      ]
+    },
+    {
+      "name": "Save-Help",
+      "aliases": [],
+      "title": "保存帮助到目录",
+      "desc": "把最新帮助文件下载后保存为 Cab 包，供不能联网的机器使用。先在联网机器执行 Save-Help，再到离线机器用 Update-Help -SourcePath 安装。",
+      "usage": "Save-Help [-DestinationPath] <String[]> [[-Module] <PSModuleInfo[]>] [[-UICulture] <CultureInfo[]>] [-Credential <PSCredential>] [-UseDefaultCredentials] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["离线帮助", "下载帮助", "帮助包"],
+      "examples": [
+        { "cmd": "Save-Help -DestinationPath .\\pshelp", "desc": "把所有模块帮助保存到当前目录 pshelp" },
+        { "cmd": "Save-Help -DestinationPath D:\\help -Module Microsoft.PowerShell.Management", "desc": "只保存指定模块的帮助文件" },
+        { "cmd": "Save-Help -DestinationPath \\\\srv\\share\\help -UICulture zh-CN -Force", "desc": "把中文帮助强制保存到共享目录" },
+        { "cmd": "Update-Help -SourcePath \\\\srv\\share\\help", "desc": "在离线机器上从这个目录安装帮助" }
+      ],
+      "form": [
+        { "token": "", "label": "保存目录", "type": "path", "value": ".\\pshelp", "hint": "帮助 Cab 包的输出目录" },
+        { "token": "-Module", "label": "模块", "type": "text", "value": "", "hint": "留空表示全部模块" },
+        { "token": "-UICulture", "label": "语言", "type": "select", "value": "zh-CN", "hint": "要下载的语言代码", "options": ["zh-CN", "en-US"] },
+        { "token": "-Force", "label": "强制保存", "type": "flag", "value": "false", "hint": "跳过版本检查" }
+      ],
+      "nodes": [
+        { "token": "<保存目录>", "kind": "value", "desc": "帮助 Cab 包保存到的目录，必填位置参数", "valueHint": "目录路径" },
+        { "token": "-DestinationPath", "kind": "option", "desc": "帮助文件的输出目录", "valueHint": "<目录>" },
+        { "token": "-Module", "kind": "option", "desc": "指定模块对象，可用 Get-Module 管道传入", "valueHint": "<模块对象>" },
+        { "token": "-UICulture", "kind": "option", "desc": "帮助语言代码，如 zh-CN、en-US", "valueHint": "<语言>", "enum": ["zh-CN", "en-US"] },
+        { "token": "-LiteralPath", "kind": "option", "desc": "输出目录的另一种写法，不解释通配符", "valueHint": "<目录>" },
+        { "token": "-FullyQualifiedModule", "kind": "option", "desc": "用模块名加版本的全限定名指定模块", "valueHint": "<模块全名>" },
+        { "token": "-Credential", "kind": "option", "desc": "写入网络共享时使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-UseDefaultCredentials", "kind": "flag", "desc": "用当前登录用户的默认凭据访问源" },
+        { "token": "-Force", "kind": "flag", "desc": "跳过版本检查，强制重新保存" },
+        { "token": "Save-Help -DestinationPath <目录> -Module <模块>", "kind": "syntax", "desc": "只导出指定模块的帮助到目录" },
+        { "token": "Update-Help -SourcePath <目录>", "kind": "syntax", "desc": "离线机器上从该目录安装已保存的帮助" }
+      ]
+    },
+    {
+      "name": "Get-Command",
+      "aliases": ["gcm"],
+      "title": "查找命令",
+      "desc": "查找本机可用的命令（cmdlet、函数、别名、外部程序），是探索 PowerShell 最常用的入口。-Syntax 可以直接看某个命令的语法。",
+      "usage": "Get-Command [[-Name] <String[]>] [-Module <String[]>] [-CommandType <CommandTypes>] [-Syntax] [-All]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["查找命令", "语法", "模块"],
+      "examples": [
+        { "cmd": "Get-Command -Name Get-ChildItem -Syntax", "desc": "查看 Get-ChildItem 的完整语法" },
+        { "cmd": "Get-Command -CommandType Cmdlet -Module Microsoft.PowerShell.Management", "desc": "列出管理模块里的全部 cmdlet" },
+        { "cmd": "Get-Command -Name Get-*Service*", "desc": "按通配符查找名字里带 Service 的命令" }
+      ],
+      "form": [
+        { "token": "", "label": "命令名", "type": "text", "value": "Get-ChildItem", "hint": "支持通配符" },
+        { "token": "-Syntax", "label": "只看语法", "type": "flag", "value": "false", "hint": "直接输出语法树" },
+        { "token": "-CommandType", "label": "类型", "type": "select", "value": "Cmdlet", "hint": "限定命令类型", "options": ["Alias", "Function", "Filter", "Cmdlet", "ExternalScript", "Application", "Script", "All"] }
+      ],
+      "nodes": [
+        { "token": "<命令名>", "kind": "value", "desc": "要查找的命令名，支持通配符", "valueHint": "命令名" },
+        { "token": "-Name", "kind": "option", "desc": "命令名称，支持通配符", "valueHint": "<名称>" },
+        { "token": "-CommandType", "kind": "option", "desc": "限定命令类型", "valueHint": "<类型>", "enum": ["Alias", "Function", "Filter", "Cmdlet", "ExternalScript", "Application", "Script", "All"] },
+        { "token": "-Module", "kind": "option", "desc": "限定来自哪个模块", "valueHint": "<模块名>" },
+        { "token": "-Syntax", "kind": "flag", "desc": "只输出该命令的语法" },
+        { "token": "-All", "kind": "flag", "desc": "显示所有匹配项，包括同名遮蔽的" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "配合 -Syntax 展示带实参的形式", "valueHint": "<实参>" },
+        { "token": "-TotalCount", "kind": "option", "desc": "限制返回条数", "valueHint": "<数量>" },
+        { "token": "-FullyQualifiedModule", "kind": "option", "desc": "用全限定模块名筛选", "valueHint": "<模块>" },
+        { "token": "-ListImported", "kind": "flag", "desc": "只列当前会话里已导入的命令" },
+        { "token": "-ShowCommandInfo", "kind": "flag", "desc": "以对象形式返回详细的命令信息" },
+        { "token": "Get-Command iwr -UseAbbreviationExpansion", "kind": "syntax", "desc": "PowerShell 7 起支持按首字母缩写查找命令" },
+        { "token": "-Verb", "kind": "option", "desc": "按动词筛选，如 Get、Set", "valueHint": "<动词>" },
+        { "token": "-Noun", "kind": "option", "desc": "按名词筛选，如 Service、Item", "valueHint": "<名词>" },
+        { "token": "-ParameterName", "kind": "option", "desc": "查找含有指定参数名的命令", "valueHint": "<参数名>" },
+        { "token": "-ParameterType", "kind": "option", "desc": "查找含有指定类型参数的命令", "valueHint": "<类型名>" }
+      ]
+    },
+    {
+      "name": "Get-Alias",
+      "aliases": ["gal"],
+      "title": "查看别名",
+      "desc": "列出当前会话中的命令别名，也可以反查某个命令有哪些别名。别名只是快捷写法，排查脚本行为与预期不符时先看看别名指向什么。",
+      "usage": "Get-Alias [[-Name] <String[]>] [-Exclude <String[]>] [-Scope <String>] [-Definition <String[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["别名", "查询", "会话"],
+      "examples": [
+        { "cmd": "Get-Alias -Name g*", "desc": "用通配符列出以 g 开头的别名" },
+        { "cmd": "Get-Alias -Definition Get-ChildItem", "desc": "反查 Get-ChildItem 有哪些别名" },
+        { "cmd": "Get-Alias | Sort-Object Name", "desc": "按名称排序查看全部别名" },
+        { "cmd": "Get-Alias -Scope Global", "desc": "只查看全局范围里的别名" }
+      ],
+      "form": [
+        { "token": "", "label": "别名", "type": "text", "value": "g*", "hint": "支持通配符，留空为全部" },
+        { "token": "-Definition", "label": "反查目标命令", "type": "text", "value": "Get-ChildItem", "hint": "查看该命令的别名" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "别名所在作用域", "options": ["Global", "Local", "Script", "Private"] }
+      ],
+      "nodes": [
+        { "token": "<别名>", "kind": "value", "desc": "要查询的别名，支持通配符", "valueHint": "别名" },
+        { "token": "-Name", "kind": "option", "desc": "别名名称，支持通配符", "valueHint": "<别名>" },
+        { "token": "-Definition", "kind": "option", "desc": "反查指向该命令的别名，支持通配符", "valueHint": "<命令名>" },
+        { "token": "-Scope", "kind": "option", "desc": "限定作用域，如 Global、Local、Script", "valueHint": "<作用域>" },
+        { "token": "-Exclude", "kind": "option", "desc": "排除指定名称的别名", "valueHint": "<别名>" },
+        { "token": "Get-Alias -Definition Get-ChildItem", "kind": "syntax", "desc": "查看某命令拥有的全部别名" },
+        { "token": "Get-Alias -Name g*", "kind": "syntax", "desc": "用通配符筛选别名" },
+        { "token": "Get-Alias | Sort-Object Name", "kind": "syntax", "desc": "按名称排序浏览全部别名" },
+        { "token": "gal -Definition Remove-Item", "kind": "syntax", "desc": "用别名 gal 反查 Remove-Item 的别名" },
+        { "token": "Get-Alias -Scope Global", "kind": "syntax", "desc": "只看全局作用域的别名" },
+        { "token": "Get-Alias | Where-Object Options -eq ReadOnly", "kind": "syntax", "desc": "筛选只读别名，这些别名不能直接改" },
+        { "token": "(Get-Alias cls).Definition", "kind": "syntax", "desc": "查看单个别名实际指向的命令" }
+      ]
+    },
+    {
+      "name": "Set-Alias",
+      "aliases": ["sal"],
+      "title": "创建或修改别名",
+      "desc": "为已有命令创建别名，或修改现有别名的指向，作用范围默认是当前作用域。别名不能带参数，需要固定参数时请改用函数。",
+      "usage": "Set-Alias [-Name] <String> [-Value] <String> [-Description <String>] [-Option <ScopedItemOptions>] [-PassThru] [-Scope <String>] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["别名", "快捷命令", "会话"],
+      "examples": [
+        { "cmd": "Set-Alias -Name ll -Value Get-ChildItem", "desc": "用 ll 代替 Get-ChildItem" },
+        { "cmd": "Set-Alias -Name np -Value notepad.exe -Scope Global", "desc": "在全局作用域创建 notepad 的别名" },
+        { "cmd": "Set-Alias -Name p -Value Get-Process -Force", "desc": "强制覆盖已存在的同名别名" },
+        { "cmd": "Set-Alias -Name cfg -Value Get-Content -Option ReadOnly", "desc": "创建只读别名，防止被误改" }
+      ],
+      "form": [
+        { "token": "", "label": "别名", "type": "text", "value": "ll", "hint": "要创建的别名名称" },
+        { "token": "-Value", "label": "目标命令", "type": "text", "value": "Get-ChildItem", "hint": "别名指向的命令或程序" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "别名生效范围", "options": ["Global", "Local", "Script", "Private"] },
+        { "token": "-Force", "label": "强制覆盖", "type": "flag", "value": "false", "hint": "覆盖同名只读别名之外的冲突项" }
+      ],
+      "nodes": [
+        { "token": "<别名>", "kind": "value", "desc": "要创建的别名，第一个位置参数", "valueHint": "别名" },
+        { "token": "<命令或程序>", "kind": "value", "desc": "别名指向的命令名或程序路径，第二个位置参数", "valueHint": "命令名" },
+        { "token": "-Name", "kind": "option", "desc": "别名名称", "valueHint": "<别名>" },
+        { "token": "-Value", "kind": "option", "desc": "别名指向的 cmdlet、函数或程序名", "valueHint": "<命令名>" },
+        { "token": "-Description", "kind": "option", "desc": "给别名加一段说明文字", "valueHint": "<说明>" },
+        { "token": "-Option", "kind": "option", "desc": "别名属性，如 ReadOnly、Constant", "valueHint": "<选项>", "enum": ["None", "ReadOnly", "Constant", "Private", "AllScope", "Unspecified"] },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" },
+        { "token": "-Force", "kind": "flag", "desc": "覆盖已存在的同名别名" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出创建的别名对象，便于继续处理" },
+        { "token": "Set-Alias -Name ll -Value Get-ChildItem", "kind": "syntax", "desc": "最常用的写法：给命令起短名" },
+        { "token": "Set-Alias -Name np -Value notepad.exe -Scope Global", "kind": "syntax", "desc": "在全局作用域为程序设置别名" },
+        { "token": "Set-Alias -Name x -Value Get-Date -Option Constant", "kind": "syntax", "desc": "设为常量别名，创建后无法删除或修改" },
+        { "token": "Set-Alias -Name p -Value Get-Process -Force", "kind": "syntax", "desc": "强制覆盖已经存在的同名别名" }
+      ]
+    },
+    {
+      "name": "New-Alias",
+      "aliases": ["nal"],
+      "title": "新建别名",
+      "desc": "创建一个全新的别名，如果同名别名已存在就会报错，因此比 Set-Alias 更安全。别名只存在于当前会话或作用域，重启后失效。",
+      "usage": "New-Alias [-Name] <String> [-Value] <String> [-Description <String>] [-Option <ScopedItemOptions>] [-PassThru] [-Scope <String>] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["别名", "新建", "会话"],
+      "examples": [
+        { "cmd": "New-Alias -Name gchs -Value Get-ChildItem", "desc": "新建别名 gchs 指向 Get-ChildItem" },
+        { "cmd": "New-Alias -Name srv -Value Get-Service -Description '查询服务'", "desc": "新建带说明的别名" },
+        { "cmd": "New-Alias -Name p -Value Get-Process -Scope Global", "desc": "在全局作用域新建别名" },
+        { "cmd": "New-Alias -Name mx -Value Get-ChildItem -Option ReadOnly", "desc": "新建只读别名，防止被覆盖" }
+      ],
+      "form": [
+        { "token": "", "label": "别名", "type": "text", "value": "gchs", "hint": "新别名的名称" },
+        { "token": "-Value", "label": "目标命令", "type": "text", "value": "Get-ChildItem", "hint": "别名指向的命令" },
+        { "token": "-Description", "label": "说明", "type": "text", "value": "", "hint": "别名用途描述" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "别名生效范围", "options": ["Global", "Local", "Script", "Private"] }
+      ],
+      "nodes": [
+        { "token": "<别名>", "kind": "value", "desc": "要创建的别名，第一个位置参数", "valueHint": "别名" },
+        { "token": "<命令或程序>", "kind": "value", "desc": "别名指向的命令，第二个位置参数", "valueHint": "命令名" },
+        { "token": "-Name", "kind": "option", "desc": "新别名的名称", "valueHint": "<别名>" },
+        { "token": "-Value", "kind": "option", "desc": "别名指向的命令或程序名", "valueHint": "<命令名>" },
+        { "token": "-Description", "kind": "option", "desc": "别名的说明文字", "valueHint": "<说明>" },
+        { "token": "-Option", "kind": "option", "desc": "别名属性，如 ReadOnly、AllScope", "valueHint": "<选项>", "enum": ["None", "ReadOnly", "Constant", "Private", "AllScope", "Unspecified"] },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" },
+        { "token": "-Force", "kind": "flag", "desc": "同名别名存在时直接覆盖而不报错" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出新建的别名对象" },
+        { "token": "New-Alias -Name gchs -Value Get-ChildItem", "kind": "syntax", "desc": "新建一个最简单的别名" },
+        { "token": "New-Alias -Name srv -Value Get-Service -Description '查询服务'", "kind": "syntax", "desc": "新建带说明文字的别名" },
+        { "token": "New-Alias -Name mx -Value Get-ChildItem -Option ReadOnly", "kind": "syntax", "desc": "新建只读别名，避免被后续脚本改掉" },
+        { "token": "New-Alias -Name p -Value Get-Process -Scope Global", "kind": "syntax", "desc": "让别名在全局作用域可用" }
+      ]
+    },
+    {
+      "name": "Remove-Alias",
+      "aliases": ["ral"],
+      "title": "删除别名",
+      "desc": "从当前会话中删除指定别名，只影响会话内的别名定义，不改动别名指向的真实命令或程序。此命令需要 PowerShell 6.0 及以上版本。",
+      "usage": "Remove-Alias [-Name] <String[]> [-Scope <String>] [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["别名", "删除", "清理"],
+      "examples": [
+        { "cmd": "Remove-Alias -Name gchs", "desc": "删除名为 gchs 的别名" },
+        { "cmd": "Remove-Alias -Name aa, bb", "desc": "一次删除多个别名" },
+        { "cmd": "Remove-Alias -Name ll -Scope Global", "desc": "删除全局作用域中的别名" },
+        { "cmd": "Remove-Item Alias:ll", "desc": "在 Windows PowerShell 5.1 中的等价做法" }
+      ],
+      "form": [
+        { "token": "", "label": "别名", "type": "text", "value": "gchs", "hint": "要删除的别名，可写多个" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "别名所在作用域", "options": ["Global", "Local", "Script", "Private"] },
+        { "token": "-Force", "label": "强制删除", "type": "flag", "value": "false", "hint": "强制删除只读别名" }
+      ],
+      "nodes": [
+        { "token": "<别名>", "kind": "value", "desc": "要删除的别名，可一次写多个", "valueHint": "别名" },
+        { "token": "-Name", "kind": "option", "desc": "要删除的别名名称，接受字符串数组", "valueHint": "<别名>" },
+        { "token": "-Scope", "kind": "option", "desc": "限定作用域，如 Global、Local", "valueHint": "<作用域>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制删除只读别名" },
+        { "token": "Remove-Alias -Name gchs", "kind": "syntax", "desc": "删除当前作用域里的一个别名" },
+        { "token": "Remove-Alias -Name aa, bb", "kind": "syntax", "desc": "用逗号一次删除多个别名" },
+        { "token": "Remove-Alias -Name ll -Scope Global", "kind": "syntax", "desc": "删除全局作用域中的别名" },
+        { "token": "Remove-Alias -Name ll -Force", "kind": "syntax", "desc": "强制删除只读别名" },
+        { "token": "Remove-Item Alias:ll", "kind": "syntax", "desc": "Windows PowerShell 5.1 可用的替代写法" },
+        { "token": "Get-Alias -Name ll", "kind": "syntax", "desc": "删除前先确认该别名确实存在" },
+        { "token": "$PSVersionTable.PSVersion", "kind": "syntax", "desc": "确认 PowerShell 版本是否支持本命令" }
+      ]
+    },
+    {
+      "name": "Import-Module",
+      "aliases": ["ipmo"],
+      "title": "导入模块",
+      "desc": "把模块加载到当前会话，其中的 cmdlet、函数和变量立即可用。只对当前会话有效，新开窗口需重新导入；导入会执行模块代码，请确认模块来源可信。",
+      "usage": "Import-Module [-Name] <String[]> [-Global] [-Prefix <String>] [-Function <String[]>] [-Cmdlet <String[]>] [-Alias <String[]>] [-Variable <String[]>] [-Force] [-PassThru] [-AsCustomObject] [-MinimumVersion <Version>] [-RequiredVersion <Version>] [-ArgumentList <Object[]>] [-NoClobber] [-Scope <String>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["模块", "导入", "会话"],
+      "examples": [
+        { "cmd": "Import-Module -Name Microsoft.PowerShell.Archive", "desc": "导入压缩包管理模块" },
+        { "cmd": "Import-Module -Name .\\MyModule.psm1", "desc": "直接导入脚本模块文件" },
+        { "cmd": "Import-Module -Name MyModule -Function Get-Thing", "desc": "只导入模块里的指定函数" },
+        { "cmd": "Import-Module -Name MyModule -Prefix Corp -PassThru", "desc": "给命令加前缀避免冲突并返回模块对象" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "Microsoft.PowerShell.Archive", "hint": "模块名或 .psm1 文件路径" },
+        { "token": "-Prefix", "label": "命令前缀", "type": "text", "value": "", "hint": "给导入的命令统一加前缀" },
+        { "token": "-Function", "label": "只导入函数", "type": "text", "value": "", "hint": "限定要导入的成员" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "导入到哪个作用域", "options": ["Global", "Local"] },
+        { "token": "-PassThru", "label": "返回模块对象", "type": "flag", "value": "false", "hint": "输出导入的模块对象" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要导入的模块名或模块文件路径", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "模块名称，支持通配符和 .psm1 路径", "valueHint": "<模块名>" },
+        { "token": "-Global", "kind": "flag", "desc": "导入到全局会话，所有作用域都能用" },
+        { "token": "-Prefix", "kind": "option", "desc": "给导入的命令名统一加前缀，避免重名", "valueHint": "<前缀>" },
+        { "token": "-Function", "kind": "option", "desc": "只导入指定的函数", "valueHint": "<函数名>" },
+        { "token": "-Cmdlet", "kind": "option", "desc": "只导入指定的 cmdlet", "valueHint": "<cmdlet 名>" },
+        { "token": "-Variable", "kind": "option", "desc": "只导入指定的变量", "valueHint": "<变量名>" },
+        { "token": "-Alias", "kind": "option", "desc": "只导入指定的别名", "valueHint": "<别名>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制重新加载模块，用于覆盖已加载版本" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出导入的模块对象，便于查看信息" },
+        { "token": "-AsCustomObject", "kind": "flag", "desc": "把模块成员作为自定义对象返回" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "要求模块版本不低于此值", "valueHint": "<版本>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "要求模块版本不高于此值", "valueHint": "<版本>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "要求精确的模块版本", "valueHint": "<版本>" },
+        { "token": "-ModuleInfo", "kind": "option", "desc": "传入 Get-Module 得到的模块对象", "valueHint": "<模块对象>" },
+        { "token": "-FullyQualifiedName", "kind": "option", "desc": "用模块名加版本的全限定名指定模块", "valueHint": "<模块全名>" },
+        { "token": "-Assembly", "kind": "option", "desc": "导入指定的 .NET 程序集文件", "valueHint": "<程序集>" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "传给脚本模块的参数值", "valueHint": "<实参>" },
+        { "token": "-DisableNameChecking", "kind": "flag", "desc": "不检查未批准动词的命令名警告" },
+        { "token": "-NoClobber", "kind": "flag", "desc": "不覆盖会话中已有的同名命令" },
+        { "token": "-Scope", "kind": "option", "desc": "导入到 Global 或 Local 作用域", "valueHint": "<作用域>", "enum": ["Global", "Local"] }
+      ]
+    },
+    {
+      "name": "Remove-Module",
+      "aliases": ["rmo"],
+      "title": "从会话移除模块",
+      "desc": "从当前会话中卸载模块，其命令随即不可用，但磁盘上的模块文件不会被删除。常与 Get-Module 配合清理会话环境，或重新导入改动后的模块。",
+      "usage": "Remove-Module [-Name] <String[]> [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["模块", "卸载", "会话"],
+      "examples": [
+        { "cmd": "Remove-Module -Name MyModule", "desc": "从当前会话移除指定模块" },
+        { "cmd": "Get-Module -Name MyModule | Remove-Module", "desc": "把已加载模块通过管道移除" },
+        { "cmd": "Remove-Module -Name MyModule -Force", "desc": "强制移除即使模块中有只读成员" },
+        { "cmd": "Import-Module .\\MyModule.psm1 -Force", "desc": "改完模块后重新导入以生效" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "MyModule", "hint": "要移除的模块名，可多个" },
+        { "token": "-Force", "label": "强制移除", "type": "flag", "value": "false", "hint": "忽略只读成员限制" },
+        { "token": "-ModuleInfo", "label": "模块对象", "type": "text", "value": "", "hint": "Get-Module 得到的对象" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要移除的模块名，可写多个", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-FullyQualifiedName", "kind": "option", "desc": "用模块名加版本的全限定名指定模块", "valueHint": "<模块全名>" },
+        { "token": "-ModuleInfo", "kind": "option", "desc": "传入 Get-Module 得到的模块对象", "valueHint": "<模块对象>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制移除模块及其只读成员" },
+        { "token": "Remove-Module -Name MyModule", "kind": "syntax", "desc": "按名称移除已经加载的模块" },
+        { "token": "Get-Module -Name MyModule | Remove-Module", "kind": "syntax", "desc": "用管道把模块对象送给本命令" },
+        { "token": "Remove-Module -Name MyModule -Force", "kind": "syntax", "desc": "强制移除，忽略只读成员" },
+        { "token": "Remove-Module -Name ModA, ModB", "kind": "syntax", "desc": "一次移除多个模块" },
+        { "token": "Get-Module", "kind": "syntax", "desc": "查看当前会话已加载的模块" },
+        { "token": "Import-Module .\\MyModule.psm1 -Force", "kind": "syntax", "desc": "修改模块后用重新导入代替移除" }
+      ]
+    },
+    {
+      "name": "Get-Module",
+      "aliases": ["gmo"],
+      "title": "列出模块",
+      "desc": "列出当前会话中已加载的模块，加 -ListAvailable 则列出本机所有可导入的模块。查看模块版本、导出命令和存放路径时最常用。",
+      "usage": "Get-Module [[-Name] <String[]>] [-FullyQualifiedName <ModuleSpecification[]>] [-All] [-ListAvailable] [-PSEdition <String>] [-Refresh]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["模块", "列表", "版本"],
+      "examples": [
+        { "cmd": "Get-Module", "desc": "列出当前会话已加载的模块" },
+        { "cmd": "Get-Module -ListAvailable -Name Pester", "desc": "查看本机可用的 Pester 模块及版本" },
+        { "cmd": "Get-Module -ListAvailable | Sort-Object Name", "desc": "按名称排序列出全部可用模块" },
+        { "cmd": "(Get-Module -ListAvailable Pester).ExportedCommands", "desc": "查看模块导出的命令" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "", "hint": "支持通配符，留空为全部" },
+        { "token": "-ListAvailable", "label": "含未加载模块", "type": "flag", "value": "false", "hint": "列出本机所有可导入模块" },
+        { "token": "-All", "label": "显示全部", "type": "flag", "value": "false", "hint": "包含同名的多个版本" },
+        { "token": "-PSEdition", "label": "版本分支", "type": "select", "value": "Desktop", "hint": "筛选模块适用的分支", "options": ["Desktop", "Core"] }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要查询的模块名，支持通配符", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-All", "kind": "flag", "desc": "显示同名模块的每个已加载版本" },
+        { "token": "-ListAvailable", "kind": "flag", "desc": "列出本机所有可导入模块，含未加载的" },
+        { "token": "-FullyQualifiedName", "kind": "option", "desc": "用模块名加版本的全限定名筛选", "valueHint": "<模块全名>" },
+        { "token": "-PSEdition", "kind": "option", "desc": "按 Desktop 或 Core 分支筛选模块", "valueHint": "<分支>", "enum": ["Desktop", "Core"] },
+        { "token": "-Refresh", "kind": "flag", "desc": "刷新模块缓存后重新查询" },
+        { "token": "-PSSession", "kind": "option", "desc": "查询远程会话中的模块", "valueHint": "<会话>" },
+        { "token": "-CimSession", "kind": "option", "desc": "通过 CIM 会话查询远程模块", "valueHint": "<CIM 会话>" },
+        { "token": "-CimResourceUri", "kind": "option", "desc": "CIM 查询使用的资源地址", "valueHint": "<URI>" },
+        { "token": "-CimNamespace", "kind": "option", "desc": "CIM 查询使用的命名空间", "valueHint": "<命名空间>" }
+      ]
+    },
+    {
+      "name": "Find-Module",
+      "aliases": [],
+      "title": "搜索联机模块",
+      "desc": "在已注册的联机仓库（默认 PowerShell Gallery）中搜索模块并返回版本信息，本身不安装任何内容。搜索结果可直接通过管道交给 Install-Module 安装。",
+      "usage": "Find-Module [[-Name] <String[]>] [-MinimumVersion <Version>] [-RequiredVersion <Version>] [-AllVersions] [-Tag <String[]>] [-Command <String[]>] [-Repository <String[]>] [-Credential <PSCredential>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["模块", "联机搜索", "仓库"],
+      "examples": [
+        { "cmd": "Find-Module -Name Pester", "desc": "在联机仓库里查找 Pester 模块" },
+        { "cmd": "Find-Module -Name Pester -AllVersions", "desc": "列出 Pester 的全部可用版本" },
+        { "cmd": "Find-Module -Name Pester | Install-Module -Scope CurrentUser", "desc": "找到后直接安装到当前用户" },
+        { "cmd": "Find-Module -Command Get-WindowsUpdate", "desc": "按命令名反查提供该命令的模块" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "Pester", "hint": "支持通配符，留空为全部" },
+        { "token": "-AllVersions", "label": "所有版本", "type": "flag", "value": "false", "hint": "返回全部版本而非仅最新" },
+        { "token": "-Tag", "label": "标签", "type": "text", "value": "", "hint": "按仓库标签筛选" },
+        { "token": "-Repository", "label": "仓库", "type": "text", "value": "PSGallery", "hint": "指定要搜索的仓库名" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要搜索的模块名，支持通配符", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "限定最低版本", "valueHint": "<版本>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "限定最高版本", "valueHint": "<版本>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "精确限定某个版本", "valueHint": "<版本>" },
+        { "token": "-AllVersions", "kind": "flag", "desc": "返回全部版本，而不是只返回最新版" },
+        { "token": "-IncludeDependencies", "kind": "flag", "desc": "连同模块的依赖项一起返回" },
+        { "token": "-Filter", "kind": "option", "desc": "用仓库支持的搜索语法做精确过滤", "valueHint": "<搜索表达式>" },
+        { "token": "-Tag", "kind": "option", "desc": "按标签筛选，如 Azure、SQL", "valueHint": "<标签>" },
+        { "token": "-Includes", "kind": "option", "desc": "按模块内部包含的元素类型筛选", "valueHint": "<类型>", "enum": ["DscResource", "Cmdlet", "Function", "Workflow", "RoleCapability", "Command"] },
+        { "token": "-DscResource", "kind": "option", "desc": "查找含有指定 DSC 资源的模块", "valueHint": "<DSC 资源名>" },
+        { "token": "-RoleCapability", "kind": "option", "desc": "查找含有指定角色能力的模块", "valueHint": "<角色能力>" },
+        { "token": "-Command", "kind": "option", "desc": "查找提供指定命令的模块", "valueHint": "<命令名>" },
+        { "token": "-Repository", "kind": "option", "desc": "指定仓库名，默认 PSGallery", "valueHint": "<仓库名>" },
+        { "token": "-Proxy", "kind": "option", "desc": "访问仓库时使用的代理地址", "valueHint": "<代理 URI>" },
+        { "token": "-ProxyCredential", "kind": "option", "desc": "代理服务器所需凭据", "valueHint": "<凭据>" },
+        { "token": "-Credential", "kind": "option", "desc": "访问须认证的仓库时使用的凭据", "valueHint": "<凭据>" }
+      ]
+    },
+    {
+      "name": "Install-Module",
+      "aliases": [],
+      "title": "安装联机模块",
+      "desc": "从 PowerShell Gallery 等仓库下载并安装模块到本机。默认安装范围是所有用户，通常需要管理员权限；加 -Scope CurrentUser 可装到当前用户目录免提权。",
+      "usage": "Install-Module [-Name] <String[]> [-MinimumVersion <Version>] [-RequiredVersion <Version>] [-Repository <String[]>] [-Scope <String>] [-AllowClobber] [-SkipPublisherCheck] [-Force]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["模块", "安装", "仓库"],
+      "examples": [
+        { "cmd": "Install-Module -Name Pester -Scope CurrentUser", "desc": "把 Pester 装到当前用户目录，免提权" },
+        { "cmd": "Install-Module -Name PSReadLine -Force -AllowClobber", "desc": "强制安装并允许覆盖同名命令" },
+        { "cmd": "Install-Module -Name Pester -RequiredVersion 5.5.0", "desc": "安装指定版本的模块" },
+        { "cmd": "Find-Module -Name Pester | Install-Module -Scope CurrentUser", "desc": "先搜索再把结果通过管道安装" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "Pester", "hint": "要安装的模块名，可多个" },
+        { "token": "-Scope", "label": "安装范围", "type": "select", "value": "CurrentUser", "hint": "装给当前用户还是所有用户", "options": ["CurrentUser", "AllUsers"] },
+        { "token": "-Repository", "label": "仓库", "type": "text", "value": "PSGallery", "hint": "从哪个仓库安装" },
+        { "token": "-AllowClobber", "label": "允许覆盖命令", "type": "flag", "value": "false", "hint": "允许覆盖已有同名命令" },
+        { "token": "-Force", "label": "强制安装", "type": "flag", "value": "false", "hint": "跳过确认提示" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要安装的模块名，可写多个", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "要安装的模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-InputObject", "kind": "option", "desc": "传入 Find-Module 返回的对象", "valueHint": "<模块对象>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "允许安装的最低版本", "valueHint": "<版本>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "允许安装的最高版本", "valueHint": "<版本>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "只安装这个精确版本", "valueHint": "<版本>" },
+        { "token": "-Repository", "kind": "option", "desc": "指定仓库名，默认 PSGallery", "valueHint": "<仓库名>" },
+        { "token": "-Scope", "kind": "option", "desc": "安装给当前用户还是所有用户", "valueHint": "<范围>", "enum": ["CurrentUser", "AllUsers"] },
+        { "token": "-Credential", "kind": "option", "desc": "访问须认证的仓库时使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Proxy", "kind": "option", "desc": "下载时使用的代理地址", "valueHint": "<代理 URI>" },
+        { "token": "-ProxyCredential", "kind": "option", "desc": "代理服务器所需凭据", "valueHint": "<凭据>" },
+        { "token": "-AllowClobber", "kind": "flag", "desc": "允许安装后覆盖已有的同名命令" },
+        { "token": "-SkipPublisherCheck", "kind": "flag", "desc": "跳过模块发布者签名校验" },
+        { "token": "-Force", "kind": "flag", "desc": "跳过确认提示，直接安装" }
+      ]
+    },
+    {
+      "name": "Uninstall-Module",
+      "aliases": [],
+      "title": "卸载已装模块",
+      "desc": "从本机删除由 Install-Module 安装的模块，磁盘文件会被真正移除。卸载前建议先用 Get-InstalledModule 确认模块名和版本，避免删错。",
+      "usage": "Uninstall-Module [-Name] <String[]> [-MinimumVersion <Version>] [-RequiredVersion <Version>] [-AllVersions] [-Force]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["模块", "卸载", "清理"],
+      "examples": [
+        { "cmd": "Uninstall-Module -Name Pester", "desc": "卸载指定模块的最新版本" },
+        { "cmd": "Uninstall-Module -Name Pester -RequiredVersion 4.10.1", "desc": "只卸载某个具体版本" },
+        { "cmd": "Uninstall-Module -Name Pester -AllVersions", "desc": "卸载该模块的全部版本" },
+        { "cmd": "Get-InstalledModule -Name Pester | Uninstall-Module", "desc": "通过管道卸载查询到的模块" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "Pester", "hint": "要卸载的模块名，可多个" },
+        { "token": "-RequiredVersion", "label": "指定版本", "type": "text", "value": "", "hint": "只卸载这个版本" },
+        { "token": "-AllVersions", "label": "所有版本", "type": "flag", "value": "false", "hint": "卸载该模块的全部版本" },
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "false", "hint": "不弹出确认提示" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要卸载的模块名，可写多个", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "要卸载的模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-InputObject", "kind": "option", "desc": "传入 Get-InstalledModule 的对象", "valueHint": "<模块对象>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "限定要卸载的最低版本", "valueHint": "<版本>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "只卸载这个精确版本", "valueHint": "<版本>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "限定要卸载的最高版本", "valueHint": "<版本>" },
+        { "token": "-AllVersions", "kind": "flag", "desc": "卸载该模块的所有已安装版本" },
+        { "token": "-Force", "kind": "flag", "desc": "不弹出确认提示，直接卸载" },
+        { "token": "Uninstall-Module -Name Pester", "kind": "syntax", "desc": "卸载一个已安装模块" },
+        { "token": "Uninstall-Module -Name Pester -AllVersions", "kind": "syntax", "desc": "一次卸载该模块的所有版本" },
+        { "token": "Get-InstalledModule -Name Pester | Uninstall-Module", "kind": "syntax", "desc": "先查询确认再通过管道卸载" }
+      ]
+    },
+    {
+      "name": "Update-Module",
+      "aliases": [],
+      "title": "更新已装模块",
+      "desc": "把用 Install-Module 安装的模块升级到仓库中的最新版本，不带参数时检查并更新全部模块。升级要写入模块目录，通常需要管理员权限。",
+      "usage": "Update-Module [[-Name] <String[]>] [-RequiredVersion <Version>] [-MaximumVersion <Version>] [-Force]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["模块", "升级", "维护"],
+      "examples": [
+        { "cmd": "Update-Module", "desc": "检查并更新全部已安装模块" },
+        { "cmd": "Update-Module -Name Pester", "desc": "只更新 Pester 模块" },
+        { "cmd": "Update-Module -Name Pester -Force", "desc": "跳过确认直接升级" },
+        { "cmd": "Get-InstalledModule | Sort-Object Name", "desc": "升级前先看清装了哪些模块" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "Pester", "hint": "留空表示更新全部模块" },
+        { "token": "-RequiredVersion", "label": "指定版本", "type": "text", "value": "", "hint": "升级到该精确版本" },
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "false", "hint": "不弹出确认提示" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要更新的模块名，可写多个", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "要更新的模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "升级到指定的精确版本", "valueHint": "<版本>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "限制可升级到的最高版本", "valueHint": "<版本>" },
+        { "token": "-Credential", "kind": "option", "desc": "访问须认证的仓库时使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Proxy", "kind": "option", "desc": "下载时使用的代理地址", "valueHint": "<代理 URI>" },
+        { "token": "-ProxyCredential", "kind": "option", "desc": "代理服务器所需凭据", "valueHint": "<凭据>" },
+        { "token": "-Force", "kind": "flag", "desc": "不弹出确认提示，直接升级" },
+        { "token": "Update-Module", "kind": "syntax", "desc": "不带参数时更新全部已安装模块" },
+        { "token": "Update-Module -Name Pester -Force", "kind": "syntax", "desc": "指定模块并跳过确认提示" },
+        { "token": "Get-InstalledModule", "kind": "syntax", "desc": "先列出已安装模块确认名称" }
+      ]
+    },
+    {
+      "name": "Get-InstalledModule",
+      "aliases": [],
+      "title": "查询已装模块",
+      "desc": "列出用 Install-Module 安装到本机的模块及其版本。注意它看不到系统自带的模块，要查全部可用模块请用 Get-Module -ListAvailable。",
+      "usage": "Get-InstalledModule [[-Name] <String[]>] [-MinimumVersion <Version>] [-RequiredVersion <Version>] [-MaximumVersion <Version>] [-AllVersions]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["模块", "已安装", "版本"],
+      "examples": [
+        { "cmd": "Get-InstalledModule", "desc": "列出所有已安装的模块" },
+        { "cmd": "Get-InstalledModule -Name Pester", "desc": "查看指定模块的安装情况" },
+        { "cmd": "Get-InstalledModule -Name Pester -AllVersions", "desc": "列出该模块的所有已装版本" },
+        { "cmd": "Get-InstalledModule | Sort-Object Name", "desc": "按名称排序浏览已安装模块" }
+      ],
+      "form": [
+        { "token": "", "label": "模块名", "type": "text", "value": "", "hint": "支持通配符，留空为全部" },
+        { "token": "-AllVersions", "label": "所有版本", "type": "flag", "value": "false", "hint": "列出全部已装版本" },
+        { "token": "-RequiredVersion", "label": "指定版本", "type": "text", "value": "", "hint": "只查这个精确版本" }
+      ],
+      "nodes": [
+        { "token": "<模块名>", "kind": "value", "desc": "要查询的模块名，支持通配符", "valueHint": "模块名" },
+        { "token": "-Name", "kind": "option", "desc": "模块名称，支持通配符", "valueHint": "<模块名>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "限定查询的最低版本", "valueHint": "<版本>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "只查询这个精确版本", "valueHint": "<版本>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "限定查询的最高版本", "valueHint": "<版本>" },
+        { "token": "-AllVersions", "kind": "flag", "desc": "返回该模块的全部已安装版本" },
+        { "token": "Get-InstalledModule -Name Pester", "kind": "syntax", "desc": "查看某个模块的安装版本" },
+        { "token": "Get-InstalledModule | Sort-Object Name", "kind": "syntax", "desc": "按名称排序浏览全部已装模块" },
+        { "token": "Get-InstalledModule -Name Pester -AllVersions", "kind": "syntax", "desc": "列出同名模块的所有版本" },
+        { "token": "(Get-InstalledModule -Name Pester).Version", "kind": "syntax", "desc": "只取出版本号字符串" },
+        { "token": "Find-Module -Name Pester", "kind": "syntax", "desc": "对比仓库里的最新版本" }
+      ]
+    },
+    {
+      "name": "Get-Variable",
+      "aliases": ["gv"],
+      "title": "查看变量",
+      "desc": "显示当前会话中的变量及其值，名称支持通配符。排查变量被谁改动、或查看 PSVersionTable 等自动变量时最常用。",
+      "usage": "Get-Variable [[-Name] <String[]>] [-ValueOnly] [-Include <String[]>] [-Exclude <String[]>] [-Scope <String>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["变量", "查询", "会话"],
+      "examples": [
+        { "cmd": "Get-Variable -Name PSVersionTable", "desc": "查看 PowerShell 版本信息变量" },
+        { "cmd": "Get-Variable -Name P*", "desc": "用通配符查看以 P 开头的变量" },
+        { "cmd": "Get-Variable -Scope Global", "desc": "只看全局作用域中的变量" },
+        { "cmd": "Get-Variable -Name HOME -ValueOnly", "desc": "只输出变量的值" }
+      ],
+      "form": [
+        { "token": "", "label": "变量名", "type": "text", "value": "PSVersionTable", "hint": "支持通配符，留空为全部" },
+        { "token": "-ValueOnly", "label": "只输出值", "type": "flag", "value": "false", "hint": "不显示变量对象本身" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "变量所在作用域", "options": ["Global", "Local", "Script", "Private"] }
+      ],
+      "nodes": [
+        { "token": "<变量名>", "kind": "value", "desc": "要查询的变量名，支持通配符", "valueHint": "变量名" },
+        { "token": "-Name", "kind": "option", "desc": "变量名称，支持通配符", "valueHint": "<变量名>" },
+        { "token": "-ValueOnly", "kind": "flag", "desc": "只输出变量的值，不输出变量对象" },
+        { "token": "-Include", "kind": "option", "desc": "在通配符结果中再包含指定项", "valueHint": "<名称>" },
+        { "token": "-Exclude", "kind": "option", "desc": "从结果中排除指定名称", "valueHint": "<名称>" },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" },
+        { "token": "Get-Variable -Name PSVersionTable", "kind": "syntax", "desc": "查看指定变量的完整对象" },
+        { "token": "Get-Variable -Name P*", "kind": "syntax", "desc": "用通配符列出匹配的变量" },
+        { "token": "Get-Variable -Scope Global", "kind": "syntax", "desc": "查看全局作用域中的变量" },
+        { "token": "(Get-Variable -Name HOME).Value", "kind": "syntax", "desc": "取某个变量的值属性" },
+        { "token": "dir variable:", "kind": "syntax", "desc": "用变量提供程序列出全部变量" }
+      ]
+    },
+    {
+      "name": "Set-Variable",
+      "aliases": ["set", "sv"],
+      "title": "设置变量",
+      "desc": "修改已有变量的值，也会顺带改变它的类型和属性；变量不存在时会直接创建。只想新建变量时更推荐 New-Variable，避免误改同名变量。",
+      "usage": "Set-Variable [-Name] <String[]> [[-Value] <Object>] [-Include <String[]>] [-Exclude <String[]>] [-Description <String>] [-Option <ScopedItemOptions>] [-Visibility <SessionStateEntryVisibility>] [-PassThru] [-Scope <String>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["变量", "赋值", "会话"],
+      "examples": [
+        { "cmd": "Set-Variable -Name count -Value 10", "desc": "把变量 count 设为 10" },
+        { "cmd": "Set-Variable -Name count -Value 20 -Scope Global", "desc": "修改全局作用域中的变量" },
+        { "cmd": "Set-Variable -Name items -Value @(1, 2, 3)", "desc": "给变量赋一个数组值" },
+        { "cmd": "Set-Variable -Name cfg -Option ReadOnly", "desc": "把已有变量改成只读" }
+      ],
+      "form": [
+        { "token": "", "label": "变量名", "type": "text", "value": "count", "hint": "要设置的变量名" },
+        { "token": "-Value", "label": "值", "type": "text", "value": "10", "hint": "要赋给变量的值" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "变量所在作用域", "options": ["Global", "Local", "Script", "Private"] },
+        { "token": "-Option", "label": "变量属性", "type": "select", "value": "None", "hint": "如只读、常量", "options": ["None", "ReadOnly", "Constant", "Private", "AllScope", "Unspecified"] }
+      ],
+      "nodes": [
+        { "token": "<变量名>", "kind": "value", "desc": "要设置的变量名，第一个位置参数", "valueHint": "变量名" },
+        { "token": "<值>", "kind": "value", "desc": "要赋给变量的值，第二个位置参数", "valueHint": "值" },
+        { "token": "-Name", "kind": "option", "desc": "变量名称，可写多个", "valueHint": "<变量名>" },
+        { "token": "-Value", "kind": "option", "desc": "要赋给变量的值", "valueHint": "<值>" },
+        { "token": "-Include", "kind": "option", "desc": "在通配符结果中再包含指定项", "valueHint": "<名称>" },
+        { "token": "-Exclude", "kind": "option", "desc": "从结果中排除指定名称", "valueHint": "<名称>" },
+        { "token": "-Description", "kind": "option", "desc": "给变量加说明文字", "valueHint": "<说明>" },
+        { "token": "-Option", "kind": "option", "desc": "变量属性，如 ReadOnly、Constant", "valueHint": "<属性>", "enum": ["None", "ReadOnly", "Constant", "Private", "AllScope", "Unspecified"] },
+        { "token": "-Visibility", "kind": "option", "desc": "变量对子作用域是否可见", "valueHint": "<可见性>", "enum": ["Public", "Private"] },
+        { "token": "-Force", "kind": "flag", "desc": "强制修改只读变量" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出设置后的变量对象" },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" }
+      ]
+    },
+    {
+      "name": "New-Variable",
+      "aliases": ["nv"],
+      "title": "新建变量",
+      "desc": "创建新变量并可指定只读、常量等属性，同名变量已存在时会报错。它只作用于当前 PowerShell 会话，不会写入系统环境变量。",
+      "usage": "New-Variable [-Name] <String> [[-Value] <Object>] [-Description <String>] [-Option <ScopedItemOptions>] [-Visibility <SessionStateEntryVisibility>] [-Force] [-PassThru] [-Scope <String>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["变量", "新建", "会话"],
+      "examples": [
+        { "cmd": "New-Variable -Name cfg -Value 1", "desc": "新建变量 cfg 并赋值 1" },
+        { "cmd": "New-Variable -Name Max -Value 10 -Option ReadOnly", "desc": "新建只读变量，防止被脚本改掉" },
+        { "cmd": "New-Variable -Name tmp -Value 1 -Scope Global -PassThru", "desc": "在全局作用域新建并返回变量对象" },
+        { "cmd": "New-Variable -Name secret -Value 1 -Visibility Private", "desc": "新建只在本作用域可见的变量" }
+      ],
+      "form": [
+        { "token": "", "label": "变量名", "type": "text", "value": "cfg", "hint": "新变量的名称" },
+        { "token": "-Value", "label": "值", "type": "text", "value": "1", "hint": "变量的初始值" },
+        { "token": "-Option", "label": "变量属性", "type": "select", "value": "None", "hint": "如只读、常量", "options": ["None", "ReadOnly", "Constant", "Private", "AllScope", "Unspecified"] },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "变量所在作用域", "options": ["Global", "Local", "Script", "Private"] }
+      ],
+      "nodes": [
+        { "token": "<变量名>", "kind": "value", "desc": "要创建的变量名，第一个位置参数", "valueHint": "变量名" },
+        { "token": "<值>", "kind": "value", "desc": "变量的初始值，第二个位置参数", "valueHint": "值" },
+        { "token": "-Name", "kind": "option", "desc": "新变量的名称", "valueHint": "<变量名>" },
+        { "token": "-Value", "kind": "option", "desc": "变量的初始值", "valueHint": "<值>" },
+        { "token": "-Description", "kind": "option", "desc": "变量的说明文字", "valueHint": "<说明>" },
+        { "token": "-Option", "kind": "option", "desc": "变量属性，如 ReadOnly、Constant", "valueHint": "<属性>", "enum": ["None", "ReadOnly", "Constant", "Private", "AllScope", "Unspecified"] },
+        { "token": "-Visibility", "kind": "option", "desc": "变量对子作用域是否可见", "valueHint": "<可见性>", "enum": ["Public", "Private"] },
+        { "token": "-Force", "kind": "flag", "desc": "同名变量存在时直接覆盖" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出新建的变量对象" },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" }
+      ]
+    },
+    {
+      "name": "Remove-Variable",
+      "aliases": ["rv"],
+      "title": "删除变量",
+      "desc": "从当前作用域永久删除变量及其值，删除后无法恢复。如果只是想保留变量而清空内容，请改用 Clear-Variable。",
+      "usage": "Remove-Variable [-Name] <String[]> [-Include <String[]>] [-Exclude <String[]>] [-Force] [-Scope <String>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["变量", "删除", "会话"],
+      "examples": [
+        { "cmd": "Remove-Variable -Name cfg", "desc": "删除变量 cfg" },
+        { "cmd": "Remove-Variable -Name aa, bb", "desc": "一次删除多个变量" },
+        { "cmd": "Remove-Variable -Name cfg -Force", "desc": "强制删除只读变量" },
+        { "cmd": "Remove-Variable -Name cfg -Scope Global", "desc": "删除全局作用域中的变量" }
+      ],
+      "form": [
+        { "token": "", "label": "变量名", "type": "text", "value": "cfg", "hint": "要删除的变量，可多个" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "变量所在作用域", "options": ["Global", "Local", "Script", "Private"] },
+        { "token": "-Force", "label": "强制删除", "type": "flag", "value": "false", "hint": "删除只读变量" }
+      ],
+      "nodes": [
+        { "token": "<变量名>", "kind": "value", "desc": "要删除的变量名，可写多个", "valueHint": "变量名" },
+        { "token": "-Name", "kind": "option", "desc": "变量名称，支持通配符", "valueHint": "<变量名>" },
+        { "token": "-Include", "kind": "option", "desc": "在通配符结果中再包含指定项", "valueHint": "<名称>" },
+        { "token": "-Exclude", "kind": "option", "desc": "从结果中排除指定名称", "valueHint": "<名称>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制删除只读变量" },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" },
+        { "token": "Remove-Variable -Name cfg", "kind": "syntax", "desc": "删除当前作用域中的一个变量" },
+        { "token": "Remove-Variable -Name cfg -Scope Global", "kind": "syntax", "desc": "删除全局作用域中的变量" },
+        { "token": "Remove-Variable -Name aa, bb", "kind": "syntax", "desc": "用逗号一次删除多个变量" },
+        { "token": "Get-Variable -Name cfg", "kind": "syntax", "desc": "删除前先确认变量是否存在" },
+        { "token": "Remove-Item Variable:cfg", "kind": "syntax", "desc": "用变量提供程序的等价写法" }
+      ]
+    },
+    {
+      "name": "Clear-Variable",
+      "aliases": ["clv"],
+      "title": "清空变量",
+      "desc": "把变量的值清空为 null，变量本身仍保留在作用域中。想让变量彻底消失请使用 Remove-Variable。",
+      "usage": "Clear-Variable [-Name] <String[]> [-Include <String[]>] [-Exclude <String[]>] [-Force] [-PassThru] [-Scope <String>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["变量", "清空", "会话"],
+      "examples": [
+        { "cmd": "Clear-Variable -Name cfg", "desc": "把变量 cfg 的值清空" },
+        { "cmd": "Clear-Variable -Name cfg -PassThru", "desc": "清空并输出变量对象确认结果" },
+        { "cmd": "Clear-Variable -Name cfg -Scope Global", "desc": "清空全局作用域中的变量" },
+        { "cmd": "Clear-Variable -Name cfg -Force", "desc": "强制清空只读变量" }
+      ],
+      "form": [
+        { "token": "", "label": "变量名", "type": "text", "value": "cfg", "hint": "要清空的变量，可多个" },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "Local", "hint": "变量所在作用域", "options": ["Global", "Local", "Script", "Private"] },
+        { "token": "-PassThru", "label": "返回变量对象", "type": "flag", "value": "false", "hint": "输出清空后的变量" }
+      ],
+      "nodes": [
+        { "token": "<变量名>", "kind": "value", "desc": "要清空的变量名，可写多个", "valueHint": "变量名" },
+        { "token": "-Name", "kind": "option", "desc": "变量名称，支持通配符", "valueHint": "<变量名>" },
+        { "token": "-Include", "kind": "option", "desc": "在通配符结果中再包含指定项", "valueHint": "<名称>" },
+        { "token": "-Exclude", "kind": "option", "desc": "从结果中排除指定名称", "valueHint": "<名称>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制清空只读变量" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出清空后的变量对象" },
+        { "token": "-Scope", "kind": "option", "desc": "作用域，可写 Global、Local 或数字", "valueHint": "<作用域>" },
+        { "token": "Clear-Variable -Name cfg", "kind": "syntax", "desc": "把变量值清空为 null，变量保留" },
+        { "token": "Clear-Variable -Name aa, bb", "kind": "syntax", "desc": "一次清空多个变量" },
+        { "token": "$cfg = $null", "kind": "syntax", "desc": "直接赋 null 的等价写法" },
+        { "token": "Remove-Variable -Name cfg", "kind": "syntax", "desc": "想彻底删除变量本身时改用这条" }
+      ]
+    },
+    {
+      "name": "Write-Output",
+      "aliases": ["echo", "write"],
+      "title": "向管道输出对象",
+      "desc": "把对象写入成功输出流，这是 PowerShell 函数返回结果的标准方式。在函数里直接写字符串也等价于调用它，输出会被管道后面的命令接收。",
+      "usage": "Write-Output [-InputObject] <PSObject[]> [-NoEnumerate]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["输出", "管道", "函数"],
+      "examples": [
+        { "cmd": "Write-Output 'Hello'", "desc": "输出一个字符串" },
+        { "cmd": "Write-Output 1, 2, 3", "desc": "输出数组，默认逐项展开" },
+        { "cmd": "Write-Output (1, 2, 3) -NoEnumerate", "desc": "把数组当作单个对象输出" },
+        { "cmd": "Write-Output 1, 2, 3 | Measure-Object", "desc": "统计输出对象的个数" }
+      ],
+      "form": [
+        { "token": "", "label": "输出对象", "type": "text", "value": "Hello", "hint": "要写入管道的对象" },
+        { "token": "-NoEnumerate", "label": "不展开集合", "type": "flag", "value": "false", "hint": "数组作为整体输出" }
+      ],
+      "nodes": [
+        { "token": "<对象>", "kind": "value", "desc": "要输出到管道的对象，通常是位置参数", "valueHint": "对象" },
+        { "token": "-InputObject", "kind": "option", "desc": "要发送到管道的对象，可写多个", "valueHint": "<对象>" },
+        { "token": "-NoEnumerate", "kind": "flag", "desc": "不展开集合，把数组当成单个对象" },
+        { "token": "Write-Output '文本'", "kind": "syntax", "desc": "输出一个字符串到成功流" },
+        { "token": "Write-Output 1, 2, 3", "kind": "syntax", "desc": "数组会被逐项展开送入管道" },
+        { "token": "Write-Output (1, 2, 3) -NoEnumerate", "kind": "syntax", "desc": "保持数组整体，只输出一个对象" },
+        { "token": "'文本' | Write-Output", "kind": "syntax", "desc": "通过管道把对象交给本命令输出" },
+        { "token": "Write-Output $obj", "kind": "syntax", "desc": "输出变量中保存的对象" },
+        { "token": "Write-Output ('{0} = {1}' -f $k, $v)", "kind": "syntax", "desc": "格式化字符串后再输出" },
+        { "token": "$r = Write-Output 5", "kind": "syntax", "desc": "把输出结果捕获到变量" },
+        { "token": "Write-Output 1, 2, 3 | Measure-Object", "kind": "syntax", "desc": "检查实际输出的对象数量" }
+      ]
+    },
+    {
+      "name": "Write-Host",
+      "aliases": [],
+      "title": "输出彩色文本",
+      "desc": "直接把文字写到控制台，不进入管道，因此无法被变量捕获或重定向。适合做彩色提示和状态文字；需要参与管道传递的输出请改用 Write-Output。",
+      "usage": "Write-Host [[-Object] <Object>] [-NoNewline] [-Separator <Object>] [-ForegroundColor <ConsoleColor>] [-BackgroundColor <ConsoleColor>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["输出", "彩色", "控制台"],
+      "examples": [
+        { "cmd": "Write-Host 'Hello'", "desc": "在控制台输出一行文字" },
+        { "cmd": "Write-Host '完成' -ForegroundColor Green", "desc": "用绿色输出提示文字" },
+        { "cmd": "Write-Host 1, 2, 3 -Separator ', '", "desc": "用指定分隔符输出多个对象" },
+        { "cmd": "Write-Host '加载中' -NoNewline", "desc": "输出后不换行" }
+      ],
+      "form": [
+        { "token": "", "label": "输出内容", "type": "text", "value": "完成", "hint": "要显示到控制台的对象" },
+        { "token": "-ForegroundColor", "label": "文字颜色", "type": "select", "value": "Green", "hint": "前景色", "options": ["Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"] },
+        { "token": "-NoNewline", "label": "不换行", "type": "flag", "value": "false", "hint": "输出结束后不换行" },
+        { "token": "-Separator", "label": "分隔符", "type": "text", "value": ", ", "hint": "多个对象之间的分隔文本" }
+      ],
+      "nodes": [
+        { "token": "<对象>", "kind": "value", "desc": "要显示在控制台上的对象，可写多个", "valueHint": "对象" },
+        { "token": "-Object", "kind": "option", "desc": "要显示到控制台的对象", "valueHint": "<对象>" },
+        { "token": "-NoNewline", "kind": "flag", "desc": "输出结束后不自动换行" },
+        { "token": "-Separator", "kind": "option", "desc": "多个对象之间插入的分隔字符", "valueHint": "<分隔符>" },
+        { "token": "-ForegroundColor", "kind": "option", "desc": "文字颜色，如 Green、Yellow、Red", "valueHint": "<颜色>", "enum": ["Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"] },
+        { "token": "-BackgroundColor", "kind": "option", "desc": "文字背景色，建议用深色", "valueHint": "<颜色>", "enum": ["Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "White"] },
+        { "token": "Write-Host 'Hello'", "kind": "syntax", "desc": "输出最简单的一行文字" },
+        { "token": "Write-Host '完成' -ForegroundColor Green", "kind": "syntax", "desc": "成功提示常用绿色文字" },
+        { "token": "Write-Host '失败' -ForegroundColor Red -BackgroundColor Black", "kind": "syntax", "desc": "同时指定前景色与背景色" },
+        { "token": "Write-Host 1, 2, 3 -Separator ', '", "kind": "syntax", "desc": "用逗号加空格连接多个对象" },
+        { "token": "Write-Host '处理中' -NoNewline; Write-Host '完成'", "kind": "syntax", "desc": "先不换行输出，再续接后续文字" },
+        { "token": "Write-Host ('{0:N2}' -f 3.14159)", "kind": "syntax", "desc": "格式化数字后再输出" }
+      ]
+    },
+    {
+      "name": "Write-Error",
+      "aliases": [],
+      "title": "写入错误流",
+      "desc": "把一条非终止性错误写入错误流，脚本会继续往下执行。它只是报告问题而不抛异常；需要立即中断流程请用 throw 或把错误动作设为 Stop。",
+      "usage": "Write-Error [-Message] <String> [-Category <ErrorCategory>] [-ErrorId <String>] [-TargetObject <Object>] [-RecommendedAction <String>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["错误", "错误流", "日志"],
+      "examples": [
+        { "cmd": "Write-Error -Message '文件不存在'", "desc": "报告一条非终止性错误" },
+        { "cmd": "Write-Error -Message '配置无效' -Category InvalidData -ErrorId CfgBad", "desc": "带错误类别和错误编号的错误" },
+        { "cmd": "Write-Error -Message '写入失败' -TargetObject $file", "desc": "指出出错的目标对象" },
+        { "cmd": "Write-Error -Message '参数不合法' -RecommendedAction '请检查 -Path'", "desc": "附带建议的解决办法" }
+      ],
+      "form": [
+        { "token": "", "label": "错误消息", "type": "text", "value": "文件不存在", "hint": "要报告的错误文字" },
+        { "token": "-Category", "label": "错误类别", "type": "select", "value": "NotSpecified", "hint": "便于程序分类处理", "options": ["NotSpecified", "InvalidArgument", "InvalidData", "InvalidOperation", "ObjectNotFound", "PermissionDenied", "ResourceUnavailable", "OperationStopped", "OperationTimeout", "SyntaxError", "ReadError", "WriteError", "SecurityError", "ConnectionError", "AuthenticationError", "NotImplemented", "LimitsExceeded", "FromStdErr"] },
+        { "token": "-ErrorId", "label": "错误编号", "type": "text", "value": "", "hint": "自定义的错误标识字符串" },
+        { "token": "-RecommendedAction", "label": "建议操作", "type": "text", "value": "", "hint": "提示用户如何解决" }
+      ],
+      "nodes": [
+        { "token": "<错误消息>", "kind": "value", "desc": "要报告的错误文字，位置参数", "valueHint": "文本" },
+        { "token": "-Message", "kind": "option", "desc": "错误消息内容，别名 -Msg", "valueHint": "<文本>" },
+        { "token": "-Exception", "kind": "option", "desc": "用异常对象生成错误记录", "valueHint": "<异常>" },
+        { "token": "-ErrorRecord", "kind": "option", "desc": "直接写入已有的错误记录对象", "valueHint": "<错误记录>" },
+        { "token": "-Category", "kind": "option", "desc": "错误类别，便于上层程序分类处理", "valueHint": "<类别>", "enum": ["NotSpecified", "OpenError", "CloseError", "DeviceError", "DeadlockDetected", "InvalidArgument", "InvalidData", "InvalidOperation", "InvalidResult", "InvalidType", "MetadataError", "NotImplemented", "NotInstalled", "ObjectNotFound", "OperationStopped", "OperationTimeout", "SyntaxError", "ParserError", "PermissionDenied", "ResourceBusy", "ResourceExists", "ResourceUnavailable", "ReadError", "WriteError", "FromStdErr", "SecurityError", "ProtocolError", "ConnectionError", "AuthenticationError", "LimitsExceeded", "QuotaExceeded", "NotEnabled"] },
+        { "token": "-ErrorId", "kind": "option", "desc": "自定义错误标识，方便脚本判断", "valueHint": "<编号>" },
+        { "token": "-TargetObject", "kind": "option", "desc": "出错时涉及的对象，如文件或路径", "valueHint": "<对象>" },
+        { "token": "-RecommendedAction", "kind": "option", "desc": "建议用户采取的处理办法", "valueHint": "<建议>" },
+        { "token": "-CategoryActivity", "kind": "option", "desc": "出错时正在执行的活动名称", "valueHint": "<活动>" },
+        { "token": "-CategoryReason", "kind": "option", "desc": "导致错误的原因说明", "valueHint": "<原因>" },
+        { "token": "-CategoryTargetName", "kind": "option", "desc": "出错目标的名称", "valueHint": "<名称>" },
+        { "token": "-CategoryTargetType", "kind": "option", "desc": "出错目标的类型名称", "valueHint": "<类型>" }
+      ]
+    },
+    {
+      "name": "Write-Warning",
+      "aliases": [],
+      "title": "写入警告流",
+      "desc": "输出一条黄色警告信息，脚本继续执行，内容写入警告流。它比 Write-Error 温和，适合提醒可继续的情况，例如配置文件缺失改用默认值。",
+      "usage": "Write-Warning [-Message] <String>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["警告", "提醒", "日志"],
+      "examples": [
+        { "cmd": "Write-Warning '磁盘剩余空间不足'", "desc": "输出一条警告信息" },
+        { "cmd": "Write-Warning -Message '配置项缺失，使用默认值'", "desc": "说明已降级处理的警告" },
+        { "cmd": "Write-Warning ('第 {0} 项处理失败' -f $i)", "desc": "在循环里输出带序号的警告" },
+        { "cmd": "$WarningPreference = 'SilentlyContinue'", "desc": "临时屏蔽后续警告输出" }
+      ],
+      "form": [
+        { "token": "", "label": "警告内容", "type": "text", "value": "磁盘剩余空间不足", "hint": "要提示的警告文字" }
+      ],
+      "nodes": [
+        { "token": "<警告文本>", "kind": "value", "desc": "要输出的警告信息，位置参数", "valueHint": "文本" },
+        { "token": "-Message", "kind": "option", "desc": "警告内容，别名 -Msg", "valueHint": "<文本>" },
+        { "token": "Write-Warning '磁盘空间不足'", "kind": "syntax", "desc": "最常用的位置参数写法" },
+        { "token": "Write-Warning -Message '配置缺失'", "kind": "syntax", "desc": "显式写出参数名的写法" },
+        { "token": "$WarningPreference = 'SilentlyContinue'", "kind": "syntax", "desc": "临时屏蔽警告，默认值为 Continue" },
+        { "token": "$WarningPreference = 'Continue'", "kind": "syntax", "desc": "恢复默认，继续显示警告" },
+        { "token": "$WarningPreference = 'Inquire'", "kind": "syntax", "desc": "每条警告都停下来询问是否继续" },
+        { "token": "Write-Warning ('第 {0} 项失败' -f $i)", "kind": "syntax", "desc": "格式化字符串后作为警告输出" },
+        { "token": "Write-Warning $_.Exception.Message", "kind": "syntax", "desc": "把捕获到的异常消息当警告输出" },
+        { "token": "function f { [CmdletBinding()] param() Write-Warning '提示' }", "kind": "syntax", "desc": "在高级函数内部使用本命令" }
+      ]
+    },
+    {
+      "name": "Write-Verbose",
+      "aliases": [],
+      "title": "写入详细流",
+      "desc": "输出详细说明信息，默认不显示，只有把 $VerbosePreference 设为 Continue 时才能看到。适合在脚本里留下排查线索而不干扰正常输出。",
+      "usage": "Write-Verbose [-Message] <String>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["详细输出", "调试", "日志"],
+      "examples": [
+        { "cmd": "Write-Verbose -Message '开始复制文件'", "desc": "写一条详细说明信息" },
+        { "cmd": "Write-Verbose '已连接到数据库'", "desc": "位置参数写法，效果相同" },
+        { "cmd": "$VerbosePreference = 'Continue'", "desc": "让详细输出默认显示出来" },
+        { "cmd": "$VerbosePreference = 'SilentlyContinue'", "desc": "恢复默认，不再显示详细输出" }
+      ],
+      "form": [
+        { "token": "", "label": "详细内容", "type": "text", "value": "开始复制文件", "hint": "默认不显示的说明文字" }
+      ],
+      "nodes": [
+        { "token": "<消息文本>", "kind": "value", "desc": "要输出的详细说明，位置参数", "valueHint": "文本" },
+        { "token": "-Message", "kind": "option", "desc": "详细说明内容，别名 -Msg", "valueHint": "<文本>" },
+        { "token": "Write-Verbose -Message '开始复制文件'", "kind": "syntax", "desc": "常见写法：显式指定参数名" },
+        { "token": "Write-Verbose '开始复制'", "kind": "syntax", "desc": "位置参数简写形式" },
+        { "token": "$VerbosePreference = 'Continue'", "kind": "syntax", "desc": "打开详细输出，默认是 SilentlyContinue" },
+        { "token": "$VerbosePreference = 'SilentlyContinue'", "kind": "syntax", "desc": "关闭详细输出，恢复默认行为" },
+        { "token": "$VerbosePreference = 'Inquire'", "kind": "syntax", "desc": "每条详细输出都询问是否继续" },
+        { "token": "Write-Verbose ('第 {0} 步完成' -f $i)", "kind": "syntax", "desc": "输出带变量内容的详细信息" },
+        { "token": "Write-Verbose -Message ($obj | Out-String)", "kind": "syntax", "desc": "把对象转成字符串后输出" },
+        { "token": "function f { [CmdletBinding()] param() Write-Verbose '开始' }", "kind": "syntax", "desc": "在高级函数内配合 -Verbose 使用" }
+      ]
+    },
+    {
+      "name": "Write-Debug",
+      "aliases": [],
+      "title": "写入调试流",
+      "desc": "输出调试信息到调试流，默认只在把 $DebugPreference 设为 Continue 时显示。它专门用于开发期定位问题，留发布脚本里也不会打扰使用者。",
+      "usage": "Write-Debug [-Message] <String>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["调试", "排查", "日志"],
+      "examples": [
+        { "cmd": "Write-Debug -Message '进入循环体'", "desc": "写一条调试信息" },
+        { "cmd": "Write-Debug '变量值已刷新'", "desc": "位置参数写法" },
+        { "cmd": "$DebugPreference = 'Continue'", "desc": "打开调试输出查看信息" },
+        { "cmd": "$DebugPreference = 'SilentlyContinue'", "desc": "恢复默认，隐藏调试输出" }
+      ],
+      "form": [
+        { "token": "", "label": "调试内容", "type": "text", "value": "进入循环体", "hint": "默认不显示的调试文字" }
+      ],
+      "nodes": [
+        { "token": "<消息文本>", "kind": "value", "desc": "要输出的调试信息，位置参数", "valueHint": "文本" },
+        { "token": "-Message", "kind": "option", "desc": "调试信息内容，别名 -Msg", "valueHint": "<文本>" },
+        { "token": "Write-Debug -Message '进入循环体'", "kind": "syntax", "desc": "显式写出参数名的写法" },
+        { "token": "Write-Debug '变量值已刷新'", "kind": "syntax", "desc": "位置参数简写形式" },
+        { "token": "$DebugPreference = 'Continue'", "kind": "syntax", "desc": "打开调试输出，默认是 SilentlyContinue" },
+        { "token": "$DebugPreference = 'SilentlyContinue'", "kind": "syntax", "desc": "关闭调试输出，恢复默认" },
+        { "token": "$DebugPreference = 'Inquire'", "kind": "syntax", "desc": "每条调试信息都停下来询问" },
+        { "token": "$DebugPreference = 'Stop'", "kind": "syntax", "desc": "遇到调试信息直接中断执行" },
+        { "token": "Write-Debug ('当前值：{0}' -f $x)", "kind": "syntax", "desc": "输出带变量值的调试信息" },
+        { "token": "function f { [CmdletBinding()] param() Write-Debug '开始' }", "kind": "syntax", "desc": "在高级函数内配合 -Debug 使用" }
+      ]
+    },
+    {
+      "name": "Write-Information",
+      "aliases": [],
+      "title": "写入信息流",
+      "desc": "把信息写入 PowerShell 5.0 引入的信息流，默认不显示，要先把 $InformationPreference 设为 Continue。它支持标签，便于按类别过滤和收集日志。",
+      "usage": "Write-Information [-MessageData] <Object> [[-Tags] <String[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["信息流", "日志", "标签"],
+      "examples": [
+        { "cmd": "Write-Information '开始处理'", "desc": "写一条信息流记录" },
+        { "cmd": "Write-Information -MessageData '步骤完成' -Tags STEP", "desc": "带标签的信息，便于过滤" },
+        { "cmd": "$InformationPreference = 'Continue'", "desc": "让信息流内容默认显示" },
+        { "cmd": "6>&1", "desc": "把信息流合并到成功流，便于查看" }
+      ],
+      "form": [
+        { "token": "", "label": "信息内容", "type": "text", "value": "开始处理", "hint": "写入信息流的对象" },
+        { "token": "-Tags", "label": "标签", "type": "text", "value": "STEP", "hint": "用于分类过滤的标签" }
+      ],
+      "nodes": [
+        { "token": "<信息内容>", "kind": "value", "desc": "写入信息流的对象，位置参数", "valueHint": "文本或对象" },
+        { "token": "-MessageData", "kind": "option", "desc": "要写入信息流的数据，别名 -Msg", "valueHint": "<对象>" },
+        { "token": "-Tags", "kind": "option", "desc": "给信息打标签，便于后续过滤", "valueHint": "<标签>" },
+        { "token": "Write-Information '开始处理'", "kind": "syntax", "desc": "默认不显示，需要打开信息偏好" },
+        { "token": "Write-Information -MessageData '完成' -Tags STEP", "kind": "syntax", "desc": "带标签写入，便于按类过滤" },
+        { "token": "$InformationPreference = 'Continue'", "kind": "syntax", "desc": "让信息流内容默认显示出来" },
+        { "token": "$InformationPreference = 'SilentlyContinue'", "kind": "syntax", "desc": "恢复默认，隐藏信息流内容" },
+        { "token": "$InformationPreference = 'Inquire'", "kind": "syntax", "desc": "每条信息都停下来询问是否继续" },
+        { "token": "6>&1", "kind": "syntax", "desc": "把信息流重定向合并到成功流" },
+        { "token": "Write-Information -MessageData $obj", "kind": "syntax", "desc": "写入一个对象而不是字符串" }
+      ]
+    },
+    {
+      "name": "Write-Progress",
+      "aliases": [],
+      "title": "显示进度条",
+      "desc": "在控制台顶部显示进度条，适合为耗时循环提供反馈，任务结束后用 -Completed 清除。进度显示不影响管道输出，也不会写入文件。",
+      "usage": "Write-Progress [-Activity] <String> [[-Status] <String>] [[-Id] <Int32>] [-PercentComplete <Int32>] [-SecondsRemaining <Int32>] [-CurrentOperation <String>] [-ParentId <Int32>] [-Completed] [-SourceId <Int32>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["进度条", "循环", "反馈"],
+      "examples": [
+        { "cmd": "Write-Progress -Activity '复制文件' -PercentComplete 50", "desc": "显示一条带百分比的进度" },
+        { "cmd": "Write-Progress -Activity '扫描' -Status '进行中' -CurrentOperation $f", "desc": "显示当前正在处理的对象" },
+        { "cmd": "Write-Progress -Activity '复制文件' -Completed", "desc": "任务结束后清除进度条" },
+        { "cmd": "1..10 | ForEach-Object { Write-Progress -Activity '循环' -PercentComplete ($_ * 10) }", "desc": "在循环中按比例更新进度" }
+      ],
+      "form": [
+        { "token": "", "label": "活动名称", "type": "text", "value": "复制文件", "hint": "进度条顶部的说明文字" },
+        { "token": "-PercentComplete", "label": "完成百分比", "type": "number", "value": "50", "hint": "0 到 100 之间的整数" },
+        { "token": "-Status", "label": "状态文字", "type": "text", "value": "进行中", "hint": "进度条第二行说明" },
+        { "token": "-Completed", "label": "标记完成", "type": "flag", "value": "false", "hint": "清除该进度条" }
+      ],
+      "nodes": [
+        { "token": "<活动名称>", "kind": "value", "desc": "进度条顶部的活动说明，位置参数", "valueHint": "文本" },
+        { "token": "-Activity", "kind": "option", "desc": "正在进行的活动名称，显示在第一行", "valueHint": "<文本>" },
+        { "token": "-Status", "kind": "option", "desc": "进度条下方的状态说明文字", "valueHint": "<文本>" },
+        { "token": "-Id", "kind": "option", "desc": "进度条编号，用于同时显示多条进度", "valueHint": "<编号>" },
+        { "token": "-PercentComplete", "kind": "option", "desc": "已完成百分比，取值 0 到 100", "valueHint": "<百分比>" },
+        { "token": "-SecondsRemaining", "kind": "option", "desc": "预计还需多少秒完成", "valueHint": "<秒数>" },
+        { "token": "-CurrentOperation", "kind": "option", "desc": "当前正在执行的具体操作说明", "valueHint": "<文本>" },
+        { "token": "-ParentId", "kind": "option", "desc": "父进度条编号，用于嵌套显示", "valueHint": "<编号>" },
+        { "token": "-Completed", "kind": "flag", "desc": "标记该进度条已完成并将其清除" },
+        { "token": "-SourceId", "kind": "option", "desc": "标识进度来源，用于区分不同来源", "valueHint": "<编号>" },
+        { "token": "Write-Progress -Activity '复制文件' -PercentComplete 50", "kind": "syntax", "desc": "最常用写法：活动名加百分比" },
+        { "token": "Write-Progress -Activity '复制文件' -Completed", "kind": "syntax", "desc": "循环结束后清除进度条" }
+      ]
+    },
+    {
+      "name": "Read-Host",
+      "aliases": [],
+      "title": "读取用户输入",
+      "desc": "从控制台读取一行用户输入，加 -AsSecureString 可读取不回显的密码。读到的内容始终是字符串，需要数字或日期时要显式转换类型。",
+      "usage": "Read-Host [[-Prompt] <Object>] [-AsSecureString]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["输入", "交互", "密码"],
+      "examples": [
+        { "cmd": "Read-Host -Prompt '请输入名称'", "desc": "带提示文字读取用户输入" },
+        { "cmd": "Read-Host '请输入名称'", "desc": "位置参数写法，效果相同" },
+        { "cmd": "Read-Host -AsSecureString", "desc": "读取密码，输入内容不回显" },
+        { "cmd": "$n = [int](Read-Host '请输入数量')", "desc": "把输入转换成整数再使用" }
+      ],
+      "form": [
+        { "token": "", "label": "提示文字", "type": "text", "value": "请输入名称", "hint": "显示在输入框前的提示" },
+        { "token": "-AsSecureString", "label": "密码模式", "type": "flag", "value": "false", "hint": "输入内容以星号显示" }
+      ],
+      "nodes": [
+        { "token": "<提示文本>", "kind": "value", "desc": "显示在输入位置前的提示文字", "valueHint": "文本" },
+        { "token": "-Prompt", "kind": "option", "desc": "提示文字，可包含变量和表达式", "valueHint": "<文本>" },
+        { "token": "-AsSecureString", "kind": "flag", "desc": "输入内容不回显，返回安全字符串" },
+        { "token": "Read-Host -Prompt '请输入名称'", "kind": "syntax", "desc": "最常见写法：提示加读取" },
+        { "token": "Read-Host '请输入名称'", "kind": "syntax", "desc": "省略参数名的位置参数写法" },
+        { "token": "Read-Host -AsSecureString", "kind": "syntax", "desc": "读取不回显的密码字符串" },
+        { "token": "$pwd = Read-Host '密码' -AsSecureString", "kind": "syntax", "desc": "把密码保存到变量备用" },
+        { "token": "[int]$n = Read-Host '数量'", "kind": "syntax", "desc": "直接把输入转换成整数类型" },
+        { "token": "if (-not (Read-Host '继续吗 y/n')) { return }", "kind": "syntax", "desc": "根据输入是否为空决定流程" },
+        { "token": "Get-Credential", "kind": "syntax", "desc": "需要用户名加密码时改用这条命令" }
+      ]
+    },
+    {
+      "name": "Start-Sleep",
+      "aliases": ["sleep"],
+      "title": "暂停执行",
+      "desc": "让脚本暂停指定的时间，支持秒和毫秒两种写法，二者不能同时使用。常用于等待服务启动或控制轮询间隔。",
+      "usage": "Start-Sleep [-Seconds] <Int32>  或  Start-Sleep -Milliseconds <Int32>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["等待", "延时", "计时"],
+      "examples": [
+        { "cmd": "Start-Sleep -Seconds 5", "desc": "暂停 5 秒" },
+        { "cmd": "Start-Sleep 5", "desc": "位置参数写法，暂停 5 秒" },
+        { "cmd": "Start-Sleep -Milliseconds 500", "desc": "暂停半秒，秒参数不支持小数时用它" },
+        { "cmd": "Measure-Command { Start-Sleep -Seconds 2 }", "desc": "测量一段操作实际耗时" }
+      ],
+      "form": [
+        { "token": "", "label": "秒数", "type": "number", "value": "5", "hint": "暂停的整数秒数" },
+        { "token": "-Milliseconds", "label": "毫秒", "type": "number", "value": "500", "hint": "用毫秒计时，不能与秒同时用" }
+      ],
+      "nodes": [
+        { "token": "<秒数>", "kind": "value", "desc": "暂停的秒数，整数位置参数", "valueHint": "秒数" },
+        { "token": "-Seconds", "kind": "option", "desc": "暂停多少秒", "valueHint": "<秒数>" },
+        { "token": "-Milliseconds", "kind": "option", "desc": "暂停多少毫秒，与秒参数分属不同写法", "valueHint": "<毫秒>" },
+        { "token": "Start-Sleep -Seconds 5", "kind": "syntax", "desc": "显式指定秒数暂停" },
+        { "token": "Start-Sleep 5", "kind": "syntax", "desc": "位置参数简写，效果相同" },
+        { "token": "sleep 5", "kind": "syntax", "desc": "使用官方别名 sleep 的写法" },
+        { "token": "Start-Sleep -Milliseconds 500", "kind": "syntax", "desc": "需要亚秒级延时时使用毫秒参数" },
+        { "token": "Start-Sleep -Seconds (60 * 5)", "kind": "syntax", "desc": "用表达式计算等待时长" },
+        { "token": "Start-Sleep -Seconds 1; Write-Host '继续'", "kind": "syntax", "desc": "等待结束后接着执行下一条命令" },
+        { "token": "Measure-Command { Start-Sleep -Seconds 2 }", "kind": "syntax", "desc": "测量命令实际消耗的时间" }
+      ]
+    },
+    {
+      "name": "Get-Date",
+      "aliases": [],
+      "title": "获取日期时间",
+      "desc": "返回当前日期时间对象，也可转换指定时间，并用 -Format 自定义输出格式。生成时间戳、日志前缀和带日期的文件名时最常用。",
+      "usage": "Get-Date [[-Date] <DateTime>] [-Format <String>] [-UFormat <String>] [-DisplayHint <DisplayHintType>] [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-Hour <Int32>] [-Minute <Int32>] [-Second <Int32>] [-Millisecond <Int32>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["日期", "时间", "格式化"],
+      "examples": [
+        { "cmd": "Get-Date", "desc": "显示当前日期时间" },
+        { "cmd": "Get-Date -Format 'yyyy-MM-dd HH:mm:ss'", "desc": "按自定义格式输出时间字符串" },
+        { "cmd": "Get-Date -Date '2026-01-01' -Format 'yyyy/MM/dd'", "desc": "转换指定日期并格式化" },
+        { "cmd": "(Get-Date).AddDays(-7)", "desc": "计算七天前的日期对象" },
+        { "cmd": "Get-Date -Year 2026 -Month 1 -Day 1", "desc": "只改年月日，时间部分保持当前值" }
+      ],
+      "form": [
+        { "token": "", "label": "日期", "type": "text", "value": "2026-01-01", "hint": "留空表示取当前时间" },
+        { "token": "-Format", "label": "格式", "type": "text", "value": "yyyy-MM-dd HH:mm:ss", "hint": ".NET 日期格式字符串" },
+        { "token": "-DisplayHint", "label": "显示部分", "type": "select", "value": "DateTime", "hint": "只显示日期或时间", "options": ["Date", "Time", "DateTime"] }
+      ],
+      "nodes": [
+        { "token": "<日期>", "kind": "value", "desc": "要转换的日期时间，默认取当前时间", "valueHint": "日期时间" },
+        { "token": "-Date", "kind": "option", "desc": "指定要处理的日期时间，别名 -LastWriteTime", "valueHint": "<日期时间>" },
+        { "token": "-Format", "kind": "option", "desc": "按 .NET 格式字符串输出，返回字符串", "valueHint": "<格式>" },
+        { "token": "-UFormat", "kind": "option", "desc": "按 Unix 风格格式符输出，与 -Format 互斥", "valueHint": "<格式>" },
+        { "token": "-DisplayHint", "kind": "option", "desc": "只显示日期、时间或两者", "valueHint": "<类型>", "enum": ["Date", "Time", "DateTime"] },
+        { "token": "-Year", "kind": "option", "desc": "指定年份", "valueHint": "<年份>" },
+        { "token": "-Month", "kind": "option", "desc": "指定月份", "valueHint": "<月份>" },
+        { "token": "-Day", "kind": "option", "desc": "指定日期", "valueHint": "<日>" },
+        { "token": "-Hour", "kind": "option", "desc": "指定小时", "valueHint": "<小时>" },
+        { "token": "-Minute", "kind": "option", "desc": "指定分钟", "valueHint": "<分钟>" },
+        { "token": "-Second", "kind": "option", "desc": "指定秒", "valueHint": "<秒>" },
+        { "token": "-Millisecond", "kind": "option", "desc": "指定毫秒", "valueHint": "<毫秒>" }
+      ]
+    },
+    {
+      "name": "Set-Date",
+      "aliases": [],
+      "title": "设置系统时间",
+      "desc": "修改本机系统日期和时间，可指定新的时间点，也可用 -Adjust 做相对调整。改动系统时钟会影响证书校验、计划任务和域认证，操作前请确认。",
+      "usage": "Set-Date [-Date] <DateTime> [-DisplayHint <DisplayHintType>]  或  Set-Date [-Adjust] <TimeSpan> [-DisplayHint <DisplayHintType>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["系统时间", "时钟", "维护"],
+      "examples": [
+        { "cmd": "Set-Date -Date (Get-Date).AddDays(1)", "desc": "把系统时间往后调一天" },
+        { "cmd": "Set-Date -Adjust (New-TimeSpan -Hours 1)", "desc": "相对当前时间调快一小时" },
+        { "cmd": "Set-Date -Adjust (New-TimeSpan -Minutes -10)", "desc": "相对当前时间调慢十分钟" },
+        { "cmd": "Get-Date -Format 'yyyy-MM-dd HH:mm:ss'", "desc": "修改前后查看当前时间确认结果" }
+      ],
+      "form": [
+        { "token": "", "label": "新的时间", "type": "text", "value": "(Get-Date).AddDays(1)", "hint": "目标日期时间" },
+        { "token": "-Adjust", "label": "相对调整", "type": "text", "value": "(New-TimeSpan -Hours 1)", "hint": "在现有时间上增减" },
+        { "token": "-DisplayHint", "label": "显示部分", "type": "select", "value": "DateTime", "hint": "只显示日期或时间", "options": ["Date", "Time", "DateTime"] }
+      ],
+      "nodes": [
+        { "token": "<日期或偏移>", "kind": "value", "desc": "目标时间点或相对偏移量，位置参数", "valueHint": "日期或时间跨度" },
+        { "token": "-Date", "kind": "option", "desc": "把系统时间设置为指定的日期时间", "valueHint": "<日期时间>" },
+        { "token": "-Adjust", "kind": "option", "desc": "在当前时间上增加或减少一个时间跨度", "valueHint": "<时间跨度>" },
+        { "token": "-DisplayHint", "kind": "option", "desc": "只显示日期、时间或两者", "valueHint": "<类型>", "enum": ["Date", "Time", "DateTime"] },
+        { "token": "Set-Date -Date (Get-Date).AddDays(1)", "kind": "syntax", "desc": "以当前时间为基准往后调一天" },
+        { "token": "Set-Date -Adjust (New-TimeSpan -Hours 1)", "kind": "syntax", "desc": "相对调整：调快一小时" },
+        { "token": "Set-Date -Adjust (New-TimeSpan -Minutes -10)", "kind": "syntax", "desc": "负数表示把时间调慢" },
+        { "token": "Set-Date -Date '2026-01-01 08:00:00'", "kind": "syntax", "desc": "直接指定一个绝对时间点" },
+        { "token": "Get-Date", "kind": "syntax", "desc": "查看修改前的系统时间以便对比" },
+        { "token": "w32tm /resync", "kind": "syntax", "desc": "改完后与时间服务器重新同步" },
+        { "token": "Set-Service W32Time -StartupType Automatic", "kind": "syntax", "desc": "确保时间同步服务处于可用状态" }
+      ]
+    },
+    {
+      "name": "Set-StrictMode",
+      "aliases": [],
+      "title": "开启严格模式",
+      "desc": "让 PowerShell 在引用未初始化变量、函数参数不匹配等情况下直接报错。设置作用于当前作用域及其子作用域，脚本开头加上它能尽早暴露隐藏的问题。",
+      "usage": "Set-StrictMode -Version <Version>  或  Set-StrictMode -Off",
+      "admin": false,
+      "danger": 1,
+      "tags": ["严格模式", "脚本质量", "排错"],
+      "examples": [
+        { "cmd": "Set-StrictMode -Version Latest", "desc": "启用最严格的检查" },
+        { "cmd": "Set-StrictMode -Version 2.0", "desc": "启用 2.0 级别的严格检查" },
+        { "cmd": "Set-StrictMode -Off", "desc": "关闭严格模式，恢复默认行为" },
+        { "cmd": "function f { Set-StrictMode -Version Latest; Get-Date }", "desc": "只在函数作用域内启用严格模式" }
+      ],
+      "form": [
+        { "token": "-Version", "label": "严格级别", "type": "select", "value": "Latest", "hint": "级别越高检查越严格", "options": ["1.0", "2.0", "3.0", "Latest"] },
+        { "token": "-Off", "label": "关闭", "type": "flag", "value": "false", "hint": "关闭严格模式" }
+      ],
+      "nodes": [
+        { "token": "-Version", "kind": "option", "desc": "严格模式级别，取值 1.0、2.0、3.0、Latest", "valueHint": "<级别>", "enum": ["1.0", "2.0", "3.0", "Latest"] },
+        { "token": "-Off", "kind": "flag", "desc": "关闭严格模式，恢复默认宽松行为" },
+        { "token": "Set-StrictMode -Version Latest", "kind": "syntax", "desc": "常用写法：脚本开头启用最强检查" },
+        { "token": "Set-StrictMode -Version 1.0", "kind": "syntax", "desc": "只禁止引用未初始化的变量" },
+        { "token": "Set-StrictMode -Version 2.0", "kind": "syntax", "desc": "额外禁止引用不存在的属性等方法" },
+        { "token": "Set-StrictMode -Version 3.0", "kind": "syntax", "desc": "再加禁止越界索引等更多错误" },
+        { "token": "Set-StrictMode -Off", "kind": "syntax", "desc": "关闭严格模式" },
+        { "token": "Set-StrictMode -Version Latest; $typo", "kind": "syntax", "desc": "引用未定义变量会立刻报错" },
+        { "token": "function f { Set-StrictMode -Version Latest }", "kind": "syntax", "desc": "在函数作用域内局部启用严格模式" },
+        { "token": "Set-StrictMode", "kind": "syntax", "desc": "不带参数会报错，必须写 -Version 或 -Off" },
+        { "token": "#Requires -Version 5.1", "kind": "syntax", "desc": "脚本头部声明所需 PowerShell 版本" }
+      ]
+    },
+    {
+      "name": "Invoke-Expression",
+      "aliases": ["iex"],
+      "title": "执行字符串命令",
+      "desc": "把字符串当作 PowerShell 代码执行，功能强大但风险很高。绝不要用它拼接外部输入或用户提供的内容，那等于允许对方执行任意代码。",
+      "usage": "Invoke-Expression [-Command] <String>",
+      "admin": false,
+      "danger": 2,
+      "tags": ["动态执行", "字符串", "高风险"],
+      "examples": [
+        { "cmd": "Invoke-Expression 'Get-Date'", "desc": "执行一段写死的命令字符串" },
+        { "cmd": "Invoke-Expression $cmd", "desc": "执行变量里保存的命令文本" },
+        { "cmd": "iex 'Get-Process | Select-Object -First 3'", "desc": "用别名执行带管道的命令" },
+        { "cmd": "$sb = [scriptblock]::Create($cmd); & $sb", "desc": "更可控的替代写法，先建脚本块再执行" }
+      ],
+      "form": [
+        { "token": "", "label": "命令文本", "type": "text", "value": "Get-Date", "hint": "要执行的命令字符串" }
+      ],
+      "nodes": [
+        { "token": "<命令文本>", "kind": "value", "desc": "要作为代码执行的字符串，位置参数", "valueHint": "命令字符串" },
+        { "token": "-Command", "kind": "option", "desc": "要执行的命令或表达式文本", "valueHint": "<字符串>" },
+        { "token": "Invoke-Expression 'Get-Date'", "kind": "syntax", "desc": "执行一段固定不变的命令文本" },
+        { "token": "Invoke-Expression $cmd", "kind": "syntax", "desc": "执行变量里保存的命令文本" },
+        { "token": "iex 'Get-Process | Select-Object -First 3'", "kind": "syntax", "desc": "用官方别名 iex 执行管道命令" },
+        { "token": "Invoke-Expression (Get-Content .\\cmd.txt -Raw)", "kind": "syntax", "desc": "执行从文件读入的脚本文本" },
+        { "token": "Invoke-Expression '1 + 1'", "kind": "syntax", "desc": "直接计算表达式字符串的值" },
+        { "token": "$sb = [scriptblock]::Create($cmd); & $sb", "kind": "syntax", "desc": "推荐替代：脚本块方式更易审计" },
+        { "token": "Invoke-Command -ScriptBlock { Get-Date }", "kind": "syntax", "desc": "执行固定脚本块的更安全写法" },
+        { "token": "Invoke-Expression ('Get-Service ' + $name)", "kind": "syntax", "desc": "危险示例：不要拼接外部传入的内容" }
+      ]
+    },
+    {
+      "name": "Get-ExecutionPolicy",
+      "aliases": [],
+      "title": "查看执行策略",
+      "desc": "显示当前生效的脚本执行策略，加 -List 可列出各个作用域的设置。优先级由高到低为组策略、本地机器、当前用户、当前进程。",
+      "usage": "Get-ExecutionPolicy [[-Scope] <ExecutionPolicyScope>] [-List]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["执行策略", "安全", "脚本"],
+      "examples": [
+        { "cmd": "Get-ExecutionPolicy", "desc": "查看当前生效的执行策略" },
+        { "cmd": "Get-ExecutionPolicy -List", "desc": "列出所有作用域的策略设置" },
+        { "cmd": "Get-ExecutionPolicy -Scope CurrentUser", "desc": "只看当前用户作用域的设置" },
+        { "cmd": "Get-ExecutionPolicy -List | Format-Table -AutoSize", "desc": "整齐地对照各级策略" }
+      ],
+      "form": [
+        { "token": "", "label": "作用域", "type": "select", "value": "LocalMachine", "hint": "留空为当前生效策略", "options": ["Process", "CurrentUser", "LocalMachine", "UserPolicy", "MachinePolicy"] },
+        { "token": "-List", "label": "列出所有作用域", "type": "flag", "value": "false", "hint": "显示每一级的独立设置" }
+      ],
+      "nodes": [
+        { "token": "<作用域>", "kind": "value", "desc": "要查询的作用域，位置参数", "valueHint": "作用域名" },
+        { "token": "-Scope", "kind": "option", "desc": "指定作用域，如 CurrentUser、LocalMachine", "valueHint": "<作用域>", "enum": ["Process", "CurrentUser", "LocalMachine", "UserPolicy", "MachinePolicy"] },
+        { "token": "-List", "kind": "flag", "desc": "列出所有作用域的策略值，而不仅是生效值" },
+        { "token": "Get-ExecutionPolicy", "kind": "syntax", "desc": "查看当前实际生效的策略" },
+        { "token": "Get-ExecutionPolicy -List", "kind": "syntax", "desc": "列出全部作用域的设置，排查谁在起作用" },
+        { "token": "Get-ExecutionPolicy -Scope Process", "kind": "syntax", "desc": "查看只在当前进程内生效的策略" },
+        { "token": "Get-ExecutionPolicy -Scope CurrentUser", "kind": "syntax", "desc": "查看当前用户作用域的策略" },
+        { "token": "Get-ExecutionPolicy -Scope LocalMachine", "kind": "syntax", "desc": "查看本地机器作用域的策略" },
+        { "token": "Get-ExecutionPolicy -Scope UserPolicy", "kind": "syntax", "desc": "查看用户组策略下发的策略" },
+        { "token": "Get-ExecutionPolicy -Scope MachinePolicy", "kind": "syntax", "desc": "查看机器组策略下发的策略，优先级最高" },
+        { "token": "Get-ExecutionPolicy -List | Format-Table -AutoSize", "kind": "syntax", "desc": "以表格形式对照各级策略设置" }
+      ]
+    },
+    {
+      "name": "Set-ExecutionPolicy",
+      "aliases": [],
+      "title": "设置执行策略",
+      "desc": "修改 PowerShell 的脚本执行策略，决定哪些脚本允许运行。它会真正改变本机安全设置，而且优先级更高的组策略会覆盖这里的设置。",
+      "usage": "Set-ExecutionPolicy [-ExecutionPolicy] <ExecutionPolicy> [[-Scope] <ExecutionPolicyScope>] [-Force]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["执行策略", "安全", "脚本"],
+      "examples": [
+        { "cmd": "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser", "desc": "只为当前用户放开本地脚本限制" },
+        { "cmd": "Set-ExecutionPolicy RemoteSigned", "desc": "修改本地机器默认策略，需要管理员权限" },
+        { "cmd": "Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope CurrentUser", "desc": "删除当前用户的设置，回到上级默认值" },
+        { "cmd": "Set-ExecutionPolicy Bypass -Scope Process -Force", "desc": "只在当前窗口临时放开，关闭即失效" }
+      ],
+      "form": [
+        { "token": "", "label": "执行策略", "type": "select", "value": "RemoteSigned", "hint": "要设置的策略级别", "options": ["Restricted", "AllSigned", "RemoteSigned", "Unrestricted", "Bypass", "Undefined"] },
+        { "token": "-Scope", "label": "作用域", "type": "select", "value": "CurrentUser", "hint": "改动哪一级设置", "options": ["Process", "CurrentUser", "LocalMachine", "UserPolicy", "MachinePolicy"] },
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "false", "hint": "不弹出确认提示" }
+      ],
+      "nodes": [
+        { "token": "<策略>", "kind": "value", "desc": "要设置的执行策略级别，位置参数", "valueHint": "策略名" },
+        { "token": "-ExecutionPolicy", "kind": "option", "desc": "指定新的执行策略级别", "valueHint": "<策略>", "enum": ["Restricted", "AllSigned", "RemoteSigned", "Unrestricted", "Bypass", "Undefined"] },
+        { "token": "-Scope", "kind": "option", "desc": "改动哪一级设置，默认 LocalMachine", "valueHint": "<作用域>", "enum": ["Process", "CurrentUser", "LocalMachine", "UserPolicy", "MachinePolicy"] },
+        { "token": "-Force", "kind": "flag", "desc": "不弹出确认提示，直接修改策略" },
+        { "token": "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser", "kind": "syntax", "desc": "最常用：只影响当前用户，无需管理员" },
+        { "token": "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned", "kind": "syntax", "desc": "修改本地机器的默认策略" },
+        { "token": "Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope CurrentUser", "kind": "syntax", "desc": "清除当前用户设置，回退到上级默认值" },
+        { "token": "Set-ExecutionPolicy Bypass -Scope Process -Force", "kind": "syntax", "desc": "只在当前进程临时放开，窗口关闭即失效" },
+        { "token": "Set-ExecutionPolicy AllSigned -Scope LocalMachine", "kind": "syntax", "desc": "要求所有脚本必须带有可信签名" },
+        { "token": "Set-ExecutionPolicy Restricted -Scope CurrentUser", "kind": "syntax", "desc": "恢复为禁止运行任何脚本文件" },
+        { "token": "Get-ExecutionPolicy -List", "kind": "syntax", "desc": "改完后核对各作用域的实际取值" },
+        { "token": "powershell -ExecutionPolicy Bypass -File .\\a.ps1", "kind": "syntax", "desc": "不改设置，临时以 Bypass 运行某个脚本" },
+        { "token": "Unblock-File .\\a.ps1", "kind": "syntax", "desc": "解除下载文件的阻止标记，避免被拦" }
+      ]
+    },
+    {
+      "name": "Start-Transcript",
+      "aliases": [],
+      "title": "开始记录会话",
+      "desc": "把当前会话的输入与回显记录到文本文件，用于留证或事后排查。结束时要用 Stop-Transcript 关闭，否则文件可能不完整。",
+      "usage": "Start-Transcript [[-Path] <String>] [-Append] [-Force] [-NoClobber] [-IncludeInvocationHeader]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["转录", "日志", "记录"],
+      "examples": [
+        { "cmd": "Start-Transcript -Path .\\session.log", "desc": "把本次会话记录到指定文件" },
+        { "cmd": "Start-Transcript", "desc": "用默认文件名记录到文档目录" },
+        { "cmd": "Start-Transcript -Path .\\session.log -Append", "desc": "追加到已有记录文件末尾" },
+        { "cmd": "Stop-Transcript", "desc": "结束记录并输出文件路径摘要" }
+      ],
+      "form": [
+        { "token": "", "label": "记录文件", "type": "path", "value": ".\\session.log", "hint": "留空使用默认路径" },
+        { "token": "-Append", "label": "追加写入", "type": "flag", "value": "false", "hint": "不覆盖已存在的文件" },
+        { "token": "-IncludeInvocationHeader", "label": "记录命令头部", "type": "flag", "value": "false", "hint": "每条命令前加时间标记" }
+      ],
+      "nodes": [
+        { "token": "<文件路径>", "kind": "value", "desc": "记录文件保存路径，位置参数", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "转录文件的保存位置，支持通配符", "valueHint": "<路径>" },
+        { "token": "-LiteralPath", "kind": "option", "desc": "指定路径且不解释通配符", "valueHint": "<路径>" },
+        { "token": "-OutputDirectory", "kind": "option", "desc": "只给目录，文件名自动生成", "valueHint": "<目录>" },
+        { "token": "-Append", "kind": "flag", "desc": "追加到已有文件末尾，而不是报错" },
+        { "token": "-Force", "kind": "flag", "desc": "允许覆盖只读文件或同名文件" },
+        { "token": "-NoClobber", "kind": "flag", "desc": "同名文件已存在时不覆盖也不追加" },
+        { "token": "-IncludeInvocationHeader", "kind": "flag", "desc": "在每条命令前记录调用时间等信息" },
+        { "token": "Start-Transcript -Path .\\log.txt", "kind": "syntax", "desc": "记录到指定文件" },
+        { "token": "Start-Transcript", "kind": "syntax", "desc": "不带参数时使用默认路径与文件名" },
+        { "token": "Start-Transcript -Append -Path .\\log.txt", "kind": "syntax", "desc": "多次运行追加到同一个日志文件" },
+        { "token": "Stop-Transcript", "kind": "syntax", "desc": "结束记录，成对使用才不会丢内容" }
+      ]
+    },
+    {
+      "name": "Stop-Transcript",
+      "aliases": [],
+      "title": "停止记录会话",
+      "desc": "结束由 Start-Transcript 开启的转录并把内容写入文件，同时显示文件路径等摘要。当前没有正在进行的转录时会报错。",
+      "usage": "Stop-Transcript",
+      "admin": false,
+      "danger": 0,
+      "tags": ["转录", "结束", "日志"],
+      "examples": [
+        { "cmd": "Stop-Transcript", "desc": "结束当前会话的转录" },
+        { "cmd": "$null = Stop-Transcript", "desc": "结束转录但不显示摘要信息" },
+        { "cmd": "Get-Content .\\session.log -Tail 20", "desc": "查看转录文件的最后 20 行" },
+        { "cmd": "Start-Transcript -Path .\\session.log", "desc": "配套命令：开始记录会话" }
+      ],
+      "form": [],
+      "nodes": [
+        { "token": "Stop-Transcript", "kind": "syntax", "desc": "结束当前会话的转录并输出摘要" },
+        { "token": "$null = Stop-Transcript", "kind": "syntax", "desc": "结束转录但不显示摘要信息" },
+        { "token": "Start-Transcript -Path .\\session.log", "kind": "syntax", "desc": "配套：把会话输出记录到指定文件" },
+        { "token": "Start-Transcript", "kind": "syntax", "desc": "配套：使用默认路径开始记录" },
+        { "token": "Get-Content .\\session.log -Tail 20", "kind": "syntax", "desc": "查看转录文件末尾内容确认已写入" },
+        { "token": "Start-Transcript; Stop-Transcript", "kind": "syntax", "desc": "成对使用，确保记录完整不丢内容" },
+        { "token": "Stop-Transcript; Start-Transcript .\\b.log", "kind": "syntax", "desc": "先结束再开始，切换到新的记录文件" },
+        { "token": "Remove-Item .\\session.log", "kind": "syntax", "desc": "确认无用后清理转录文件" },
+        { "token": "Get-Help Stop-Transcript", "kind": "syntax", "desc": "查看本机帮助确认没有可用参数" },
+        { "token": "Get-Command Stop-Transcript -Syntax", "kind": "syntax", "desc": "确认该命令只有通用参数" }
+      ]
+    },
+    {
+      "name": "Clear-Host",
+      "aliases": ["clear", "cls"],
+      "title": "清空控制台",
+      "desc": "清空控制台屏幕并把光标移到左上角，只影响显示效果，不删除变量、命令历史或已生成的对象。别名是 cls 和 clear。",
+      "usage": "Clear-Host",
+      "admin": false,
+      "danger": 0,
+      "tags": ["清屏", "控制台", "界面"],
+      "examples": [
+        { "cmd": "Clear-Host", "desc": "清空当前控制台屏幕" },
+        { "cmd": "cls", "desc": "用官方别名快速清屏" },
+        { "cmd": "[Console]::Clear()", "desc": "用 .NET 方法清屏，效果相同" },
+        { "cmd": "Clear-History", "desc": "清除命令历史，注意与清屏不是一回事" }
+      ],
+      "form": [],
+      "nodes": [
+        { "token": "Clear-Host", "kind": "syntax", "desc": "清空屏幕并把光标移到左上角" },
+        { "token": "cls", "kind": "syntax", "desc": "官方别名，最常用的清屏写法" },
+        { "token": "clear", "kind": "syntax", "desc": "另一个官方别名，效果相同" },
+        { "token": "[Console]::Clear()", "kind": "syntax", "desc": "调用 .NET 控制台方法的等价写法" },
+        { "token": "cmd /c cls", "kind": "syntax", "desc": "借用 cmd 的清屏命令实现同样效果" },
+        { "token": "Clear-Host; Get-Date", "kind": "syntax", "desc": "清屏之后紧接着输出新的内容" },
+        { "token": "Clear-History", "kind": "syntax", "desc": "清除命令历史，与清屏作用不同" },
+        { "token": "Get-Alias -Definition Clear-Host", "kind": "syntax", "desc": "查看清屏命令拥有的全部别名" },
+        { "token": "$Host.Name", "kind": "syntax", "desc": "查看当前宿主，不同宿主清屏行为有差异" },
+        { "token": "Get-Help Clear-Host", "kind": "syntax", "desc": "查看清屏命令的帮助说明" }
+      ]
+    },
+    {
+      "name": "Get-Credential",
+      "aliases": [],
+      "title": "交互获取凭据",
+      "desc": "弹出对话框或按提示读取用户名和密码，返回 PSCredential 对象供远程连接等场景使用。密码以安全字符串保存，默认无法直接读出明文。",
+      "usage": "Get-Credential [-Credential] <PSCredential>  或  Get-Credential [[-UserName] <String>] -Message <String>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["凭据", "密码", "认证"],
+      "examples": [
+        { "cmd": "Get-Credential", "desc": "弹出对话框输入用户名和密码" },
+        { "cmd": "Get-Credential -Message '请输入域账号'", "desc": "带说明文字提示用户输入" },
+        { "cmd": "Get-Credential -UserName 'admin' -Message '请输入密码'", "desc": "预填用户名，只让用户输入密码" },
+        { "cmd": "$c = Get-Credential; $c.UserName", "desc": "把凭据保存到变量并查看用户名" }
+      ],
+      "form": [
+        { "token": "-UserName", "label": "用户名", "type": "text", "value": "", "hint": "预填的用户名" },
+        { "token": "-Credential", "label": "用户名或凭据", "type": "text", "value": "", "hint": "例如 User01 或 Domain01\\User01" },
+        { "token": "-Message", "label": "提示文字", "type": "text", "value": "请输入域账号", "hint": "显示给用户的说明" }
+      ],
+      "nodes": [
+        { "token": "<用户名或凭据对象>", "kind": "value", "desc": "位置参数可写用户名，也可传已有凭据对象", "valueHint": "用户名或凭据对象" },
+        { "token": "-Credential", "kind": "option", "desc": "指定用户名或传入已有凭据对象", "valueHint": "<用户名或凭据>" },
+        { "token": "-UserName", "kind": "option", "desc": "预先填好的用户名，只让用户输入密码", "valueHint": "<用户名>" },
+        { "token": "-Message", "kind": "option", "desc": "提示文字，说明需要什么账号", "valueHint": "<文本>" },
+        { "token": "Get-Credential", "kind": "syntax", "desc": "最常用写法：弹出对话框输入账号密码" },
+        { "token": "Get-Credential -Message '请输入域账号'", "kind": "syntax", "desc": "带说明文字，提醒用户输入什么" },
+        { "token": "Get-Credential -UserName 'admin' -Message '请输入密码'", "kind": "syntax", "desc": "预填用户名，用户只补密码" },
+        { "token": "$c = Get-Credential; $c.UserName", "kind": "syntax", "desc": "保存凭据到变量并读取用户名" },
+        { "token": "$p = $c.GetNetworkCredential().Password", "kind": "syntax", "desc": "取出明文密码，仅在必要时使用" },
+        { "token": "Get-Credential -Credential 'DOMAIN\\user'", "kind": "syntax", "desc": "用字符串形式指定要认证的账号" },
+        { "token": "Invoke-Command -ComputerName srv -Credential (Get-Credential)", "kind": "syntax", "desc": "远程操作的常见组合用法" },
+        { "token": "New-Object System.Management.Automation.PSCredential('u', (ConvertTo-SecureString 'p' -AsPlainText -Force))", "kind": "syntax", "desc": "非交互构造凭据对象，慎用明文密码" }
+      ]
+    },
+    {
+      "name": "Get-PSCallStack",
+      "aliases": ["gcs"],
+      "title": "查看调用栈",
+      "desc": "返回当前调用栈，显示从最外层脚本到当前函数的调用层次与位置。脚本报错定位、判断是谁调用了当前函数时非常有用。",
+      "usage": "Get-PSCallStack",
+      "admin": false,
+      "danger": 0,
+      "tags": ["调用栈", "调试", "排错"],
+      "examples": [
+        { "cmd": "Get-PSCallStack", "desc": "显示当前调用栈的各层信息" },
+        { "cmd": "Get-PSCallStack | Format-List", "desc": "以列表形式查看每层详细属性" },
+        { "cmd": "(Get-PSCallStack)[1].ScriptLineNumber", "desc": "取出调用方所在的行号" },
+        { "cmd": "function f { Get-PSCallStack }; f", "desc": "在函数内部查看是谁调用了它" }
+      ],
+      "form": [],
+      "nodes": [
+        { "token": "Get-PSCallStack", "kind": "syntax", "desc": "输出当前完整的调用栈" },
+        { "token": "Get-PSCallStack | Format-List", "kind": "syntax", "desc": "以列表方式查看每一层的全部属性" },
+        { "token": "Get-PSCallStack | Format-Table Command, Location -AutoSize", "kind": "syntax", "desc": "只看命令名与所在位置" },
+        { "token": "(Get-PSCallStack)[0].Command", "kind": "syntax", "desc": "取当前层的命令名称" },
+        { "token": "(Get-PSCallStack)[1].ScriptLineNumber", "kind": "syntax", "desc": "取上一层调用所在的行号" },
+        { "token": "(Get-PSCallStack)[1].InvocationInfo.MyCommand", "kind": "syntax", "desc": "取调用方的命令对象信息" },
+        { "token": "function f { Get-PSCallStack }; f", "kind": "syntax", "desc": "在函数内查看完整的调用链" },
+        { "token": "try { throw 'x' } catch { Get-PSCallStack }", "kind": "syntax", "desc": "出错时打印调用栈便于定位" },
+        { "token": "Get-PSCallStack | Out-String", "kind": "syntax", "desc": "转成字符串写入日志文件" },
+        { "token": "$MyInvocation", "kind": "syntax", "desc": "查看当前调用信息，比调用栈更轻量" }
+      ]
+    }
+  ]
+}

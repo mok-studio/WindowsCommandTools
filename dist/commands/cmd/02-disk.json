@@ -1,0 +1,5248 @@
+{
+  "schema": 1,
+  "category": "磁盘与系统修复",
+  "icon": "disk",
+  "commands": [
+    {
+      "name": "chkdsk",
+      "title": "检查并修复磁盘错误",
+      "desc": "扫描磁盘的文件系统结构和扇区，找出逻辑错误与坏扇区并尝试修复。系统意外断电、蓝屏或提示文件损坏后，用它检查系统盘最有效。加 /F 或 /R 需要独占磁盘，系统盘会提示在下次重启时执行，中途不可断电。",
+      "usage": "chkdsk [<盘符>:] [/F] [/V] [/R] [/X] [/I] [/C] [/B] [/L:<大小>] [/scan] [/spotfix]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "磁盘检查",
+        "坏道",
+        "文件系统"
+      ],
+      "examples": [
+        {
+          "cmd": "chkdsk C:",
+          "desc": "只读检查 C 盘并输出报告，不会修改任何数据"
+        },
+        {
+          "cmd": "chkdsk C: /F /R /X",
+          "desc": "强制卸下 C 盘并修复错误、扫描坏扇区，常需重启后执行"
+        },
+        {
+          "cmd": "chkdsk D: /scan",
+          "desc": "对 D 盘做在线扫描，不必卸载卷，适合正在使用的数据盘"
+        },
+        {
+          "cmd": "chkdsk C: /F /L:8192",
+          "desc": "修复错误的同时把 NTFS 日志文件设为 8192 KB"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标盘符",
+          "type": "text",
+          "value": "C:",
+          "hint": "盘符后必须带冒号，例如 D:"
+        },
+        {
+          "token": "/F",
+          "label": "修复错误",
+          "type": "flag",
+          "value": "false",
+          "hint": "需要独占卷，系统盘需重启执行"
+        },
+        {
+          "token": "/R",
+          "label": "扫坏扇区",
+          "type": "flag",
+          "value": "false",
+          "hint": "隐含 /F，耗时最长可能数小时"
+        },
+        {
+          "token": "/X",
+          "label": "强制卸下卷",
+          "type": "flag",
+          "value": "false",
+          "hint": "隐含 /F，会立即失效所有打开的文件句柄"
+        },
+        {
+          "token": "/L:",
+          "label": "日志文件大小",
+          "type": "number",
+          "value": "",
+          "hint": "单位 KB，仅 NTFS，留空表示查看当前大小"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要检查的卷，可写 C:、装入点或卷名",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "/F",
+          "kind": "flag",
+          "desc": "修复磁盘上的错误，需独占该卷"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "FAT 下显示每个文件的完整路径，NTFS 下显示清理消息"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "定位坏扇区并恢复可读信息，隐含 /F，耗时很长"
+        },
+        {
+          "token": "/X",
+          "kind": "flag",
+          "desc": "必要时先强制卸下卷，隐含 /F，句柄会全部失效"
+        },
+        {
+          "token": "/I",
+          "kind": "flag",
+          "desc": "仅 NTFS，对索引项做较宽松的检查以加快速度"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "仅 NTFS，跳过文件夹结构中的循环检查"
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "仅 NTFS，重新评估卷上的坏簇，隐含 /R"
+        },
+        {
+          "token": "/scan",
+          "kind": "flag",
+          "desc": "仅 NTFS，在卷保持联机时做一次在线扫描"
+        },
+        {
+          "token": "/forceofflinefix",
+          "kind": "flag",
+          "desc": "必须与 /scan 同用，所有缺陷转为离线修复"
+        },
+        {
+          "token": "/perf",
+          "kind": "flag",
+          "desc": "必须与 /scan 同用，占用更多资源以更快完成扫描"
+        },
+        {
+          "token": "/spotfix",
+          "kind": "flag",
+          "desc": "仅 NTFS，只修复在线扫描标记出来的缺陷"
+        },
+        {
+          "token": "/sdcleanup",
+          "kind": "flag",
+          "desc": "仅 NTFS，清理不需要的安全描述符以缩短扫描时间"
+        },
+        {
+          "token": "/offlinescanandfix",
+          "kind": "flag",
+          "desc": "离线扫描卷并修复，修复动作在卷脱机后进行"
+        },
+        {
+          "token": "/freeorphanedchains",
+          "kind": "flag",
+          "desc": "释放孤立簇链而不恢复其内容，仅 FAT 等文件系统"
+        },
+        {
+          "token": "/L:",
+          "kind": "option",
+          "desc": "仅 NTFS，修改日志文件大小，单位 KB",
+          "valueHint": "<大小>",
+          "children": [
+            {
+              "token": "<大小>",
+              "kind": "value",
+              "desc": "日志文件的新尺寸，单位 KB，例如 8192",
+              "valueHint": "KB 数值"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "chkntfs",
+      "title": "管理开机磁盘自检",
+      "desc": "查看或修改开机时 autochk 对磁盘的检查行为，也就是常说的开机自检。可以查询某个盘是否被标记为脏、调整倒计时秒数、把某个盘排除在自检之外。改错了可以用 /D 一键恢复默认行为。",
+      "usage": "chkntfs <盘符> [...] [/D] [/T[:<秒数>]] [/X <盘符>] [/C <盘符>]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "开机自检",
+        "autochk",
+        "脏位"
+      ],
+      "examples": [
+        {
+          "cmd": "chkntfs C:",
+          "desc": "查看 C 盘是否被标记为脏或已安排下次开机检查"
+        },
+        {
+          "cmd": "chkntfs /T:5",
+          "desc": "把开机自检的倒计时改为 5 秒"
+        },
+        {
+          "cmd": "chkntfs /X D:",
+          "desc": "让 D 盘不再参与开机自检，适合慢速移动硬盘"
+        },
+        {
+          "cmd": "chkntfs /C E:",
+          "desc": "安排 E 盘在下次开机时接受检查"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "查询盘符",
+          "type": "text",
+          "value": "C:",
+          "hint": "只查询不加开关，可写多个盘符"
+        },
+        {
+          "token": "/T:",
+          "label": "倒计时秒数",
+          "type": "number",
+          "value": "",
+          "hint": "开机自检等待时间，留空表示查看当前设置"
+        },
+        {
+          "token": "/C",
+          "label": "安排检查",
+          "type": "text",
+          "value": "",
+          "hint": "填写盘符，安排下次开机检查该盘"
+        },
+        {
+          "token": "/X",
+          "label": "排除检查",
+          "type": "text",
+          "value": "",
+          "hint": "填写盘符，使其不参与开机自检"
+        },
+        {
+          "token": "/D",
+          "label": "恢复默认",
+          "type": "flag",
+          "value": "false",
+          "hint": "清除排除列表，恢复所有盘都检查"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要查询的卷，可写多个，例如 C: D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "恢复默认行为：所有盘都检查，脏盘自动运行 chkdsk"
+        },
+        {
+          "token": "/T:",
+          "kind": "option",
+          "desc": "修改 autochk 启动倒计时秒数，不带值则显示当前设置",
+          "valueHint": "<秒数>",
+          "children": [
+            {
+              "token": "<秒数>",
+              "kind": "value",
+              "desc": "倒计时长度，单位秒，例如 5 或 0",
+              "valueHint": "秒数"
+            }
+          ]
+        },
+        {
+          "token": "/X",
+          "kind": "option",
+          "desc": "把指定盘排除在开机检查之外，多次调用不累加",
+          "valueHint": "<盘符>",
+          "repeatable": true,
+          "children": [
+            {
+              "token": "<盘符>",
+              "kind": "value",
+              "desc": "要排除的卷，例如 D: 或 E:",
+              "valueHint": "盘符"
+            }
+          ]
+        },
+        {
+          "token": "/C",
+          "kind": "option",
+          "desc": "安排指定盘在下次开机时接受检查",
+          "valueHint": "<盘符>",
+          "repeatable": true,
+          "children": [
+            {
+              "token": "<盘符>",
+              "kind": "value",
+              "desc": "要安排检查的卷，例如 C:",
+              "valueHint": "盘符"
+            }
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把查询结果重定向写入文本文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道，把输出交给后面的命令继续处理",
+          "valueHint": "<命令>"
+        }
+      ]
+    },
+    {
+      "name": "diskpart",
+      "title": "磁盘分区命令行管理",
+      "desc": "功能最完整的磁盘分区工具，能查看、创建、删除、格式化分区和卷，还能挂载虚拟硬盘与设置磁盘属性。装系统、扩分区、修复引导盘前都用它。clean 与 create 会直接改写分区表，操作前务必确认选中的磁盘编号。",
+      "usage": "diskpart [/s <脚本文件>]，进入后依次执行 list disk、select disk <编号>、create partition 等子命令",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "分区",
+        "磁盘管理",
+        "磁盘"
+      ],
+      "examples": [
+        {
+          "cmd": "diskpart /s D:\\script.txt",
+          "desc": "按脚本文件里的命令自动执行分区操作，适合批量部署"
+        },
+        {
+          "cmd": "diskpart",
+          "desc": "进入交互模式，随后可用 list disk、select disk 0 等子命令"
+        },
+        {
+          "cmd": "echo list volume | diskpart",
+          "desc": "用管道把单条命令交给 diskpart 执行并退出"
+        }
+      ],
+      "form": [
+        {
+          "token": "/s",
+          "label": "脚本文件",
+          "type": "path",
+          "value": "",
+          "hint": "每行一条 diskpart 子命令的文本文件"
+        },
+        {
+          "token": "list",
+          "label": "列表对象",
+          "type": "select",
+          "value": "disk",
+          "hint": "进入 diskpart 后首先执行的对象列表命令",
+          "options": [
+            "disk",
+            "volume",
+            "partition",
+            "vdisk"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "token": "list",
+          "kind": "subcommand",
+          "desc": "列出磁盘、卷或分区，常作为第一步",
+          "children": [
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "列出所有物理磁盘及其容量和状态",
+              "valueHint": "disk"
+            },
+            {
+              "token": "volume",
+              "kind": "value",
+              "desc": "列出所有卷及其盘符、标签、文件系统",
+              "valueHint": "volume"
+            },
+            {
+              "token": "partition",
+              "kind": "value",
+              "desc": "列出当前所选磁盘上的分区",
+              "valueHint": "partition"
+            },
+            {
+              "token": "vdisk",
+              "kind": "value",
+              "desc": "列出已连接或已创建的虚拟硬盘",
+              "valueHint": "vdisk"
+            }
+          ]
+        },
+        {
+          "token": "select",
+          "kind": "subcommand",
+          "desc": "把焦点切到某个磁盘、分区或卷",
+          "children": [
+            {
+              "token": "vdisk",
+              "kind": "subcommand",
+              "desc": "选中虚拟硬盘文件作为操作目标",
+              "children": [
+                {
+                  "token": "file=",
+                  "kind": "option",
+                  "desc": "指定要选中的 vhd 或 vhdx 文件路径",
+                  "valueHint": "<文件路径>"
+                }
+              ]
+            },
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "按编号选中物理磁盘，后续操作都作用于它",
+              "valueHint": "disk"
+            },
+            {
+              "token": "<磁盘号>",
+              "kind": "value",
+              "desc": "磁盘编号，从 0 开始，可用 list disk 查看",
+              "valueHint": "编号"
+            },
+            {
+              "token": "volume",
+              "kind": "value",
+              "desc": "选中一个卷，可用编号、盘符或装入点",
+              "valueHint": "volume"
+            },
+            {
+              "token": "<卷号>",
+              "kind": "value",
+              "desc": "卷编号、盘符或装入点路径",
+              "valueHint": "编号或盘符"
+            },
+            {
+              "token": "partition",
+              "kind": "value",
+              "desc": "选中当前磁盘上的某个分区",
+              "valueHint": "partition"
+            }
+          ]
+        },
+        {
+          "token": "create",
+          "kind": "subcommand",
+          "desc": "创建分区、卷或虚拟硬盘",
+          "children": [
+            {
+              "token": "partition",
+              "kind": "subcommand",
+              "desc": "在当前所选磁盘上新建分区",
+              "children": [
+                {
+                  "token": "primary",
+                  "kind": "value",
+                  "desc": "创建主分区",
+                  "valueHint": "primary"
+                },
+                {
+                  "token": "extended",
+                  "kind": "value",
+                  "desc": "创建扩展分区",
+                  "valueHint": "extended"
+                },
+                {
+                  "token": "logical",
+                  "kind": "value",
+                  "desc": "在扩展分区内创建逻辑分区",
+                  "valueHint": "logical"
+                },
+                {
+                  "token": "size=",
+                  "kind": "option",
+                  "desc": "分区大小，单位 MB，省略则占满剩余空间",
+                  "valueHint": "<MB>",
+                  "children": [
+                    {
+                      "token": "<大小>",
+                      "kind": "value",
+                      "desc": "以 MB 为单位的容量，例如 102400 表示 100 GB",
+                      "valueHint": "MB 数值"
+                    }
+                  ]
+                },
+                {
+                  "token": "offset=",
+                  "kind": "option",
+                  "desc": "创建分区时使用的对齐偏移量，单位 KB",
+                  "valueHint": "<KB>"
+                },
+                {
+                  "token": "align=",
+                  "kind": "option",
+                  "desc": "对齐值，常用 1024 或 4096 以适配固态硬盘",
+                  "valueHint": "<KB>"
+                }
+              ]
+            },
+            {
+              "token": "volume",
+              "kind": "subcommand",
+              "desc": "创建简单卷、跨区卷、带区卷等",
+              "children": [
+                {
+                  "token": "simple",
+                  "kind": "value",
+                  "desc": "创建简单卷",
+                  "valueHint": "simple"
+                },
+                {
+                  "token": "stripe",
+                  "kind": "value",
+                  "desc": "创建带区卷，需要至少两块磁盘",
+                  "valueHint": "stripe"
+                },
+                {
+                  "token": "mirror",
+                  "kind": "value",
+                  "desc": "创建镜像卷，需要两块磁盘",
+                  "valueHint": "mirror"
+                },
+                {
+                  "token": "raid5",
+                  "kind": "value",
+                  "desc": "创建 RAID-5 卷，需要至少三块磁盘",
+                  "valueHint": "raid5"
+                },
+                {
+                  "token": "size=",
+                  "kind": "option",
+                  "desc": "卷容量，单位 MB，是创建卷的必填项",
+                  "valueHint": "<MB>"
+                }
+              ]
+            },
+            {
+              "token": "vdisk",
+              "kind": "subcommand",
+              "desc": "创建虚拟硬盘文件，用于挂载测试或虚拟机",
+              "children": [
+                {
+                  "token": "file=",
+                  "kind": "option",
+                  "desc": "虚拟硬盘文件的保存路径，扩展名用 vhd 或 vhdx",
+                  "valueHint": "<文件路径>"
+                },
+                {
+                  "token": "maximum=",
+                  "kind": "option",
+                  "desc": "虚拟硬盘的最大容量，单位 MB",
+                  "valueHint": "<MB>"
+                },
+                {
+                  "token": "type=",
+                  "kind": "option",
+                  "desc": "虚拟硬盘类型，固定大小或可动态扩展",
+                  "valueHint": "<类型>",
+                  "enum": [
+                    "fixed",
+                    "expandable"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "clean",
+          "kind": "subcommand",
+          "desc": "清零所选磁盘，所有分区与数据都会丢失",
+          "children": [
+            {
+              "token": "[all]",
+              "kind": "value",
+              "desc": "写入全零擦除每个扇区，机械盘上极慢",
+              "valueHint": "[all]"
+            },
+            {
+              "token": "noerr",
+              "kind": "value",
+              "desc": "只用于脚本，出错时继续执行后续命令",
+              "valueHint": "noerr"
+            }
+          ]
+        },
+        {
+          "token": "convert",
+          "kind": "subcommand",
+          "desc": "把磁盘在 MBR 与 GPT 分区表之间互转",
+          "children": [
+            {
+              "token": "gpt",
+              "kind": "value",
+              "desc": "转换为 GPT 分区表，现代 UEFI 启动需要",
+              "valueHint": "gpt"
+            },
+            {
+              "token": "mbr",
+              "kind": "value",
+              "desc": "转换为 MBR 分区表，老主板 BIOS 启动需要",
+              "valueHint": "mbr"
+            },
+            {
+              "token": "dynamic",
+              "kind": "value",
+              "desc": "把基本磁盘转换为动态磁盘",
+              "valueHint": "dynamic"
+            },
+            {
+              "token": "basic",
+              "kind": "value",
+              "desc": "把动态磁盘还原为基本磁盘",
+              "valueHint": "basic"
+            }
+          ]
+        },
+        {
+          "token": "format",
+          "kind": "subcommand",
+          "desc": "格式化当前所选分区或卷",
+          "children": [
+            {
+              "token": "quick",
+              "kind": "value",
+              "desc": "快速格式化，只重建元数据不扫描坏道",
+              "valueHint": "quick"
+            },
+            {
+              "token": "compress",
+              "kind": "value",
+              "desc": "NTFS 下对新文件默认启用压缩",
+              "valueHint": "compress"
+            },
+            {
+              "token": "fs=",
+              "kind": "option",
+              "desc": "目标文件系统类型，必须与卷容量匹配",
+              "valueHint": "<文件系统>",
+              "enum": [
+                "ntfs",
+                "fat32",
+                "exfat",
+                "refs"
+              ]
+            },
+            {
+              "token": "label=",
+              "kind": "option",
+              "desc": "格式化后写入的卷标",
+              "valueHint": "<卷标>"
+            },
+            {
+              "token": "unit=",
+              "kind": "option",
+              "desc": "分配单元大小，常用 4096 或 65536",
+              "valueHint": "<字节>"
+            }
+          ]
+        },
+        {
+          "token": "assign",
+          "kind": "subcommand",
+          "desc": "给所选卷分配盘符或装入点",
+          "children": [
+            {
+              "token": "letter=",
+              "kind": "option",
+              "desc": "分配的驱动器号，例如 letter=Z",
+              "valueHint": "<字母>"
+            },
+            {
+              "token": "mount=",
+              "kind": "option",
+              "desc": "挂载到 NTFS 空目录作为装入点",
+              "valueHint": "<目录路径>"
+            }
+          ]
+        },
+        {
+          "token": "delete",
+          "kind": "subcommand",
+          "desc": "删除所选分区、卷或磁盘",
+          "children": [
+            {
+              "token": "partition",
+              "kind": "value",
+              "desc": "删除当前所选分区，数据不可恢复",
+              "valueHint": "partition"
+            },
+            {
+              "token": "volume",
+              "kind": "value",
+              "desc": "删除卷并移除其盘符与装入点",
+              "valueHint": "volume"
+            },
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "删除磁盘分区表，效果等同于 clean",
+              "valueHint": "disk"
+            },
+            {
+              "token": "override",
+              "kind": "value",
+              "desc": "允许强制删除正在使用的分区或卷",
+              "valueHint": "override"
+            },
+            {
+              "token": "noerr",
+              "kind": "value",
+              "desc": "脚本模式下忽略错误继续执行",
+              "valueHint": "noerr"
+            }
+          ]
+        },
+        {
+          "token": "extend",
+          "kind": "subcommand",
+          "desc": "把所选卷向后面的连续空闲空间扩展",
+          "children": [
+            {
+              "token": "noerr",
+              "kind": "value",
+              "desc": "脚本模式下忽略错误继续执行",
+              "valueHint": "noerr"
+            },
+            {
+              "token": "size=",
+              "kind": "option",
+              "desc": "扩展后的总容量，单位 MB，默认占满全部空闲",
+              "valueHint": "<MB>"
+            },
+            {
+              "token": "disk=",
+              "kind": "option",
+              "desc": "在动态磁盘上指定参与扩展的磁盘编号",
+              "valueHint": "<编号>"
+            }
+          ]
+        },
+        {
+          "token": "shrink",
+          "kind": "subcommand",
+          "desc": "压缩所选卷以腾出未分配空间",
+          "children": [
+            {
+              "token": "querymax",
+              "kind": "value",
+              "desc": "只查询该卷最多能压缩出多少空间",
+              "valueHint": "querymax"
+            },
+            {
+              "token": "desired=",
+              "kind": "option",
+              "desc": "希望回收的空间大小，单位 MB",
+              "valueHint": "<MB>"
+            },
+            {
+              "token": "minimum=",
+              "kind": "option",
+              "desc": "最少要回收的空间大小，单位 MB",
+              "valueHint": "<MB>"
+            }
+          ]
+        },
+        {
+          "token": "attach",
+          "kind": "subcommand",
+          "desc": "连接虚拟硬盘文件使其出现在系统里",
+          "children": [
+            {
+              "token": "vdisk",
+              "kind": "value",
+              "desc": "连接当前选中的虚拟硬盘",
+              "valueHint": "vdisk"
+            },
+            {
+              "token": "readonly",
+              "kind": "value",
+              "desc": "以只读方式连接，避免误写测试镜像",
+              "valueHint": "readonly"
+            },
+            {
+              "token": "usb",
+              "kind": "value",
+              "desc": "以可移动 USB 设备的方式连接",
+              "valueHint": "usb"
+            }
+          ]
+        },
+        {
+          "token": "online",
+          "kind": "subcommand",
+          "desc": "把脱机磁盘或卷重新置于联机状态",
+          "children": [
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "使所选磁盘联机",
+              "valueHint": "disk"
+            },
+            {
+              "token": "volume",
+              "kind": "value",
+              "desc": "使所选卷联机",
+              "valueHint": "volume"
+            },
+            {
+              "token": "noerr",
+              "kind": "value",
+              "desc": "脚本模式下忽略错误继续执行",
+              "valueHint": "noerr"
+            }
+          ]
+        },
+        {
+          "token": "offline",
+          "kind": "subcommand",
+          "desc": "把磁盘或卷置于脱机状态",
+          "children": [
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "使所选磁盘脱机",
+              "valueHint": "disk"
+            },
+            {
+              "token": "volume",
+              "kind": "value",
+              "desc": "使所选卷脱机",
+              "valueHint": "volume"
+            }
+          ]
+        },
+        {
+          "token": "attributes",
+          "kind": "subcommand",
+          "desc": "查看或修改卷与磁盘的属性标志",
+          "children": [
+            {
+              "token": "volume",
+              "kind": "value",
+              "desc": "操作卷属性，例如设为只读或隐藏",
+              "valueHint": "volume"
+            },
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "操作磁盘属性，例如设为只读",
+              "valueHint": "disk"
+            },
+            {
+              "token": "set",
+              "kind": "subcommand",
+              "desc": "设置指定属性，多个属性可用空格分隔",
+              "children": [
+                {
+                  "token": "readonly",
+                  "kind": "value",
+                  "desc": "把卷或磁盘设为只读",
+                  "valueHint": "readonly"
+                },
+                {
+                  "token": "hidden",
+                  "kind": "value",
+                  "desc": "隐藏卷，使其不出现在资源管理器里",
+                  "valueHint": "hidden"
+                },
+                {
+                  "token": "nodefaultdriveletter",
+                  "kind": "value",
+                  "desc": "不再自动为该卷分配盘符",
+                  "valueHint": "nodefaultdriveletter"
+                },
+                {
+                  "token": "clear",
+                  "kind": "value",
+                  "desc": "清除指定的属性标志",
+                  "valueHint": "clear"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "uniqueid",
+          "kind": "subcommand",
+          "desc": "查看或设置磁盘与分区的标识符",
+          "children": [
+            {
+              "token": "disk",
+              "kind": "value",
+              "desc": "显示所选磁盘的 GPT 标识符或签名",
+              "valueHint": "disk"
+            },
+            {
+              "token": "partition",
+              "kind": "value",
+              "desc": "显示所选分区的 GPT 标识符",
+              "valueHint": "partition"
+            },
+            {
+              "token": "id=",
+              "kind": "option",
+              "desc": "为 MBR 磁盘设置新的磁盘签名",
+              "valueHint": "<标识符>"
+            }
+          ]
+        },
+        {
+          "token": "automount",
+          "kind": "subcommand",
+          "desc": "控制新加入的卷是否自动分配盘符",
+          "children": [
+            {
+              "token": "enable",
+              "kind": "value",
+              "desc": "启用自动挂载并分配盘符，默认行为",
+              "valueHint": "enable"
+            },
+            {
+              "token": "disable",
+              "kind": "value",
+              "desc": "禁用自动挂载，新卷不会自动获得盘符",
+              "valueHint": "disable"
+            },
+            {
+              "token": "scrub",
+              "kind": "value",
+              "desc": "清除系统中已失效的挂载点与盘符记录",
+              "valueHint": "scrub"
+            }
+          ]
+        },
+        {
+          "token": "san",
+          "kind": "subcommand",
+          "desc": "查看或设置存储区域网络的磁盘策略",
+          "children": [
+            {
+              "token": "policy=",
+              "kind": "option",
+              "desc": "设置新磁盘的联机策略",
+              "valueHint": "<策略>",
+              "enum": [
+                "onlineall",
+                "offlineall",
+                "offlineshared"
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/s",
+          "kind": "option",
+          "desc": "用脚本文件批量执行 diskpart 子命令",
+          "valueHint": "<脚本文件>",
+          "children": [
+            {
+              "token": "<脚本文件>",
+              "kind": "value",
+              "desc": "包含子命令的文本文件路径，例如 D:\\part.txt",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "active",
+          "kind": "flag",
+          "desc": "把所选分区标记为活动分区，供 BIOS 引导使用"
+        },
+        {
+          "token": "rescan",
+          "kind": "flag",
+          "desc": "重新扫描总线和磁盘，发现新接入的存储设备"
+        },
+        {
+          "token": "exit",
+          "kind": "flag",
+          "desc": "退出 diskpart，返回命令提示符"
+        }
+      ]
+    },
+    {
+      "name": "format",
+      "title": "格式化磁盘或分区",
+      "desc": "把卷重新格式化为指定文件系统，卷上原有的全部数据都会被清空。新硬盘分区后、U 盘出现文件系统错误时常用。操作前一定核对盘符，格式化的结果无法撤销。",
+      "usage": "format <盘符>: [/FS:<文件系统>] [/V:<卷标>] [/Q] [/A:<单元大小>] [/C] [/X] [/P:<次数>]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "格式化",
+        "清空数据",
+        "文件系统"
+      ],
+      "examples": [
+        {
+          "cmd": "format E: /FS:NTFS /Q /V:DATA",
+          "desc": "把 E 盘快速格式化为 NTFS 并把卷标设为 DATA"
+        },
+        {
+          "cmd": "format E: /FS:exFAT /A:65536",
+          "desc": "格式化为 exFAT 并使用 64 KB 分配单元，适合大容量 U 盘"
+        },
+        {
+          "cmd": "format F: /FS:NTFS /P:1",
+          "desc": "完全格式化并做一次零擦除，耗时明显更长"
+        },
+        {
+          "cmd": "format G: /FS:FAT32 /Q",
+          "desc": "把 G 盘快速格式化为 FAT32，注意单文件不能超过 4 GB"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标盘符",
+          "type": "text",
+          "value": "E:",
+          "hint": "盘符后必须带冒号，格式化前请再次核对"
+        },
+        {
+          "token": "/FS:",
+          "label": "文件系统",
+          "type": "select",
+          "value": "NTFS",
+          "hint": "系统盘建议 NTFS，U 盘可考虑 exFAT",
+          "options": [
+            "NTFS",
+            "FAT32",
+            "exFAT",
+            "ReFS",
+            "UDF"
+          ]
+        },
+        {
+          "token": "/V:",
+          "label": "卷标",
+          "type": "text",
+          "value": "",
+          "hint": "格式化后写入的卷标，最长 32 个字符"
+        },
+        {
+          "token": "/A:",
+          "label": "分配单元大小",
+          "type": "select",
+          "value": "",
+          "hint": "一般保持默认，建议先备份数据再调整",
+          "options": [
+            "",
+            "4096",
+            "8192",
+            "16384",
+            "32768",
+            "65536"
+          ]
+        },
+        {
+          "token": "/Q",
+          "label": "快速格式化",
+          "type": "flag",
+          "value": "false",
+          "hint": "只重建文件系统结构，不扫描坏扇区"
+        },
+        {
+          "token": "/C",
+          "label": "默认压缩",
+          "type": "flag",
+          "value": "false",
+          "hint": "仅 NTFS，新文件自动压缩"
+        },
+        {
+          "token": "/X",
+          "label": "强制卸下卷",
+          "type": "flag",
+          "value": "false",
+          "hint": "必要时先解除占用，所有句柄会失效"
+        },
+        {
+          "token": "/P:",
+          "label": "零擦除次数",
+          "type": "number",
+          "value": "",
+          "hint": "每写一遍零，次数越多越慢，留空表示不做"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要格式化的卷，可写盘符、装入点或卷名",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "/FS:",
+          "kind": "option",
+          "desc": "指定格式化后的文件系统类型",
+          "valueHint": "<文件系统>",
+          "children": [
+            {
+              "token": "NTFS",
+              "kind": "value",
+              "desc": "Windows 默认文件系统，支持权限与压缩",
+              "valueHint": "NTFS"
+            },
+            {
+              "token": "FAT32",
+              "kind": "value",
+              "desc": "兼容性最好，但单文件上限 4 GB",
+              "valueHint": "FAT32"
+            },
+            {
+              "token": "exFAT",
+              "kind": "value",
+              "desc": "适合大容量 U 盘与移动硬盘，无 4 GB 限制",
+              "valueHint": "exFAT"
+            },
+            {
+              "token": "ReFS",
+              "kind": "value",
+              "desc": "弹性文件系统，适合存储池与数据盘",
+              "valueHint": "ReFS"
+            },
+            {
+              "token": "UDF",
+              "kind": "value",
+              "desc": "通用光盘格式，多见于刻录与镜像场景",
+              "valueHint": "UDF"
+            }
+          ]
+        },
+        {
+          "token": "/V:",
+          "kind": "option",
+          "desc": "指定格式化后写入的卷标",
+          "valueHint": "<卷标>",
+          "children": [
+            {
+              "token": "<卷标>",
+              "kind": "value",
+              "desc": "卷的显示名称，例如 DATA 或 备份盘",
+              "valueHint": "卷标文本"
+            }
+          ]
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "执行快速格式化，速度很快但不检查坏扇区"
+        },
+        {
+          "token": "/A:",
+          "kind": "option",
+          "desc": "覆盖默认的分配单元大小，即簇大小",
+          "valueHint": "<字节>",
+          "children": [
+            {
+              "token": "4096",
+              "kind": "value",
+              "desc": "4 KB 簇，NTFS 默认，通用性最好",
+              "valueHint": "4096"
+            },
+            {
+              "token": "8192",
+              "kind": "value",
+              "desc": "8 KB 簇，适合偏大的文件",
+              "valueHint": "8192"
+            },
+            {
+              "token": "65536",
+              "kind": "value",
+              "desc": "64 KB 簇，适合视频等超大文件",
+              "valueHint": "65536"
+            }
+          ]
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "仅 NTFS，新建文件默认使用压缩属性"
+        },
+        {
+          "token": "/X",
+          "kind": "flag",
+          "desc": "必要时强制先卸下卷，所有打开句柄失效"
+        },
+        {
+          "token": "/P:",
+          "kind": "option",
+          "desc": "对卷的每个扇区写零，写几遍就执行几次",
+          "valueHint": "<次数>",
+          "children": [
+            {
+              "token": "<次数>",
+              "kind": "value",
+              "desc": "零擦除遍数，例如 1 或 3",
+              "valueHint": "遍数"
+            }
+          ]
+        },
+        {
+          "token": "/L:",
+          "kind": "option",
+          "desc": "仅 NTFS，启用或禁用大尺寸文件记录",
+          "valueHint": "[:<状态>]",
+          "enum": [
+            "enable",
+            "disable"
+          ]
+        },
+        {
+          "token": "/R:",
+          "kind": "option",
+          "desc": "仅 UDF，强制指定 UDF 版本号",
+          "valueHint": "<版本>",
+          "enum": [
+            "1.02",
+            "1.50",
+            "2.00",
+            "2.01",
+            "2.50"
+          ]
+        },
+        {
+          "token": "/F:",
+          "kind": "option",
+          "desc": "旧软盘语法，指定软盘容量大小",
+          "valueHint": "<容量>"
+        }
+      ]
+    },
+    {
+      "name": "vol",
+      "title": "显示卷标与序列号",
+      "desc": "显示指定驱动器的卷标和序列号，不加盘符就显示当前驱动器。序列号可以用来区分同名的 U 盘，也常被用于软件授权绑定。它是纯查询命令，不会改动磁盘上任何内容。",
+      "usage": "vol <盘符> [:]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "卷标",
+        "序列号",
+        "查询"
+      ],
+      "examples": [
+        {
+          "cmd": "vol",
+          "desc": "显示当前驱动器的卷标与序列号"
+        },
+        {
+          "cmd": "vol C:",
+          "desc": "显示 C 盘的卷标与序列号"
+        },
+        {
+          "cmd": "vol D: > D:\\volinfo.txt",
+          "desc": "把 D 盘的卷信息写入文本文件留档"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "盘符",
+          "type": "text",
+          "value": "C:",
+          "hint": "留空则显示当前驱动器"
+        },
+        {
+          "token": ">",
+          "label": "输出到文件",
+          "type": "text",
+          "value": "",
+          "hint": "填写文件名即写入文件，留空直接显示"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要查询的驱动器，例如 C: 或 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的简单说明"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把卷标信息重定向写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": ">>",
+          "kind": "option",
+          "desc": "把卷标信息追加到文件末尾",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道，把输出交给后面的命令继续处理",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "&&",
+          "kind": "option",
+          "desc": "前一条命令成功后再执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "||",
+          "kind": "option",
+          "desc": "前一条命令失败后再执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "&",
+          "kind": "option",
+          "desc": "无论成功与否都接着执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "2>&1",
+          "kind": "flag",
+          "desc": "把错误输出合并到标准输出，CMD 通用语法"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "title": "设置或删除卷标",
+      "desc": "为磁盘卷创建、修改或删除卷标，也就是资源管理器里显示的那个名字。给移动硬盘和数据盘起个易识别的名字，能减少误操作。删除卷标时只要在提示后直接回车，注意卷标最长 32 个字符。",
+      "usage": "label <盘符> [:][<卷标>] 或 label [/MP] [<卷>] [<卷标>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "卷标",
+        "重命名",
+        "磁盘"
+      ],
+      "examples": [
+        {
+          "cmd": "label D:DATA",
+          "desc": "把 D 盘的卷标直接改为 DATA"
+        },
+        {
+          "cmd": "label D:",
+          "desc": "交互方式修改 D 盘卷标，直接回车则删除卷标"
+        },
+        {
+          "cmd": "label /MP D:\\Mount\\Data Backup",
+          "desc": "为装入点对应的卷设置带空格的卷标"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "盘符",
+          "type": "text",
+          "value": "D:",
+          "hint": "要改卷标的驱动器，例如 D:"
+        },
+        {
+          "token": "",
+          "label": "新卷标",
+          "type": "text",
+          "value": "",
+          "hint": "留空执行时会提示输入，直接回车则删除卷标"
+        },
+        {
+          "token": "/MP",
+          "label": "按装入点处理",
+          "type": "flag",
+          "value": "false",
+          "hint": "把目标当成装入点或卷名而不是盘符"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要修改卷标的驱动器，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<卷标>",
+          "kind": "value",
+          "desc": "新的卷标文本，最长 32 个字符，可含空格",
+          "valueHint": "卷标文本"
+        },
+        {
+          "token": "<卷>",
+          "kind": "value",
+          "desc": "与 /MP 同用时的装入点路径或卷名",
+          "valueHint": "装入点或卷名"
+        },
+        {
+          "token": "/MP",
+          "kind": "flag",
+          "desc": "把参数当作装入点或卷名处理，而不是盘符"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把执行结果重定向写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道，把输出交给后面的命令继续处理",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "&&",
+          "kind": "option",
+          "desc": "前一条命令成功后再执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "||",
+          "kind": "option",
+          "desc": "前一条命令失败后再执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "2>&1",
+          "kind": "flag",
+          "desc": "把错误输出合并到标准输出，CMD 通用语法"
+        }
+      ]
+    },
+    {
+      "name": "convert",
+      "title": "把 FAT 卷转成 NTFS",
+      "desc": "在不破坏数据的前提下把 FAT 或 FAT32 卷转换为 NTFS，从而获得权限、压缩、加密和大文件支持。转换方向是单向的，转成 NTFS 后无法用本命令转回来。系统盘转换会提示重启，重启过程可能较久，中途断电有风险。",
+      "usage": "convert <盘符>: /FS:NTFS [/V] [/X] [/CvtArea:<文件名>] [/NoSecurity]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "文件系统",
+        "转换",
+        "NTFS"
+      ],
+      "examples": [
+        {
+          "cmd": "convert E: /FS:NTFS",
+          "desc": "把 E 盘从 FAT32 转换为 NTFS，保留原有文件"
+        },
+        {
+          "cmd": "convert E: /FS:NTFS /V",
+          "desc": "转换过程中输出详细日志，便于确认每一步"
+        },
+        {
+          "cmd": "convert E: /FS:NTFS /X /NoSecurity",
+          "desc": "强制卸下 E 盘转换，且转换后文件对所有用户开放"
+        },
+        {
+          "cmd": "convert E: /FS:NTFS /CvtArea:reserve.dat",
+          "desc": "用根目录下预留文件放置 NTFS 系统文件以减少碎片"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标盘符",
+          "type": "text",
+          "value": "E:",
+          "hint": "只能是 FAT 或 FAT32 卷，且不能是当前正在使用的系统卷"
+        },
+        {
+          "token": "/FS:",
+          "label": "目标文件系统",
+          "type": "select",
+          "value": "NTFS",
+          "hint": "本命令只支持转换为 NTFS",
+          "options": [
+            "NTFS"
+          ]
+        },
+        {
+          "token": "/V",
+          "label": "详细模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "在转换过程中输出更详细的日志"
+        },
+        {
+          "token": "/X",
+          "label": "强制卸下卷",
+          "type": "flag",
+          "value": "false",
+          "hint": "必要时先强制卸下，所有句柄失效"
+        },
+        {
+          "token": "/NoSecurity",
+          "label": "不继承权限",
+          "type": "flag",
+          "value": "false",
+          "hint": "转换后所有用户都能访问这些文件"
+        },
+        {
+          "token": "/CvtArea:",
+          "label": "预留文件",
+          "type": "text",
+          "value": "",
+          "hint": "根目录下已存在的连续文件，用于放置 NTFS 元数据"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>",
+          "kind": "value",
+          "desc": "要转换的 FAT 或 FAT32 卷，例如 E:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "/FS:",
+          "kind": "option",
+          "desc": "指定目标文件系统，本命令只接受 NTFS",
+          "valueHint": "<文件系统>",
+          "children": [
+            {
+              "token": "NTFS",
+              "kind": "value",
+              "desc": "转换为 NTFS，转换后无法用本命令还原",
+              "valueHint": "NTFS"
+            }
+          ]
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "以详细模式运行，输出转换过程的日志"
+        },
+        {
+          "token": "/X",
+          "kind": "flag",
+          "desc": "必要时强制先卸下卷，所有打开句柄失效"
+        },
+        {
+          "token": "/NoSecurity",
+          "kind": "flag",
+          "desc": "转换后不保留权限设置，所有用户可访问"
+        },
+        {
+          "token": "/CvtArea:",
+          "kind": "option",
+          "desc": "指定根目录下的连续占位文件存放 NTFS 元数据",
+          "valueHint": "<文件名>",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "根目录下已存在的连续文件的名称",
+              "valueHint": "文件名"
+            }
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把转换日志重定向写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "&&",
+          "kind": "option",
+          "desc": "转换成功后再执行后续命令，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "2>&1",
+          "kind": "flag",
+          "desc": "把错误输出合并到标准输出，CMD 通用语法"
+        }
+      ]
+    },
+    {
+      "name": "defrag",
+      "title": "整理优化磁盘碎片",
+      "desc": "重新排列卷上的文件数据以减少碎片，或对固态硬盘执行 TRIM 优化。机械硬盘整理后顺序读写更快，固态硬盘则应使用 /O 而不是传统整理。整理过程耗时较长，期间最好不要运行大型程序或断电。",
+      "usage": "defrag <卷> [/O] [/A] [/D] [/V] [/U] [/T] [/L] [/B] [/X] [/E] [/H]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "碎片整理",
+        "优化",
+        "固态硬盘"
+      ],
+      "examples": [
+        {
+          "cmd": "defrag C: /O",
+          "desc": "按介质类型自动选择最佳优化方式，固态盘会走 TRIM"
+        },
+        {
+          "cmd": "defrag C: /A /V",
+          "desc": "只分析 C 盘碎片情况并输出详细统计，不做整理"
+        },
+        {
+          "cmd": "defrag C: /D",
+          "desc": "对机械硬盘做传统碎片整理"
+        },
+        {
+          "cmd": "defrag /C /H",
+          "desc": "对所有卷执行优化，并以后台低优先级方式运行"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标卷",
+          "type": "text",
+          "value": "C:",
+          "hint": "盘符、装入点或卷名，可写多个"
+        },
+        {
+          "token": "/O",
+          "label": "自动优选",
+          "type": "select",
+          "value": "优化",
+          "hint": "按介质类型执行合适的优化",
+          "options": [
+            "优化",
+            "分析",
+            "传统整理"
+          ]
+        },
+        {
+          "token": "/V",
+          "label": "详细输出",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出包含碎片统计的详细信息"
+        },
+        {
+          "token": "/H",
+          "label": "低优先级",
+          "type": "flag",
+          "value": "false",
+          "hint": "以后台正常优先级运行，减少对使用的影响"
+        },
+        {
+          "token": "/U",
+          "label": "显示进度",
+          "type": "flag",
+          "value": "false",
+          "hint": "在屏幕上打印操作进度"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<卷>",
+          "kind": "value",
+          "desc": "要整理的卷，可写 C:、装入点或卷名，可多个",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "对每个卷执行指定的首选操作",
+          "repeatable": true
+        },
+        {
+          "token": "/E",
+          "kind": "option",
+          "desc": "对所有卷执行操作，但排除列出的卷",
+          "valueHint": "<卷路径>",
+          "children": [
+            {
+              "token": "<卷路径>",
+              "kind": "value",
+              "desc": "要排除的卷，例如 D:，可写多个",
+              "valueHint": "盘符"
+            }
+          ]
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "只分析卷的碎片情况，不执行整理"
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "执行传统碎片整理，适合机械硬盘"
+        },
+        {
+          "token": "/O",
+          "kind": "flag",
+          "desc": "按介质类型自动执行合适的优化，推荐用法"
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "执行引导优化，改善开机速度"
+        },
+        {
+          "token": "/G",
+          "kind": "flag",
+          "desc": "分层卷上把文件放到合适的存储层"
+        },
+        {
+          "token": "/K",
+          "kind": "flag",
+          "desc": "精简置备卷上执行块整合，提高空间利用率"
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "精简置备卷上执行重修剪以释放空闲块"
+        },
+        {
+          "token": "/T",
+          "kind": "flag",
+          "desc": "跟踪并显示指定卷上正在进行的操作进度"
+        },
+        {
+          "token": "/U",
+          "kind": "flag",
+          "desc": "在屏幕上打印操作的进度信息"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "输出详细结果，包含碎片统计数据"
+        },
+        {
+          "token": "/X",
+          "kind": "flag",
+          "desc": "执行空闲空间合并，把空闲区集中到卷末尾"
+        },
+        {
+          "token": "/H",
+          "kind": "flag",
+          "desc": "以正常优先级运行，默认是低优先级"
+        },
+        {
+          "token": "/M",
+          "kind": "flag",
+          "desc": "并行对每个卷执行操作，适合多卷同时优化"
+        },
+        {
+          "token": "/File",
+          "kind": "option",
+          "desc": "只整理指定的一个或多个文件",
+          "valueHint": "<文件路径>",
+          "repeatable": true,
+          "children": [
+            {
+              "token": "<文件路径>",
+              "kind": "value",
+              "desc": "要整理的文件完整路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fsutil",
+      "title": "文件系统底层管理工具",
+      "desc": "直接操作 NTFS 与 ReFS 的底层功能，比如查询或设置脏位、查看卷信息、管理 USN 日志、硬链接、稀疏文件与重解析点。属于高级工具，多数子命令需要管理员权限，写操作前应确认卷与参数，误用可能影响文件系统状态。",
+      "usage": "fsutil <子命令> <对象> [参数]，子命令包括 dirty、fsinfo、volume、file、usn、hardlink、reparsepoint、behavior、repair、sparse、objectid、resource、8dot3name、wim 等",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "文件系统",
+        "NTFS",
+        "高级工具"
+      ],
+      "examples": [
+        {
+          "cmd": "fsutil dirty query C:",
+          "desc": "查询 C 盘的脏位，判断是否需要运行磁盘检查"
+        },
+        {
+          "cmd": "fsutil fsinfo ntfsinfo C:",
+          "desc": "显示 C 盘的 NTFS 详细参数，如簇大小和 MFT 信息"
+        },
+        {
+          "cmd": "fsutil volume diskfree C:",
+          "desc": "查看 C 盘的总容量与可用空间"
+        },
+        {
+          "cmd": "fsutil behavior query disable8dot3",
+          "desc": "查询系统是否生成 8.3 短文件名"
+        },
+        {
+          "cmd": "fsutil file queryfileid C:\\Windows\\notepad.exe",
+          "desc": "查询指定文件的 NTFS 文件 ID"
+        },
+        {
+          "cmd": "fsutil repair query C:",
+          "desc": "查询 C 盘的自愈状态"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "子命令",
+          "type": "select",
+          "value": "dirty",
+          "hint": "先选功能大类，再在后面补充对象",
+          "options": [
+            "dirty",
+            "fsinfo",
+            "volume",
+            "file",
+            "usn",
+            "hardlink",
+            "reparsepoint",
+            "behavior",
+            "repair",
+            "sparse",
+            "objectid",
+            "8dot3name",
+            "wim"
+          ]
+        },
+        {
+          "token": "",
+          "label": "操作",
+          "type": "text",
+          "value": "query",
+          "hint": "如 query、set、list、create、delete"
+        },
+        {
+          "token": "",
+          "label": "对象",
+          "type": "text",
+          "value": "C:",
+          "hint": "卷路径 C: 或文件完整路径"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "dirty",
+          "kind": "subcommand",
+          "desc": "查询或设置卷的脏位，脏位会触发开机自检",
+          "children": [
+            {
+              "token": "query",
+              "kind": "value",
+              "desc": "查询指定卷的脏位是否被设置",
+              "valueHint": "query"
+            },
+            {
+              "token": "set",
+              "kind": "value",
+              "desc": "设置脏位，下次开机将自动检查该卷",
+              "valueHint": "set"
+            },
+            {
+              "token": "<卷>",
+              "kind": "value",
+              "desc": "卷路径，例如 C: 或 D:",
+              "valueHint": "卷路径"
+            }
+          ]
+        },
+        {
+          "token": "fsinfo",
+          "kind": "subcommand",
+          "desc": "查询驱动器列表与文件系统统计信息",
+          "children": [
+            {
+              "token": "drives",
+              "kind": "value",
+              "desc": "列出系统中的所有驱动器",
+              "valueHint": "drives"
+            },
+            {
+              "token": "drivetype",
+              "kind": "value",
+              "desc": "查询指定驱动器的类型，如固定或可移动",
+              "valueHint": "drivetype"
+            },
+            {
+              "token": "volumeinfo",
+              "kind": "value",
+              "desc": "查询卷的标签、序列号与文件系统信息",
+              "valueHint": "volumeinfo"
+            },
+            {
+              "token": "ntfsinfo",
+              "kind": "value",
+              "desc": "查询 NTFS 专有信息，如簇大小与 MFT 区间",
+              "valueHint": "ntfsinfo"
+            },
+            {
+              "token": "statistics",
+              "kind": "value",
+              "desc": "查询文件系统的读写统计信息",
+              "valueHint": "statistics"
+            },
+            {
+              "token": "sectorinfo",
+              "kind": "value",
+              "desc": "查询底层扇区大小等信息",
+              "valueHint": "sectorinfo"
+            },
+            {
+              "token": "<卷>",
+              "kind": "value",
+              "desc": "卷路径，例如 C:",
+              "valueHint": "卷路径"
+            }
+          ]
+        },
+        {
+          "token": "volume",
+          "kind": "subcommand",
+          "desc": "卷级操作，如查询空间、卸下卷、查簇占用",
+          "children": [
+            {
+              "token": "diskfree",
+              "kind": "value",
+              "desc": "查询指定卷的总空间与可用空间",
+              "valueHint": "diskfree"
+            },
+            {
+              "token": "list",
+              "kind": "value",
+              "desc": "列出系统上的所有卷",
+              "valueHint": "list"
+            },
+            {
+              "token": "dismount",
+              "kind": "value",
+              "desc": "卸下指定卷，使其暂时不可访问",
+              "valueHint": "dismount"
+            },
+            {
+              "token": "querycluster",
+              "kind": "value",
+              "desc": "查询某个簇正被哪个文件占用",
+              "valueHint": "querycluster"
+            },
+            {
+              "token": "querylabel",
+              "kind": "value",
+              "desc": "查询指定卷的卷标",
+              "valueHint": "querylabel"
+            },
+            {
+              "token": "setlabel",
+              "kind": "value",
+              "desc": "设置指定卷的卷标",
+              "valueHint": "setlabel"
+            },
+            {
+              "token": "flush",
+              "kind": "value",
+              "desc": "强制把缓存中的数据刷写到卷上",
+              "valueHint": "flush"
+            },
+            {
+              "token": "<卷>",
+              "kind": "value",
+              "desc": "卷路径，例如 C:",
+              "valueHint": "卷路径"
+            }
+          ]
+        },
+        {
+          "token": "file",
+          "kind": "subcommand",
+          "desc": "针对单个文件的底层操作与查询",
+          "children": [
+            {
+              "token": "queryFileID",
+              "kind": "value",
+              "desc": "查询指定文件的文件 ID",
+              "valueHint": "queryFileID"
+            },
+            {
+              "token": "queryFileNameById",
+              "kind": "value",
+              "desc": "根据文件 ID 查询其链接名",
+              "valueHint": "queryFileNameById"
+            },
+            {
+              "token": "queryAllocRanges",
+              "kind": "value",
+              "desc": "查询文件已分配的数据区间",
+              "valueHint": "queryAllocRanges"
+            },
+            {
+              "token": "queryValidData",
+              "kind": "value",
+              "desc": "查询文件的有效数据长度",
+              "valueHint": "queryValidData"
+            },
+            {
+              "token": "setValidData",
+              "kind": "value",
+              "desc": "设置文件的有效数据长度",
+              "valueHint": "setValidData"
+            },
+            {
+              "token": "setZeroData",
+              "kind": "value",
+              "desc": "把文件指定区间填充为零",
+              "valueHint": "setZeroData"
+            },
+            {
+              "token": "createNew",
+              "kind": "value",
+              "desc": "按指定大小创建一个新文件",
+              "valueHint": "createNew"
+            },
+            {
+              "token": "setEOF",
+              "kind": "value",
+              "desc": "设置文件的结尾位置",
+              "valueHint": "setEOF"
+            },
+            {
+              "token": "setShortName",
+              "kind": "value",
+              "desc": "为文件设置 8.3 短名称",
+              "valueHint": "setShortName"
+            },
+            {
+              "token": "optimizeMetadata",
+              "kind": "value",
+              "desc": "优化文件的元数据布局",
+              "valueHint": "optimizeMetadata"
+            },
+            {
+              "token": "queryProcessesUsing",
+              "kind": "value",
+              "desc": "查询正在打开该文件的进程",
+              "valueHint": "queryProcessesUsing"
+            },
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "要操作的文件完整路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "usn",
+          "kind": "subcommand",
+          "desc": "管理 NTFS 更新序列号变更日志",
+          "children": [
+            {
+              "token": "queryJournal",
+              "kind": "value",
+              "desc": "查询卷上 USN 日志的当前状态",
+              "valueHint": "queryJournal"
+            },
+            {
+              "token": "createJournal",
+              "kind": "value",
+              "desc": "为卷创建 USN 变更日志",
+              "valueHint": "createJournal"
+            },
+            {
+              "token": "deleteJournal",
+              "kind": "value",
+              "desc": "删除卷上的 USN 变更日志",
+              "valueHint": "deleteJournal"
+            },
+            {
+              "token": "enumData",
+              "kind": "value",
+              "desc": "枚举 USN 日志中的数据",
+              "valueHint": "enumData"
+            },
+            {
+              "token": "readJournal",
+              "kind": "value",
+              "desc": "读取 USN 日志中的变更记录",
+              "valueHint": "readJournal"
+            },
+            {
+              "token": "readData",
+              "kind": "value",
+              "desc": "读取指定文件的 USN 数据",
+              "valueHint": "readData"
+            },
+            {
+              "token": "<卷>",
+              "kind": "value",
+              "desc": "卷路径，例如 C:",
+              "valueHint": "卷路径"
+            },
+            {
+              "token": "m=",
+              "kind": "option",
+              "desc": "创建日志时指定 NTFS 分配的最大字节数",
+              "valueHint": "<字节>",
+              "children": [
+                {
+                  "token": "<字节>",
+                  "kind": "value",
+                  "desc": "日志最大尺寸，单位字节，例如 1000",
+                  "valueHint": "字节数"
+                }
+              ]
+            },
+            {
+              "token": "a=",
+              "kind": "option",
+              "desc": "创建日志时指定追加分配的增长字节数",
+              "valueHint": "<字节>"
+            }
+          ]
+        },
+        {
+          "token": "hardlink",
+          "kind": "subcommand",
+          "desc": "创建或列出 NTFS 硬链接",
+          "children": [
+            {
+              "token": "create",
+              "kind": "value",
+              "desc": "为一个已存在的文件创建新的硬链接",
+              "valueHint": "create"
+            },
+            {
+              "token": "list",
+              "kind": "value",
+              "desc": "列出某个文件的所有硬链接",
+              "valueHint": "list"
+            },
+            {
+              "token": "<新文件名>",
+              "kind": "value",
+              "desc": "要创建的硬链接路径",
+              "valueHint": "文件路径"
+            },
+            {
+              "token": "<已有文件名>",
+              "kind": "value",
+              "desc": "作为链接目标的已存在文件",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "reparsepoint",
+          "kind": "subcommand",
+          "desc": "查询或删除重解析点，如符号链接与联接",
+          "children": [
+            {
+              "token": "query",
+              "kind": "value",
+              "desc": "查询文件或目录上的重解析点数据",
+              "valueHint": "query"
+            },
+            {
+              "token": "delete",
+              "kind": "value",
+              "desc": "删除指定对象上的重解析点",
+              "valueHint": "delete"
+            },
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "带重解析点的文件或目录路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "behavior",
+          "kind": "subcommand",
+          "desc": "查询或修改文件系统的全局行为参数",
+          "children": [
+            {
+              "token": "query",
+              "kind": "value",
+              "desc": "查询当前的文件系统行为参数设置",
+              "valueHint": "query"
+            },
+            {
+              "token": "set",
+              "kind": "subcommand",
+              "desc": "修改文件系统行为参数，改动通常需重启生效",
+              "children": [
+                {
+                  "token": "disable8dot3",
+                  "kind": "value",
+                  "desc": "控制是否生成 8.3 格式短文件名",
+                  "valueHint": "disable8dot3"
+                },
+                {
+                  "token": "disablelastaccess",
+                  "kind": "value",
+                  "desc": "控制是否更新文件最后访问时间",
+                  "valueHint": "disablelastaccess"
+                },
+                {
+                  "token": "mftzone",
+                  "kind": "value",
+                  "desc": "设置主文件表 MFT 预留空间的比例",
+                  "valueHint": "mftzone"
+                },
+                {
+                  "token": "memoryusage",
+                  "kind": "value",
+                  "desc": "设置 NTFS 分页池与内存使用级别",
+                  "valueHint": "memoryusage"
+                },
+                {
+                  "token": "quotanotify",
+                  "kind": "value",
+                  "desc": "设置磁盘配额超限通知的频率",
+                  "valueHint": "quotanotify"
+                },
+                {
+                  "token": "encryptpagingfile",
+                  "kind": "value",
+                  "desc": "控制是否加密页面文件",
+                  "valueHint": "encryptpagingfile"
+                },
+                {
+                  "token": "symlinkevaluation",
+                  "kind": "value",
+                  "desc": "设置符号链接的本地与远程解析方式",
+                  "valueHint": "symlinkevaluation"
+                },
+                {
+                  "token": "disableDeleteNotify",
+                  "kind": "value",
+                  "desc": "关闭删除通知，可提升大量删除时的性能",
+                  "valueHint": "disableDeleteNotify"
+                },
+                {
+                  "token": "bugcheckOnCorrupt",
+                  "kind": "value",
+                  "desc": "控制发现文件系统损坏时是否触发蓝屏",
+                  "valueHint": "bugcheckOnCorrupt"
+                },
+                {
+                  "token": "<取值>",
+                  "kind": "value",
+                  "desc": "参数取值，多数为 0 关闭、1 开启",
+                  "valueHint": "0 或 1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "repair",
+          "kind": "subcommand",
+          "desc": "查询或设置 NTFS 自愈功能与损坏日志",
+          "children": [
+            {
+              "token": "query",
+              "kind": "value",
+              "desc": "查询指定卷的自愈状态",
+              "valueHint": "query"
+            },
+            {
+              "token": "set",
+              "kind": "value",
+              "desc": "设置卷的自愈状态，例如启用或禁用",
+              "valueHint": "set"
+            },
+            {
+              "token": "state",
+              "kind": "value",
+              "desc": "查询卷的损坏状态与待修复项数量",
+              "valueHint": "state"
+            },
+            {
+              "token": "initiate",
+              "kind": "value",
+              "desc": "对指定文件启动修复",
+              "valueHint": "initiate"
+            },
+            {
+              "token": "wait",
+              "kind": "value",
+              "desc": "等待正在进行的修复完成",
+              "valueHint": "wait"
+            },
+            {
+              "token": "enumerate",
+              "kind": "value",
+              "desc": "列出卷损坏日志中的条目",
+              "valueHint": "enumerate"
+            },
+            {
+              "token": "<卷>",
+              "kind": "value",
+              "desc": "卷路径，例如 C:",
+              "valueHint": "卷路径"
+            },
+            {
+              "token": "<文件引用号>",
+              "kind": "value",
+              "desc": "文件引用号，可用 file queryFileID 获取",
+              "valueHint": "十六进制编号"
+            }
+          ]
+        },
+        {
+          "token": "sparse",
+          "kind": "subcommand",
+          "desc": "管理稀疏文件，让全零区间不占用磁盘空间",
+          "children": [
+            {
+              "token": "queryFlag",
+              "kind": "value",
+              "desc": "查询文件是否被标记为稀疏文件",
+              "valueHint": "queryFlag"
+            },
+            {
+              "token": "setFlag",
+              "kind": "value",
+              "desc": "把文件标记为稀疏文件",
+              "valueHint": "setFlag"
+            },
+            {
+              "token": "queryRange",
+              "kind": "value",
+              "desc": "查询文件中被标记为稀疏的区间",
+              "valueHint": "queryRange"
+            },
+            {
+              "token": "setRange",
+              "kind": "value",
+              "desc": "把文件的指定区间释放为稀疏区间",
+              "valueHint": "setRange"
+            },
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "要操作的稀疏文件路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "objectid",
+          "kind": "subcommand",
+          "desc": "管理文件与目录的对象标识符",
+          "children": [
+            {
+              "token": "query",
+              "kind": "value",
+              "desc": "查询文件或目录的对象标识符",
+              "valueHint": "query"
+            },
+            {
+              "token": "create",
+              "kind": "value",
+              "desc": "为文件或目录创建对象标识符",
+              "valueHint": "create"
+            },
+            {
+              "token": "delete",
+              "kind": "value",
+              "desc": "删除对象标识符",
+              "valueHint": "delete"
+            },
+            {
+              "token": "set",
+              "kind": "value",
+              "desc": "修改对象标识符的相关属性",
+              "valueHint": "set"
+            },
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "目标文件或目录的完整路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "8dot3name",
+          "kind": "subcommand",
+          "desc": "查询或修改 8.3 短文件名的生成策略",
+          "children": [
+            {
+              "token": "query",
+              "kind": "value",
+              "desc": "查询当前系统的短文件名设置",
+              "valueHint": "query"
+            },
+            {
+              "token": "set",
+              "kind": "value",
+              "desc": "修改短文件名生成策略",
+              "valueHint": "set"
+            },
+            {
+              "token": "scan",
+              "kind": "value",
+              "desc": "扫描可能受短名影响的注册表项",
+              "valueHint": "scan"
+            },
+            {
+              "token": "strip",
+              "kind": "value",
+              "desc": "删除目录下所有文件的短名称",
+              "valueHint": "strip"
+            },
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "要处理的目录路径，例如 D:\\Data",
+              "valueHint": "目录路径"
+            }
+          ]
+        },
+        {
+          "token": "wim",
+          "kind": "subcommand",
+          "desc": "查询与管理由 WIM 承载的文件",
+          "children": [
+            {
+              "token": "enumWims",
+              "kind": "value",
+              "desc": "列出参与承载的 WIM 文件",
+              "valueHint": "enumWims"
+            },
+            {
+              "token": "enumFiles",
+              "kind": "value",
+              "desc": "列出由 WIM 承载的文件",
+              "valueHint": "enumFiles"
+            },
+            {
+              "token": "queryFile",
+              "kind": "value",
+              "desc": "查询指定文件来自哪个 WIM",
+              "valueHint": "queryFile"
+            },
+            {
+              "token": "removeWim",
+              "kind": "value",
+              "desc": "从承载列表中移除一个 WIM",
+              "valueHint": "removeWim"
+            },
+            {
+              "token": "<盘符>",
+              "kind": "value",
+              "desc": "目标卷，例如 C:",
+              "valueHint": "盘符"
+            }
+          ]
+        },
+        {
+          "token": "resource",
+          "kind": "subcommand",
+          "desc": "管理事务性资源管理器，多用于调试",
+          "children": [
+            {
+              "token": "create",
+              "kind": "value",
+              "desc": "创建一个辅助事务性资源管理器",
+              "valueHint": "create"
+            },
+            {
+              "token": "start",
+              "kind": "value",
+              "desc": "启动指定的事务性资源管理器",
+              "valueHint": "start"
+            },
+            {
+              "token": "stop",
+              "kind": "value",
+              "desc": "停止指定的事务性资源管理器",
+              "valueHint": "stop"
+            },
+            {
+              "token": "info",
+              "kind": "value",
+              "desc": "显示事务性资源管理器的信息",
+              "valueHint": "info"
+            },
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "资源管理器名称或 GUID",
+              "valueHint": "名称"
+            }
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 fsutil 的可用子命令列表"
+        }
+      ]
+    },
+    {
+      "name": "mountvol",
+      "title": "管理卷装入点与挂载",
+      "desc": "创建、删除或列出卷装入点，也可以把卷挂载到一个空的 NTFS 文件夹上。当盘符用尽或者想让某个盘固定挂在指定目录时特别有用。加 /S 还能给 EFI 系统分区临时分配一个盘符，方便查看引导分区内容。",
+      "usage": "mountvol [<盘符>:]<路径> <卷名> [/D] [/L] [/P] [/R] [/N] [/E] [/S]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "装入点",
+        "挂载",
+        "EFI 分区"
+      ],
+      "examples": [
+        {
+          "cmd": "mountvol",
+          "desc": "列出所有卷及其卷名、装入点和盘符"
+        },
+        {
+          "cmd": "mountvol X: /S",
+          "desc": "把 EFI 系统分区挂载到 X 盘便于查看引导文件"
+        },
+        {
+          "cmd": "mountvol D:\\Mount\\Data \\\\?\\Volume{12345678-1234-1234-1234-123456789abc}\\",
+          "desc": "把指定卷挂载到 NTFS 空目录上"
+        },
+        {
+          "cmd": "mountvol D:\\Mount\\Data /D",
+          "desc": "从该目录移除卷装入点"
+        },
+        {
+          "cmd": "mountvol /R",
+          "desc": "清理已不存在卷的装入点目录与注册表记录"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "装入点目录或盘符",
+          "type": "text",
+          "value": "",
+          "hint": "例如 D:\\Mount\\Data 或 X:"
+        },
+        {
+          "token": "",
+          "label": "卷名",
+          "type": "text",
+          "value": "",
+          "hint": "形如 \\\\?\\Volume{GUID}\\，可用 mountvol 直接列出"
+        },
+        {
+          "token": "/D",
+          "label": "删除装入点",
+          "type": "flag",
+          "value": "false",
+          "hint": "只移除装入点，卷本身数据不受影响"
+        },
+        {
+          "token": "/P",
+          "label": "删除并卸下",
+          "type": "flag",
+          "value": "false",
+          "hint": "移除装入点并卸下卷，使其不可挂载"
+        },
+        {
+          "token": "/L",
+          "label": "列出租对应卷名",
+          "type": "flag",
+          "value": "false",
+          "hint": "显示该目录挂载的是哪个卷"
+        },
+        {
+          "token": "/R",
+          "label": "清理失效装入点",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除已不存在卷的装入点目录与注册表项"
+        },
+        {
+          "token": "/N",
+          "label": "禁用自动挂载",
+          "type": "flag",
+          "value": "false",
+          "hint": "新卷不再自动分配盘符"
+        },
+        {
+          "token": "/E",
+          "label": "启用自动挂载",
+          "type": "flag",
+          "value": "false",
+          "hint": "恢复新卷自动挂载的默认行为"
+        },
+        {
+          "token": "/S",
+          "label": "挂载 EFI 分区",
+          "type": "flag",
+          "value": "false",
+          "hint": "把 EFI 系统分区挂到指定盘符，需管理员权限"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>:<路径>",
+          "kind": "value",
+          "desc": "装入点所在的 NTFS 空目录或盘符",
+          "valueHint": "目录或盘符"
+        },
+        {
+          "token": "<卷名>",
+          "kind": "value",
+          "desc": "目标卷名，形如 \\\\?\\Volume{GUID}\\",
+          "valueHint": "卷名"
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "从指定目录上删除卷装入点"
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "列出该目录当前挂载的卷名"
+        },
+        {
+          "token": "/P",
+          "kind": "flag",
+          "desc": "删除装入点、卸下卷并使其不可挂载"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "删除系统中已失效卷的装入点目录和注册表设置"
+        },
+        {
+          "token": "/N",
+          "kind": "flag",
+          "desc": "禁用新卷的自动挂载，新卷不会自动分到盘符"
+        },
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "重新启用新卷的自动挂载"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "把 EFI 系统分区挂载到指定盘符，便于查看引导文件"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把卷列表重定向写入文件，便于留档",
+          "valueHint": "<文件名>"
+        }
+      ]
+    },
+    {
+      "name": "diskcopy",
+      "title": "整盘复制软盘内容",
+      "desc": "把源软盘的内容按磁道逐字节复制到另一张软盘，只对容量相同的软驱有效。它是 MS-DOS 时代留下的命令，Windows 10 与 11 已不再自带，仅在老系统或兼容环境里可能用到。日常备份请改用 xcopy、robocopy 或镜像工具。",
+      "usage": "diskcopy <源驱动器> [: [<目标驱动器>:]] [/V]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "软盘",
+        "整盘复制",
+        "旧命令"
+      ],
+      "examples": [
+        {
+          "cmd": "diskcopy A: B:",
+          "desc": "把 A 盘内容整盘复制到 B 盘，两张盘容量必须一致"
+        },
+        {
+          "cmd": "diskcopy A: A: /V",
+          "desc": "用同一个驱动器分两次插盘复制，并校验写入结果"
+        },
+        {
+          "cmd": "diskcopy A:",
+          "desc": "省略目标驱动器时按提示插入目标盘"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源驱动器",
+          "type": "text",
+          "value": "A:",
+          "hint": "装有源盘的软驱盘符"
+        },
+        {
+          "token": "",
+          "label": "目标驱动器",
+          "type": "text",
+          "value": "B:",
+          "hint": "省略时使用当前驱动器"
+        },
+        {
+          "token": "/V",
+          "label": "校验写入",
+          "type": "flag",
+          "value": "false",
+          "hint": "复制后校验数据是否写入正确，速度会变慢"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源驱动器>",
+          "kind": "value",
+          "desc": "装有源软盘的驱动器，例如 A:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<目标驱动器>",
+          "kind": "value",
+          "desc": "装有目标软盘的驱动器，省略时用当前驱动器",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "注意",
+          "kind": "value",
+          "desc": "Windows 10 及 11 已移除该命令，执行会提示找不到",
+          "valueHint": "兼容性提示"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "复制完成后校验每个磁道的数据是否正确"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把执行输出重定向写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道，把输出交给后面的命令继续处理",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "&&",
+          "kind": "option",
+          "desc": "前一条命令成功后再执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "||",
+          "kind": "option",
+          "desc": "前一条命令失败后再执行，CMD 通用语法",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "2>&1",
+          "kind": "flag",
+          "desc": "把错误输出合并到标准输出，CMD 通用语法"
+        }
+      ]
+    },
+    {
+      "name": "diskperf",
+      "title": "开关磁盘性能计数器",
+      "desc": "启用或禁用系统的物理磁盘与逻辑磁盘性能计数器，这些计数器是性能监视器里磁盘数据的来源。Windows 2000 之后计数器默认常开，所以现在主要用它来排查计数器异常或确认状态。设置需要重启后才生效。",
+      "usage": "diskperf [-Y[D|V] | -N[D|V]] [\\\\<计算机名>]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "性能计数器",
+        "磁盘性能",
+        "监视"
+      ],
+      "examples": [
+        {
+          "cmd": "diskperf -Y",
+          "desc": "设置系统在重启后启用全部磁盘性能计数器"
+        },
+        {
+          "cmd": "diskperf -YD",
+          "desc": "只启用物理磁盘的性能计数器"
+        },
+        {
+          "cmd": "diskperf -NV",
+          "desc": "禁用逻辑磁盘或存储卷的性能计数器"
+        },
+        {
+          "cmd": "diskperf",
+          "desc": "显示当前磁盘性能计数器的启用状态"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "开关",
+          "type": "select",
+          "value": "-Y",
+          "hint": "-Y 启用、-N 禁用，可加 D 或 V 限定范围",
+          "options": [
+            "-Y",
+            "-YD",
+            "-YV",
+            "-N",
+            "-ND",
+            "-NV"
+          ]
+        },
+        {
+          "token": "",
+          "label": "远程计算机",
+          "type": "text",
+          "value": "",
+          "hint": "形如 \\\\计算机名，仅对 Windows 2000 有效"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "-Y",
+          "kind": "flag",
+          "desc": "重启后启用所有磁盘性能计数器"
+        },
+        {
+          "token": "-YD",
+          "kind": "flag",
+          "desc": "重启后只启用物理磁盘的性能计数器"
+        },
+        {
+          "token": "-YV",
+          "kind": "flag",
+          "desc": "重启后只启用逻辑磁盘或卷的性能计数器"
+        },
+        {
+          "token": "-N",
+          "kind": "flag",
+          "desc": "重启后禁用所有磁盘性能计数器"
+        },
+        {
+          "token": "-ND",
+          "kind": "flag",
+          "desc": "禁用物理磁盘的性能计数器"
+        },
+        {
+          "token": "-NV",
+          "kind": "flag",
+          "desc": "禁用逻辑磁盘或存储卷的性能计数器"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把状态输出重定向写入文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道，把输出交给后面的命令继续处理",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "\\\\<计算机名>",
+          "kind": "value",
+          "desc": "查询或设置远程计算机，仅支持 Windows 2000",
+          "valueHint": "计算机名"
+        }
+      ]
+    },
+    {
+      "name": "sfc",
+      "title": "扫描修复系统文件",
+      "desc": "扫描所有受保护的系统文件，用备份副本替换被篡改或损坏的文件，是修复系统异常的常用手段。典型场景是系统功能异常、报错缺少 DLL 或怀疑被恶意软件改过。必须用管理员身份运行，扫描期间可以继续使用电脑但会比较慢。",
+      "usage": "sfc [/SCANNOW] [/VERIFYONLY] [/SCANFILE=<文件>] [/VERIFYFILE=<文件>] [/OFFWINDIR=<目录>] [/OFFBOOTDIR=<目录>]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "系统文件",
+        "修复",
+        "完整性"
+      ],
+      "examples": [
+        {
+          "cmd": "sfc /scannow",
+          "desc": "立即扫描并自动修复所有受保护的系统文件"
+        },
+        {
+          "cmd": "sfc /verifyonly",
+          "desc": "只校验不修复，快速判断系统文件是否被改动"
+        },
+        {
+          "cmd": "sfc /scanfile=C:\\Windows\\System32\\kernel32.dll",
+          "desc": "只修复指定的一个系统文件"
+        },
+        {
+          "cmd": "sfc /verifyfile=C:\\Windows\\System32\\user32.dll",
+          "desc": "只校验指定文件并报告版本与哈希"
+        },
+        {
+          "cmd": "sfc /scannow /offbootdir=C:\\ /offwindir=C:\\Windows",
+          "desc": "在离线环境或另一块系统盘上执行扫描修复"
+        }
+      ],
+      "form": [
+        {
+          "token": "/scannow",
+          "label": "立即扫描修复",
+          "type": "flag",
+          "value": "false",
+          "hint": "最常用，扫描并自动替换损坏文件"
+        },
+        {
+          "token": "/verifyonly",
+          "label": "仅校验不修复",
+          "type": "flag",
+          "value": "false",
+          "hint": "速度更快，只报告问题不修改文件"
+        },
+        {
+          "token": "/scanfile=",
+          "label": "扫描指定文件",
+          "type": "path",
+          "value": "",
+          "hint": "填写完整文件路径，只修复这一个文件"
+        },
+        {
+          "token": "/verifyfile=",
+          "label": "校验指定文件",
+          "type": "path",
+          "value": "",
+          "hint": "填写完整文件路径，只校验不修复"
+        },
+        {
+          "token": "/offwindir=",
+          "label": "离线 Windows 目录",
+          "type": "text",
+          "value": "",
+          "hint": "离线修复时指定目标系统目录"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/scannow",
+          "kind": "flag",
+          "desc": "扫描所有受保护的系统文件并自动修复"
+        },
+        {
+          "token": "/verifyonly",
+          "kind": "flag",
+          "desc": "只扫描校验，不执行任何修复动作"
+        },
+        {
+          "token": "/scanfile=",
+          "kind": "option",
+          "desc": "只扫描并修复指定的单个文件",
+          "valueHint": "<文件路径>",
+          "children": [
+            {
+              "token": "<文件路径>",
+              "kind": "value",
+              "desc": "要修复的文件完整路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/verifyfile=",
+          "kind": "option",
+          "desc": "只校验指定的单个文件并报告结果",
+          "valueHint": "<文件路径>",
+          "children": [
+            {
+              "token": "<文件路径>",
+              "kind": "value",
+              "desc": "要校验的文件完整路径",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/offbootdir=",
+          "kind": "option",
+          "desc": "离线修复时指定启动目录",
+          "valueHint": "<目录>",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "离线系统的启动分区根目录，例如 C:\\",
+              "valueHint": "目录路径"
+            }
+          ]
+        },
+        {
+          "token": "/offwindir=",
+          "kind": "option",
+          "desc": "离线修复时指定 Windows 目录",
+          "valueHint": "<目录>",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "离线系统的 Windows 目录，例如 C:\\Windows",
+              "valueHint": "目录路径"
+            }
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把扫描结果重定向写入日志文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "管道，把输出交给后面的命令继续处理",
+          "valueHint": "<命令>"
+        }
+      ]
+    },
+    {
+      "name": "dism",
+      "title": "修复系统映像与组件",
+      "desc": "部署映像服务与管理工具，可以检查并修复 Windows 组件存储的损坏，也能管理功能、驱动与包。上不了网或更新失败时，常用它配合安装镜像做离线修复。多数操作需要管理员权限，指定 /Source 时要写清映像目录。",
+      "usage": "dism /Online /Cleanup-Image /RestoreHealth [/Source:<目录>] [/LimitAccess]，或 dism /Image:<目录> /Get-Packages",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "映像修复",
+        "组件存储",
+        "更新"
+      ],
+      "examples": [
+        {
+          "cmd": "dism /Online /Cleanup-Image /ScanHealth",
+          "desc": "扫描在线系统的组件存储并报告是否损坏"
+        },
+        {
+          "cmd": "dism /Online /Cleanup-Image /RestoreHealth",
+          "desc": "联机修复组件存储损坏，需要联网下载文件"
+        },
+        {
+          "cmd": "dism /Online /Cleanup-Image /RestoreHealth /Source:E:\\Sources\\install.wim /LimitAccess",
+          "desc": "用本地映像做离线修复，不访问 Windows 更新"
+        },
+        {
+          "cmd": "dism /Online /Cleanup-Image /CheckHealth",
+          "desc": "快速检查是否已标记为损坏，耗时很短"
+        },
+        {
+          "cmd": "dism /Online /Get-Packages",
+          "desc": "列出系统中已安装的所有更新包"
+        }
+      ],
+      "form": [
+        {
+          "token": "/Online",
+          "label": "操作当前系统",
+          "type": "flag",
+          "value": "false",
+          "hint": "对正在运行的系统操作，与 /Image 二选一"
+        },
+        {
+          "token": "/Image:",
+          "label": "脱机映像目录",
+          "type": "path",
+          "value": "",
+          "hint": "离线映像挂载目录，例如 D:\\Mount"
+        },
+        {
+          "token": "/Cleanup-Image",
+          "label": "映像维护",
+          "type": "flag",
+          "value": "false",
+          "hint": "配合下面的检查或修复参数使用"
+        },
+        {
+          "token": "/ScanHealth",
+          "label": "扫描损坏",
+          "type": "flag",
+          "value": "false",
+          "hint": "详细扫描组件存储，耗时较长"
+        },
+        {
+          "token": "/RestoreHealth",
+          "label": "修复损坏",
+          "type": "flag",
+          "value": "false",
+          "hint": "自动修复组件存储中的损坏"
+        },
+        {
+          "token": "/Source:",
+          "label": "修复来源",
+          "type": "path",
+          "value": "",
+          "hint": "install.wim 或已挂载映像的 Sources 目录"
+        },
+        {
+          "token": "/LimitAccess",
+          "label": "不访问更新",
+          "type": "flag",
+          "value": "false",
+          "hint": "只用本地来源修复，禁止连接 Windows 更新"
+        },
+        {
+          "token": "/English",
+          "label": "英文输出",
+          "type": "flag",
+          "value": "false",
+          "hint": "避免中文乱码，便于把日志贴给他人分析"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/Cleanup-Image",
+          "kind": "subcommand",
+          "desc": "对映像执行检查、扫描与修复操作",
+          "children": [
+            {
+              "token": "/CheckHealth",
+              "kind": "flag",
+              "desc": "快速检查是否已被标记为损坏"
+            },
+            {
+              "token": "/ScanHealth",
+              "kind": "flag",
+              "desc": "全面扫描组件存储以确认损坏情况"
+            },
+            {
+              "token": "/RestoreHealth",
+              "kind": "flag",
+              "desc": "自动修复组件存储中的损坏"
+            },
+            {
+              "token": "/StartComponentCleanup",
+              "kind": "flag",
+              "desc": "清理被取代的组件，缩小组件存储体积"
+            },
+            {
+              "token": "/ResetBase",
+              "kind": "flag",
+              "desc": "清理后重置基准，此后无法卸载已有更新"
+            },
+            {
+              "token": "/RevertPendingActions",
+              "kind": "flag",
+              "desc": "回滚挂起的更新动作，多在恢复环境使用"
+            }
+          ]
+        },
+        {
+          "token": "/Enable-Feature",
+          "kind": "subcommand",
+          "desc": "启用指定的 Windows 功能",
+          "children": [
+            {
+              "token": "/FeatureName:",
+              "kind": "option",
+              "desc": "要启用的功能名称，区分大小写",
+              "valueHint": "<功能名>"
+            },
+            {
+              "token": "/All",
+              "kind": "flag",
+              "desc": "同时启用该功能依赖的父功能"
+            },
+            {
+              "token": "/Source:",
+              "kind": "option",
+              "desc": "功能文件所在的来源目录",
+              "valueHint": "/Source:<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/Disable-Feature",
+          "kind": "subcommand",
+          "desc": "关闭指定的 Windows 功能",
+          "children": [
+            {
+              "token": "/FeatureName:",
+              "kind": "option",
+              "desc": "要关闭的功能名称",
+              "valueHint": "<功能名>"
+            },
+            {
+              "token": "/Remove",
+              "kind": "flag",
+              "desc": "同时删除该功能的文件以释放空间"
+            }
+          ]
+        },
+        {
+          "token": "/Add-Driver",
+          "kind": "subcommand",
+          "desc": "向映像中注入驱动程序",
+          "children": [
+            {
+              "token": "/Driver:",
+              "kind": "option",
+              "desc": "驱动 inf 文件或其所在目录",
+              "valueHint": "<inf 路径>"
+            },
+            {
+              "token": "/Recurse",
+              "kind": "flag",
+              "desc": "递归搜索子目录中的所有驱动"
+            }
+          ]
+        },
+        {
+          "token": "/Mount-Wim",
+          "kind": "subcommand",
+          "desc": "把 WIM 映像挂载到指定目录以便修改",
+          "children": [
+            {
+              "token": "/WimFile:",
+              "kind": "option",
+              "desc": "wim 或 esd 映像文件的路径",
+              "valueHint": "<映像文件>"
+            },
+            {
+              "token": "/Index:",
+              "kind": "option",
+              "desc": "要挂载的映像卷索引号",
+              "valueHint": "<索引>"
+            },
+            {
+              "token": "/MountDir:",
+              "kind": "option",
+              "desc": "挂载点目录，必须是已存在的空目录",
+              "valueHint": "<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/Unmount-Wim",
+          "kind": "subcommand",
+          "desc": "卸载已挂载的映像并保存或丢弃修改",
+          "children": [
+            {
+              "token": "/MountDir:",
+              "kind": "option",
+              "desc": "要卸载的挂载点目录",
+              "valueHint": "<目录>"
+            },
+            {
+              "token": "/Commit",
+              "kind": "flag",
+              "desc": "保存对映像所做的修改"
+            },
+            {
+              "token": "/Discard",
+              "kind": "flag",
+              "desc": "放弃所有修改，直接卸载"
+            }
+          ]
+        },
+        {
+          "token": "/Apply-Image",
+          "kind": "subcommand",
+          "desc": "把映像中的系统释放到指定分区",
+          "children": [
+            {
+              "token": "/ImageFile:",
+              "kind": "option",
+              "desc": "要释放的 wim 或 esd 文件路径",
+              "valueHint": "<映像文件>"
+            },
+            {
+              "token": "/Index:",
+              "kind": "option",
+              "desc": "要释放的映像卷索引号",
+              "valueHint": "<索引>"
+            },
+            {
+              "token": "/ApplyDir:",
+              "kind": "option",
+              "desc": "目标分区根目录，例如 W:\\",
+              "valueHint": "<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/Online",
+          "kind": "flag",
+          "desc": "对当前正在运行的系统执行操作"
+        },
+        {
+          "token": "/Image:",
+          "kind": "option",
+          "desc": "指定脱机 Windows 映像的根目录",
+          "valueHint": "<目录>",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "已挂载映像的路径，例如 D:\\Mount",
+              "valueHint": "目录路径"
+            }
+          ]
+        },
+        {
+          "token": "/Source:",
+          "kind": "option",
+          "desc": "指定修复用的映像或组件来源目录",
+          "valueHint": "<目录>",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "例如 E:\\Sources 或挂载后的 Sources 目录",
+              "valueHint": "目录或映像"
+            }
+          ]
+        },
+        {
+          "token": "/LimitAccess",
+          "kind": "flag",
+          "desc": "禁止联系 Windows 更新，只用本地来源修复"
+        },
+        {
+          "token": "/English",
+          "kind": "flag",
+          "desc": "以英文输出结果，便于排查中文乱码问题"
+        },
+        {
+          "token": "/LogPath:",
+          "kind": "option",
+          "desc": "指定日志文件的完整路径",
+          "valueHint": "<日志文件>",
+          "children": [
+            {
+              "token": "<日志文件>",
+              "kind": "value",
+              "desc": "日志保存路径，例如 D:\\dism.log",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/ScratchDir:",
+          "kind": "option",
+          "desc": "指定解压临时文件使用的目录",
+          "valueHint": "<目录>"
+        },
+        {
+          "token": "/Get-Packages",
+          "kind": "flag",
+          "desc": "列出映像中已安装的更新包"
+        },
+        {
+          "token": "/Get-Features",
+          "kind": "flag",
+          "desc": "列出映像中所有 Windows 功能及其状态"
+        },
+        {
+          "token": "/Get-Drivers",
+          "kind": "flag",
+          "desc": "列出映像中的所有第三方驱动包"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 dism 的命令与参数帮助"
+        },
+        {
+          "token": "/LogPath:",
+          "kind": "option",
+          "desc": "与前面同名参数一致，用于指定日志输出位置",
+          "valueHint": "<日志文件>"
+        }
+      ]
+    },
+    {
+      "name": "bcdedit",
+      "title": "编辑启动配置数据",
+      "desc": "查看和修改 BCD 启动配置存储，控制系统以哪个系统、什么参数启动。修复多系统引导、调整启动菜单等待时间、开内核调试时都要用它。改动会直接影响能否开机，操作前建议先用 /export 备份一份 BCD。",
+      "usage": "bcdedit /<命令> [<参数>]，例如 bcdedit /set {default} safeboot minimal",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "启动配置",
+        "引导修复",
+        "BCD"
+      ],
+      "examples": [
+        {
+          "cmd": "bcdedit",
+          "desc": "列出当前启动配置，等价于 bcdedit /enum active"
+        },
+        {
+          "cmd": "bcdedit /export D:\\bcdbackup.bcd",
+          "desc": "把 BCD 存储导出备份，改坏后可用 /import 还原"
+        },
+        {
+          "cmd": "bcdedit /set {default} safeboot minimal",
+          "desc": "让默认系统下次以最小安全模式启动"
+        },
+        {
+          "cmd": "bcdedit /deletevalue {default} safeboot",
+          "desc": "取消安全模式设置，恢复正常启动"
+        },
+        {
+          "cmd": "bcdedit /timeout 5",
+          "desc": "把启动菜单等待时间改为 5 秒"
+        },
+        {
+          "cmd": "bcdedit /enum all /v",
+          "desc": "以详细模式列出全部启动项，含完整 GUID"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "操作命令",
+          "type": "select",
+          "value": "/enum",
+          "hint": "先选要执行的命令，再补充标识符与参数",
+          "options": [
+            "/enum",
+            "/set",
+            "/deletevalue",
+            "/export",
+            "/import",
+            "/copy",
+            "/create",
+            "/delete",
+            "/default",
+            "/displayorder",
+            "/timeout",
+            "/bootsequence",
+            "/store"
+          ]
+        },
+        {
+          "token": "",
+          "label": "目标标识符",
+          "type": "text",
+          "value": "{default}",
+          "hint": "如 {default}、{current} 或某个 GUID"
+        },
+        {
+          "token": "safeboot",
+          "label": "安全模式参数",
+          "type": "select",
+          "value": "",
+          "hint": "配合 /set 使用，设为最小或带网络的安全模式",
+          "options": [
+            "",
+            "minimal",
+            "network",
+            "dsrepair"
+          ]
+        },
+        {
+          "token": "",
+          "label": "等待秒数",
+          "type": "number",
+          "value": "",
+          "hint": "配合 /timeout 使用，0 表示不等待直接启动默认项"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/enum",
+          "kind": "subcommand",
+          "desc": "列出存储中的启动项，默认列出活动项",
+          "children": [
+            {
+              "token": "active",
+              "kind": "value",
+              "desc": "只列出活动的启动项，等同于直接运行 bcdedit",
+              "valueHint": "active"
+            },
+            {
+              "token": "all",
+              "kind": "value",
+              "desc": "列出全部启动项，含固件与恢复相关条目",
+              "valueHint": "all"
+            },
+            {
+              "token": "{default}",
+              "kind": "value",
+              "desc": "只列出默认启动项，可用 GUID 代替",
+              "valueHint": "标识符"
+            }
+          ]
+        },
+        {
+          "token": "/set",
+          "kind": "subcommand",
+          "desc": "为指定启动项设置选项值，如安全模式与调试",
+          "children": [
+            {
+              "token": "{default}",
+              "kind": "value",
+              "desc": "要修改的启动项标识符",
+              "valueHint": "标识符"
+            },
+            {
+              "token": "safeboot",
+              "kind": "option",
+              "desc": "设置下次启动进入安全模式",
+              "valueHint": "<模式>",
+              "enum": [
+                "minimal",
+                "network",
+                "dsrepair",
+                "minimal(alternateshell)"
+              ]
+            },
+            {
+              "token": "bootmenu",
+              "kind": "option",
+              "desc": "控制是否显示高级启动选项菜单",
+              "valueHint": "<值>",
+              "enum": [
+                "on",
+                "off"
+              ]
+            },
+            {
+              "token": "timeout",
+              "kind": "option",
+              "desc": "设置启动菜单的等待秒数",
+              "valueHint": "<秒数>"
+            },
+            {
+              "token": "debug",
+              "kind": "option",
+              "desc": "开启或关闭该启动项的内核调试",
+              "valueHint": "<值>",
+              "enum": [
+                "on",
+                "off"
+              ]
+            },
+            {
+              "token": "hypervisorlaunchtype",
+              "kind": "option",
+              "desc": "控制虚拟机监控程序是否随系统启动",
+              "valueHint": "<类型>",
+              "enum": [
+                "auto",
+                "on",
+                "off"
+              ]
+            },
+            {
+              "token": "path",
+              "kind": "option",
+              "desc": "指定该启动项的引导程序路径",
+              "valueHint": "<路径>"
+            },
+            {
+              "token": "description",
+              "kind": "option",
+              "desc": "修改启动菜单里显示的名称",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "recoveryenabled",
+              "kind": "option",
+              "desc": "控制是否启用启动修复与恢复环境",
+              "valueHint": "<值>",
+              "enum": [
+                "yes",
+                "no"
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/deletevalue",
+          "kind": "subcommand",
+          "desc": "删除启动项上的某个选项，使设置恢复默认",
+          "children": [
+            {
+              "token": "{default}",
+              "kind": "value",
+              "desc": "目标启动项标识符",
+              "valueHint": "标识符"
+            },
+            {
+              "token": "<选项名>",
+              "kind": "value",
+              "desc": "要删除的选项，例如 safeboot 或 debug",
+              "valueHint": "选项名"
+            }
+          ]
+        },
+        {
+          "token": "/copy",
+          "kind": "subcommand",
+          "desc": "在同一存储中复制一个已有的启动项",
+          "children": [
+            {
+              "token": "<源标识符>",
+              "kind": "value",
+              "desc": "被复制的启动项，例如 {current}",
+              "valueHint": "标识符"
+            },
+            {
+              "token": "/d",
+              "kind": "option",
+              "desc": "为新启动项指定显示名称",
+              "valueHint": "<名称>"
+            }
+          ]
+        },
+        {
+          "token": "/create",
+          "kind": "subcommand",
+          "desc": "在存储中新建启动项，需要指定类型",
+          "children": [
+            {
+              "token": "/application",
+              "kind": "option",
+              "desc": "指定启动项类型，如 osloader、bootsector",
+              "valueHint": "<类型>",
+              "enum": [
+                "osloader",
+                "bootsector",
+                "resume",
+                "startup",
+                "fwbootmgr",
+                "bootapp"
+              ]
+            },
+            {
+              "token": "/d",
+              "kind": "option",
+              "desc": "为新启动项指定显示名称",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/device",
+              "kind": "option",
+              "desc": "指定启动项所在的设备分区",
+              "valueHint": "<设备>"
+            },
+            {
+              "token": "/inherit",
+              "kind": "option",
+              "desc": "指定继承设置的对象标识符",
+              "valueHint": "{标识符}"
+            }
+          ]
+        },
+        {
+          "token": "/delete",
+          "kind": "subcommand",
+          "desc": "从存储中删除指定启动项",
+          "children": [
+            {
+              "token": "<标识符>",
+              "kind": "value",
+              "desc": "要删除的启动项标识符，例如 {GUID}",
+              "valueHint": "标识符"
+            },
+            {
+              "token": "/f",
+              "kind": "flag",
+              "desc": "删除已知标识符的启动项时强制确认"
+            },
+            {
+              "token": "/cleanup",
+              "kind": "flag",
+              "desc": "删除所有与已知 GUID 关联的启动项"
+            }
+          ]
+        },
+        {
+          "token": "/displayorder",
+          "kind": "subcommand",
+          "desc": "设置启动菜单中条目的显示顺序",
+          "children": [
+            {
+              "token": "/addfirst",
+              "kind": "option",
+              "desc": "把指定条目移到菜单最前面",
+              "valueHint": "<标识符>"
+            },
+            {
+              "token": "/addlast",
+              "kind": "option",
+              "desc": "把指定条目移到菜单最后面",
+              "valueHint": "<标识符>"
+            },
+            {
+              "token": "/remove",
+              "kind": "option",
+              "desc": "把指定条目从显示顺序中移除",
+              "valueHint": "<标识符>"
+            }
+          ]
+        },
+        {
+          "token": "/toolsdisplayorder",
+          "kind": "subcommand",
+          "desc": "设置启动菜单中工具菜单的显示顺序",
+          "children": [
+            {
+              "token": "/addfirst",
+              "kind": "option",
+              "desc": "把指定条目移到工具菜单最前",
+              "valueHint": "<标识符>"
+            },
+            {
+              "token": "/remove",
+              "kind": "option",
+              "desc": "从工具菜单顺序中移除条目",
+              "valueHint": "<标识符>"
+            }
+          ]
+        },
+        {
+          "token": "/dbgsettings",
+          "kind": "subcommand",
+          "desc": "设置全局调试器参数，如串口与波特率",
+          "children": [
+            {
+              "token": "serial",
+              "kind": "value",
+              "desc": "使用串口作为调试通道",
+              "valueHint": "serial"
+            },
+            {
+              "token": "debugport",
+              "kind": "option",
+              "desc": "指定调试使用的串口号",
+              "valueHint": "<端口>"
+            },
+            {
+              "token": "baudrate",
+              "kind": "option",
+              "desc": "指定调试串口的波特率",
+              "valueHint": "<波特率>"
+            }
+          ]
+        },
+        {
+          "token": "/hypervisorsettings",
+          "kind": "subcommand",
+          "desc": "设置虚拟机监控程序的运行参数",
+          "children": [
+            {
+              "token": "hypervisordebugtype",
+              "kind": "value",
+              "desc": "设置监控程序调试类型",
+              "valueHint": "调试类型"
+            },
+            {
+              "token": "hypervisorcomputername",
+              "kind": "option",
+              "desc": "指定调试用目标计算机名",
+              "valueHint": "<名称>"
+            }
+          ]
+        },
+        {
+          "token": "/export",
+          "kind": "option",
+          "desc": "把当前系统 BCD 存储导出到文件备份",
+          "valueHint": "<文件路径>",
+          "children": [
+            {
+              "token": "<文件路径>",
+              "kind": "value",
+              "desc": "备份文件路径，扩展名习惯用 bcd",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/import",
+          "kind": "option",
+          "desc": "用备份文件覆盖恢复系统 BCD 存储",
+          "valueHint": "<文件路径>",
+          "children": [
+            {
+              "token": "<文件路径>",
+              "kind": "value",
+              "desc": "由 /export 生成的备份文件",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/store",
+          "kind": "option",
+          "desc": "指定要操作的 BCD 存储文件，配合其它命令使用",
+          "valueHint": "<存储文件>",
+          "children": [
+            {
+              "token": "<存储文件>",
+              "kind": "value",
+              "desc": "BCD 存储文件路径，例如 D:\\BCD",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/createstore",
+          "kind": "option",
+          "desc": "新建一个空的 BCD 存储文件，不是系统存储",
+          "valueHint": "<存储文件>"
+        },
+        {
+          "token": "/default",
+          "kind": "option",
+          "desc": "指定超时后默认启动的条目",
+          "valueHint": "<标识符>",
+          "children": [
+            {
+              "token": "{current}",
+              "kind": "value",
+              "desc": "把当前系统设为默认启动项",
+              "valueHint": "{current}"
+            },
+            {
+              "token": "{default}",
+              "kind": "value",
+              "desc": "引用当前默认启动项，常用于读取",
+              "valueHint": "{default}"
+            }
+          ]
+        },
+        {
+          "token": "/timeout",
+          "kind": "option",
+          "desc": "设置启动菜单等待用户选择的秒数",
+          "valueHint": "<秒数>",
+          "children": [
+            {
+              "token": "<秒数>",
+              "kind": "value",
+              "desc": "等待时间，0 表示直接启动默认项",
+              "valueHint": "秒数"
+            }
+          ]
+        },
+        {
+          "token": "/bootsequence",
+          "kind": "option",
+          "desc": "设置仅对下一次启动生效的启动顺序",
+          "valueHint": "<标识符>"
+        },
+        {
+          "token": "/v",
+          "kind": "flag",
+          "desc": "详细模式，显示完整标识符而不是友好名称"
+        },
+        {
+          "token": "/bootdebug",
+          "kind": "option",
+          "desc": "为启动项开启或关闭启动调试器",
+          "valueHint": "<值>",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/debug",
+          "kind": "option",
+          "desc": "为该操作系统启动项开启或关闭内核调试",
+          "valueHint": "<值>",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/ems",
+          "kind": "option",
+          "desc": "为启动项启用或禁用紧急管理服务",
+          "valueHint": "<值>",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "token": "/sysstore",
+          "kind": "flag",
+          "desc": "设置系统存储设备，仅 EFI 系统且不跨重启保留"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示命令列表，加命令名可看详细帮助"
+        }
+      ]
+    },
+    {
+      "name": "bcdboot",
+      "title": "重建引导文件与 BCD",
+      "desc": "从指定的 Windows 系统目录把引导文件复制到系统分区，并重建 BCD 存储，是修复无法开机、引导丢失的主力工具。装完系统或克隆系统盘后也用它重建引导。操作前建议先备份 BCD，选错分区可能导致开不了机。",
+      "usage": "bcdboot <源系统目录> [/l <区域>] [/s <目标分区> [/f <固件类型>]] [/v] [/m [{GUID}]] [/addlast] [/p] [/c]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "引导修复",
+        "启动文件",
+        "UEFI"
+      ],
+      "examples": [
+        {
+          "cmd": "bcdboot C:\\Windows",
+          "desc": "用 C 盘系统重建引导文件，最常用的引导修复命令"
+        },
+        {
+          "cmd": "bcdboot C:\\Windows /s S: /f UEFI",
+          "desc": "把 UEFI 引导文件写入 S 盘 EFI 分区"
+        },
+        {
+          "cmd": "bcdboot C:\\Windows /l zh-cn",
+          "desc": "重建引导并把启动界面语言设为简体中文"
+        },
+        {
+          "cmd": "bcdboot D:\\Windows /s C: /f BIOS",
+          "desc": "为 D 盘系统向 C 盘写入 BIOS 传统引导文件"
+        },
+        {
+          "cmd": "bcdboot C:\\Windows /s S: /f UEFI /addlast",
+          "desc": "写入 UEFI 引导并把新条目排在启动菜单末尾"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源系统目录",
+          "type": "text",
+          "value": "C:\\Windows",
+          "hint": "包含 Windows 目录的路径，如 C:\\Windows"
+        },
+        {
+          "token": "/s",
+          "label": "目标系统分区",
+          "type": "text",
+          "value": "",
+          "hint": "引导文件写入的分区，例如 S:，留空自动识别"
+        },
+        {
+          "token": "/f",
+          "label": "固件类型",
+          "type": "select",
+          "value": "",
+          "hint": "留空按当前固件自动判断",
+          "options": [
+            "",
+            "UEFI",
+            "BIOS",
+            "ALL"
+          ]
+        },
+        {
+          "token": "/l",
+          "label": "区域语言",
+          "type": "text",
+          "value": "",
+          "hint": "如 zh-cn，留空使用英文默认值"
+        },
+        {
+          "token": "/addlast",
+          "label": "排在菜单末尾",
+          "type": "flag",
+          "value": "false",
+          "hint": "新增的启动条目放在显示顺序最后"
+        },
+        {
+          "token": "/v",
+          "label": "详细输出",
+          "type": "flag",
+          "value": "false",
+          "hint": "显示复制引导文件的详细过程"
+        },
+        {
+          "token": "/p",
+          "label": "保留现有条目",
+          "type": "flag",
+          "value": "false",
+          "hint": "保留已有的 BCD 条目而不覆盖"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源>",
+          "kind": "value",
+          "desc": "源系统目录，通常写 C:\\Windows",
+          "valueHint": "系统目录"
+        },
+        {
+          "token": "/s",
+          "kind": "option",
+          "desc": "指定写入引导文件的目标系统分区",
+          "valueHint": "<盘符>",
+          "children": [
+            {
+              "token": "<盘符>",
+              "kind": "value",
+              "desc": "目标分区盘符，例如 S: 或 C:",
+              "valueHint": "盘符"
+            }
+          ]
+        },
+        {
+          "token": "/f",
+          "kind": "option",
+          "desc": "指定固件类型，决定写入 UEFI 还是 BIOS 引导",
+          "valueHint": "<固件类型>",
+          "children": [
+            {
+              "token": "UEFI",
+              "kind": "value",
+              "desc": "写入 UEFI 引导文件，GPT 磁盘常用",
+              "valueHint": "UEFI"
+            },
+            {
+              "token": "BIOS",
+              "kind": "value",
+              "desc": "写入 BIOS 传统引导文件，MBR 磁盘常用",
+              "valueHint": "BIOS"
+            },
+            {
+              "token": "ALL",
+              "kind": "value",
+              "desc": "同时写入两种固件所需文件",
+              "valueHint": "ALL"
+            }
+          ]
+        },
+        {
+          "token": "/l",
+          "kind": "option",
+          "desc": "初始化 BCD 存储时使用的区域设置",
+          "valueHint": "<区域>",
+          "children": [
+            {
+              "token": "zh-cn",
+              "kind": "value",
+              "desc": "简体中文启动界面",
+              "valueHint": "zh-cn"
+            },
+            {
+              "token": "en-us",
+              "kind": "value",
+              "desc": "英文启动界面，也是默认值",
+              "valueHint": "en-us"
+            }
+          ]
+        },
+        {
+          "token": "/m",
+          "kind": "option",
+          "desc": "把指定引导程序 GUID 与系统模板合并",
+          "valueHint": "[{GUID}]",
+          "children": [
+            {
+              "token": "{GUID}",
+              "kind": "value",
+              "desc": "要合并的引导程序对象 GUID",
+              "valueHint": "GUID"
+            }
+          ]
+        },
+        {
+          "token": "/addlast",
+          "kind": "flag",
+          "desc": "新增的启动条目放到显示顺序的最后"
+        },
+        {
+          "token": "/p",
+          "kind": "flag",
+          "desc": "保留已有的 BCD 条目，仅补充缺失项"
+        },
+        {
+          "token": "/v",
+          "kind": "flag",
+          "desc": "启用详细模式，输出每一步的复制过程"
+        },
+        {
+          "token": "/vbcd",
+          "kind": "flag",
+          "desc": "启用 BCD 日志记录，便于排查失败原因"
+        },
+        {
+          "token": "/c",
+          "kind": "flag",
+          "desc": "保留原有设置，不覆盖已有的 BCD 对象"
+        },
+        {
+          "token": "/d",
+          "kind": "option",
+          "desc": "指定新建启动项的显示描述文字",
+          "valueHint": "<描述>"
+        },
+        {
+          "token": "/nofirmwaresync",
+          "kind": "flag",
+          "desc": "不把条目同步写入固件启动项列表"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        }
+      ]
+    },
+    {
+      "name": "reagentc",
+      "title": "管理恢复环境与重置",
+      "desc": "配置 Windows 恢复环境 WinRE，也就是高级启动里的疑难解答与重置此电脑所依赖的环境。可以查看状态、启用或禁用、让它下次直接启动到恢复环境。修复引导、重装系统前常用，命令必须在管理员窗口中运行。",
+      "usage": "reagentc /info [/target <目录>] | /enable [/path <目录>] | /disable | /boottore | /setreimage /path <目录>",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "恢复环境",
+        "WinRE",
+        "重置"
+      ],
+      "examples": [
+        {
+          "cmd": "reagentc /info",
+          "desc": "查看 WinRE 的启用状态与映像位置"
+        },
+        {
+          "cmd": "reagentc /enable",
+          "desc": "启用 Windows 恢复环境"
+        },
+        {
+          "cmd": "reagentc /disable",
+          "desc": "禁用恢复环境并把映像文件释放到系统盘"
+        },
+        {
+          "cmd": "reagentc /boottore",
+          "desc": "让计算机下次启动直接进入恢复环境"
+        },
+        {
+          "cmd": "reagentc /setreimage /path D:\\Recovery\\WindowsRE",
+          "desc": "指定自定义的恢复映像目录"
+        }
+      ],
+      "form": [
+        {
+          "token": "/info",
+          "label": "查看状态",
+          "type": "flag",
+          "value": "false",
+          "hint": "最常用的只读操作，显示启用状态与路径"
+        },
+        {
+          "token": "/enable",
+          "label": "启用恢复环境",
+          "type": "flag",
+          "value": "false",
+          "hint": "重新启用 WinRE"
+        },
+        {
+          "token": "/disable",
+          "label": "禁用恢复环境",
+          "type": "flag",
+          "value": "false",
+          "hint": "把 winre.wim 移回系统盘并关闭 WinRE"
+        },
+        {
+          "token": "/boottore",
+          "label": "下次进恢复环境",
+          "type": "flag",
+          "value": "false",
+          "hint": "仅对下一次启动生效"
+        },
+        {
+          "token": "/path",
+          "label": "映像目录",
+          "type": "path",
+          "value": "",
+          "hint": "配合 /enable 或 /setreimage 使用"
+        },
+        {
+          "token": "/target",
+          "label": "脱机系统目录",
+          "type": "path",
+          "value": "",
+          "hint": "对已挂载的脱机系统操作，例如 D:\\Windows"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/enable",
+          "kind": "subcommand",
+          "desc": "启用恢复环境，可指定自定义映像",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "包含 Winre.wim 的目录路径",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/path",
+              "kind": "option",
+              "desc": "指定恢复映像所在目录，省略则用默认位置",
+              "valueHint": "<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/setreimage",
+          "kind": "subcommand",
+          "desc": "设置自定义的恢复映像位置",
+          "children": [
+            {
+              "token": "/path",
+              "kind": "option",
+              "desc": "自定义恢复映像所在的目录",
+              "valueHint": "<目录>"
+            },
+            {
+              "token": "/target",
+              "kind": "option",
+              "desc": "脱机 Windows 目录，例如 D:\\Windows",
+              "valueHint": "<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/install",
+          "kind": "subcommand",
+          "desc": "把恢复映像安装到指定目录",
+          "children": [
+            {
+              "token": "/path",
+              "kind": "option",
+              "desc": "恢复映像要安装到的目标目录",
+              "valueHint": "<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/uninstall",
+          "kind": "subcommand",
+          "desc": "移除已安装的恢复映像",
+          "children": [
+            {
+              "token": "/path",
+              "kind": "option",
+              "desc": "要移除映像所在的目录",
+              "valueHint": "<目录>"
+            }
+          ]
+        },
+        {
+          "token": "/info",
+          "kind": "flag",
+          "desc": "显示恢复环境的启用状态与映像位置"
+        },
+        {
+          "token": "/disable",
+          "kind": "flag",
+          "desc": "禁用恢复环境并把映像文件移回系统盘"
+        },
+        {
+          "token": "/boottore",
+          "kind": "flag",
+          "desc": "让下次启动直接进入 Windows 恢复环境"
+        },
+        {
+          "token": "/target",
+          "kind": "option",
+          "desc": "指定脱机 Windows 目录，用于离线操作",
+          "valueHint": "<目录>",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "已挂载系统的 Windows 目录，例如 D:\\Windows",
+              "valueHint": "目录路径"
+            }
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把状态信息重定向写入文件",
+          "valueHint": "<文件名>"
+        }
+      ]
+    },
+    {
+      "name": "vssadmin",
+      "title": "管理卷影副本与存储",
+      "desc": "查看和删除卷影副本、管理系统还原占用的影副本存储空间、检查备份写入器状态。清理系统还原空间、删除残留快照、排查备份失败原因时都会用到。删除卷影副本后，对应的还原点与旧版本文件会一并消失。",
+      "usage": "vssadmin list shadows | list shadowstorage | list writers | delete shadows | resize shadowstorage | list providers",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "卷影副本",
+        "还原点",
+        "备份"
+      ],
+      "examples": [
+        {
+          "cmd": "vssadmin list shadows",
+          "desc": "列出系统上所有现有的卷影副本"
+        },
+        {
+          "cmd": "vssadmin list shadowstorage",
+          "desc": "查看卷影副本存储空间的使用与上限"
+        },
+        {
+          "cmd": "vssadmin delete shadows /for=C: /oldest",
+          "desc": "删除 C 盘上最旧的卷影副本以释放空间"
+        },
+        {
+          "cmd": "vssadmin resize shadowstorage /for=C: /on=C: /maxsize=20GB",
+          "desc": "把 C 盘影副本存储上限调整为 20 GB"
+        },
+        {
+          "cmd": "vssadmin list writers",
+          "desc": "检查备份相关写入器状态，排查备份失败"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "子命令",
+          "type": "select",
+          "value": "list shadows",
+          "hint": "选择要执行的操作",
+          "options": [
+            "list shadows",
+            "list shadowstorage",
+            "list writers",
+            "list providers",
+            "list volumes",
+            "delete shadows",
+            "resize shadowstorage"
+          ]
+        },
+        {
+          "token": "/for=",
+          "label": "目标卷",
+          "type": "text",
+          "value": "C:",
+          "hint": "要操作的卷，例如 C: 或 D:"
+        },
+        {
+          "token": "/oldest",
+          "label": "只删最旧",
+          "type": "flag",
+          "value": "false",
+          "hint": "只删除最旧的一个卷影副本"
+        },
+        {
+          "token": "/all",
+          "label": "删除全部",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除所有可删除的卷影副本，还原点会全部失效"
+        },
+        {
+          "token": "/maxsize=",
+          "label": "存储上限",
+          "type": "text",
+          "value": "",
+          "hint": "如 20GB、UNBOUNDED 或 20%"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "list",
+          "kind": "subcommand",
+          "desc": "列出卷影副本、存储、写入器等信息",
+          "children": [
+            {
+              "token": "shadows",
+              "kind": "value",
+              "desc": "列出系统上所有现有的卷影副本",
+              "valueHint": "shadows"
+            },
+            {
+              "token": "shadowstorage",
+              "kind": "value",
+              "desc": "列出卷影副本存储空间的关联与用量",
+              "valueHint": "shadowstorage"
+            },
+            {
+              "token": "writers",
+              "kind": "value",
+              "desc": "列出订阅卷影副本服务的写入器状态",
+              "valueHint": "writers"
+            },
+            {
+              "token": "providers",
+              "kind": "value",
+              "desc": "列出已注册的卷影副本提供程序",
+              "valueHint": "providers"
+            },
+            {
+              "token": "volumes",
+              "kind": "value",
+              "desc": "列出支持卷影副本的卷",
+              "valueHint": "volumes"
+            }
+          ]
+        },
+        {
+          "token": "delete",
+          "kind": "subcommand",
+          "desc": "删除卷影副本，删除后无法恢复",
+          "children": [
+            {
+              "token": "shadows",
+              "kind": "value",
+              "desc": "删除符合条件的卷影副本",
+              "valueHint": "shadows"
+            },
+            {
+              "token": "/for=",
+              "kind": "option",
+              "desc": "限定要删除的卷，例如 /for=C:",
+              "valueHint": "<卷>"
+            },
+            {
+              "token": "/oldest",
+              "kind": "flag",
+              "desc": "只删除该卷上最旧的一个卷影副本"
+            },
+            {
+              "token": "/all",
+              "kind": "flag",
+              "desc": "删除所有可以删除的卷影副本"
+            },
+            {
+              "token": "/shadow=",
+              "kind": "option",
+              "desc": "按卷影副本 ID 精确删除一个副本",
+              "valueHint": "{ID}"
+            },
+            {
+              "token": "/quiet",
+              "kind": "flag",
+              "desc": "不提示确认直接删除，适合脚本"
+            }
+          ]
+        },
+        {
+          "token": "resize",
+          "kind": "subcommand",
+          "desc": "调整卷影副本存储空间的上限",
+          "children": [
+            {
+              "token": "shadowstorage",
+              "kind": "value",
+              "desc": "调整影副本存储关联的容量",
+              "valueHint": "shadowstorage"
+            },
+            {
+              "token": "/for=",
+              "kind": "option",
+              "desc": "被保护的源卷，例如 /for=C:",
+              "valueHint": "<卷>"
+            },
+            {
+              "token": "/on=",
+              "kind": "option",
+              "desc": "存放卷影副本的卷，例如 /on=D:",
+              "valueHint": "<卷>"
+            },
+            {
+              "token": "/maxsize=",
+              "kind": "option",
+              "desc": "新的最大空间，可写 20GB、20% 或 UNBOUNDED",
+              "valueHint": "<大小>"
+            }
+          ]
+        },
+        {
+          "token": "add",
+          "kind": "subcommand",
+          "desc": "新增卷影副本存储关联",
+          "children": [
+            {
+              "token": "shadowstorage",
+              "kind": "value",
+              "desc": "为指定卷添加影副本存储关联",
+              "valueHint": "shadowstorage"
+            },
+            {
+              "token": "/for=",
+              "kind": "option",
+              "desc": "被保护的源卷",
+              "valueHint": "<卷>"
+            },
+            {
+              "token": "/on=",
+              "kind": "option",
+              "desc": "存放卷影副本的目标卷",
+              "valueHint": "<卷>"
+            }
+          ]
+        },
+        {
+          "token": "/for=",
+          "kind": "option",
+          "desc": "限定操作的源卷，可写盘符或卷名",
+          "valueHint": "<卷>",
+          "children": [
+            {
+              "token": "C:",
+              "kind": "value",
+              "desc": "系统盘，还原点通常在这里",
+              "valueHint": "C:"
+            },
+            {
+              "token": "D:",
+              "kind": "value",
+              "desc": "数据盘，备份常覆盖该卷",
+              "valueHint": "D:"
+            }
+          ]
+        },
+        {
+          "token": "/shadow=",
+          "kind": "option",
+          "desc": "按卷影副本 ID 精确指定一个副本",
+          "valueHint": "{ID}",
+          "children": [
+            {
+              "token": "{ID}",
+              "kind": "value",
+              "desc": "卷影副本 ID，形如大括号包起来的 GUID",
+              "valueHint": "GUID"
+            }
+          ]
+        },
+        {
+          "token": "/set=",
+          "kind": "option",
+          "desc": "按卷影副本集 ID 指定一组副本",
+          "valueHint": "{ID}"
+        },
+        {
+          "token": "/oldest",
+          "kind": "flag",
+          "desc": "只处理最旧的一个卷影副本"
+        },
+        {
+          "token": "/all",
+          "kind": "flag",
+          "desc": "对所有可删除的卷影副本生效，慎用"
+        },
+        {
+          "token": "/quiet",
+          "kind": "flag",
+          "desc": "不弹出确认提示，直接执行"
+        },
+        {
+          "token": "/maxsize=",
+          "kind": "option",
+          "desc": "存储空间上限，支持 KB 到 EB 及百分比",
+          "valueHint": "<大小>"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把列表结果重定向写入文件留档",
+          "valueHint": "<文件名>"
+        }
+      ]
+    },
+    {
+      "name": "wbadmin",
+      "title": "命令行备份与还原",
+      "desc": "用命令方式完成 Windows Server 备份的配置、执行与还原，也能备份和恢复系统状态。适合把备份写进计划任务或脚本里做定期归档。还原操作会覆盖目标磁盘数据，执行前务必核对版本号与目标卷。",
+      "usage": "wbadmin <子命令> [参数]，例如 wbadmin start backup -backupTarget:D: -include:C: -allCritical -quiet",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "备份",
+        "还原",
+        "灾难恢复"
+      ],
+      "examples": [
+        {
+          "cmd": "wbadmin get versions",
+          "desc": "列出本机可用的备份版本及其编号"
+        },
+        {
+          "cmd": "wbadmin start backup -backupTarget:E: -include:C: -allCritical -quiet",
+          "desc": "把关键卷一次性备份到 E 盘且不交互"
+        },
+        {
+          "cmd": "wbadmin get status",
+          "desc": "查看当前正在进行的备份或还原进度"
+        },
+        {
+          "cmd": "wbadmin enable backup -addtarget:E: -schedule:23:00 -include:C: -quiet",
+          "desc": "配置每天 23 点自动备份 C 盘到 E 盘"
+        },
+        {
+          "cmd": "wbadmin start recovery -version:03/01/2025-09:00 -itemType:Volume -items:C: -recoveryTarget:E:",
+          "desc": "把指定版本中的 C 卷还原到 E 盘"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "子命令",
+          "type": "select",
+          "value": "get versions",
+          "hint": "选择要执行的操作",
+          "options": [
+            "get versions",
+            "get status",
+            "get items",
+            "get disks",
+            "start backup",
+            "stop job",
+            "start recovery",
+            "start systemstaterecovery",
+            "enable backup",
+            "disable backup",
+            "delete backup",
+            "delete catalog"
+          ]
+        },
+        {
+          "token": "-backupTarget:",
+          "label": "备份目标",
+          "type": "text",
+          "value": "E:",
+          "hint": "存放备份的磁盘或网络共享"
+        },
+        {
+          "token": "-include:",
+          "label": "包含卷",
+          "type": "text",
+          "value": "C:",
+          "hint": "要备份的卷，多个用逗号分隔"
+        },
+        {
+          "token": "-allCritical",
+          "label": "包含关键卷",
+          "type": "flag",
+          "value": "false",
+          "hint": "自动把系统恢复所需的关键卷一起备份"
+        },
+        {
+          "token": "-version:",
+          "label": "备份版本",
+          "type": "text",
+          "value": "",
+          "hint": "形如 03/01/2025-09:00，来自 get versions"
+        },
+        {
+          "token": "-quiet",
+          "label": "不交互",
+          "type": "flag",
+          "value": "false",
+          "hint": "不提示确认，适合放进脚本或计划任务"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "start",
+          "kind": "subcommand",
+          "desc": "启动备份、还原等一次性操作",
+          "children": [
+            {
+              "token": "backup",
+              "kind": "value",
+              "desc": "立即执行一次性备份",
+              "valueHint": "backup"
+            },
+            {
+              "token": "recovery",
+              "kind": "value",
+              "desc": "从备份版本中还原文件或卷",
+              "valueHint": "recovery"
+            },
+            {
+              "token": "systemstatebackup",
+              "kind": "value",
+              "desc": "只备份系统状态",
+              "valueHint": "systemstatebackup"
+            },
+            {
+              "token": "systemstaterecovery",
+              "kind": "value",
+              "desc": "还原系统状态到本机",
+              "valueHint": "systemstaterecovery"
+            },
+            {
+              "token": "restore",
+              "kind": "value",
+              "desc": "还原系统状态或指定文件集",
+              "valueHint": "restore"
+            },
+            {
+              "token": "-backupTarget:",
+              "kind": "option",
+              "desc": "存放备份的目标磁盘或共享路径",
+              "valueHint": "<目标>"
+            },
+            {
+              "token": "-include:",
+              "kind": "option",
+              "desc": "本次备份要包含的卷或文件",
+              "valueHint": "<卷或路径>"
+            },
+            {
+              "token": "-allCritical",
+              "kind": "flag",
+              "desc": "自动包含系统恢复所需的所有关键卷"
+            },
+            {
+              "token": "-quiet",
+              "kind": "flag",
+              "desc": "不向用户提问，直接执行"
+            }
+          ]
+        },
+        {
+          "token": "stop",
+          "kind": "subcommand",
+          "desc": "停止当前正在运行的备份或还原作业",
+          "children": [
+            {
+              "token": "job",
+              "kind": "value",
+              "desc": "中止当前作业，已写入的数据保留",
+              "valueHint": "job"
+            },
+            {
+              "token": "-quiet",
+              "kind": "flag",
+              "desc": "不提示确认直接停止"
+            }
+          ]
+        },
+        {
+          "token": "get",
+          "kind": "subcommand",
+          "desc": "查询备份版本、备份内容与运行状态",
+          "children": [
+            {
+              "token": "versions",
+              "kind": "value",
+              "desc": "列出可用的备份版本及编号",
+              "valueHint": "versions"
+            },
+            {
+              "token": "items",
+              "kind": "value",
+              "desc": "列出某个备份版本中包含的项目",
+              "valueHint": "items"
+            },
+            {
+              "token": "status",
+              "kind": "value",
+              "desc": "显示当前正在进行的操作及进度",
+              "valueHint": "status"
+            },
+            {
+              "token": "disks",
+              "kind": "value",
+              "desc": "列出可用于备份的磁盘",
+              "valueHint": "disks"
+            },
+            {
+              "token": "catalog",
+              "kind": "value",
+              "desc": "列出备份编录信息",
+              "valueHint": "catalog"
+            },
+            {
+              "token": "-backupTarget:",
+              "kind": "option",
+              "desc": "指定要查询的备份位置",
+              "valueHint": "<目标>"
+            }
+          ]
+        },
+        {
+          "token": "enable",
+          "kind": "subcommand",
+          "desc": "创建或修改每日自动备份计划",
+          "children": [
+            {
+              "token": "backup",
+              "kind": "value",
+              "desc": "配置每日定时备份任务",
+              "valueHint": "backup"
+            },
+            {
+              "token": "-addtarget:",
+              "kind": "option",
+              "desc": "为计划添加备份目标磁盘",
+              "valueHint": "<目标>"
+            },
+            {
+              "token": "-schedule:",
+              "kind": "option",
+              "desc": "每日执行时间，格式为 时:分",
+              "valueHint": "<时间>",
+              "children": [
+                {
+                  "token": "23:00",
+                  "kind": "value",
+                  "desc": "每晚 23 点执行备份",
+                  "valueHint": "23:00"
+                },
+                {
+                  "token": "02:30",
+                  "kind": "value",
+                  "desc": "凌晨 2 点 30 分执行备份",
+                  "valueHint": "02:30"
+                }
+              ]
+            },
+            {
+              "token": "-include:",
+              "kind": "option",
+              "desc": "计划中包含的卷，多个用逗号分隔",
+              "valueHint": "<卷>"
+            }
+          ]
+        },
+        {
+          "token": "disable",
+          "kind": "subcommand",
+          "desc": "关闭已配置的自动备份计划",
+          "children": [
+            {
+              "token": "backup",
+              "kind": "value",
+              "desc": "停止并删除每日备份计划",
+              "valueHint": "backup"
+            },
+            {
+              "token": "-quiet",
+              "kind": "flag",
+              "desc": "不提示确认直接执行"
+            }
+          ]
+        },
+        {
+          "token": "delete",
+          "kind": "subcommand",
+          "desc": "删除备份版本或备份编录，操作不可撤销",
+          "children": [
+            {
+              "token": "backup",
+              "kind": "value",
+              "desc": "删除指定版本或最旧的备份",
+              "valueHint": "backup"
+            },
+            {
+              "token": "catalog",
+              "kind": "value",
+              "desc": "删除备份编录，下次需重新编录",
+              "valueHint": "catalog"
+            },
+            {
+              "token": "-backupTarget:",
+              "kind": "option",
+              "desc": "备份所在的目标位置",
+              "valueHint": "<目标>"
+            },
+            {
+              "token": "-keepVersions:",
+              "kind": "option",
+              "desc": "保留最近若干个版本，其余删除",
+              "valueHint": "<数量>"
+            }
+          ]
+        },
+        {
+          "token": "-version:",
+          "kind": "option",
+          "desc": "指定备份版本，格式为 日期-时间",
+          "valueHint": "<版本>"
+        },
+        {
+          "token": "-itemType:",
+          "kind": "option",
+          "desc": "指定还原项目的类型",
+          "valueHint": "<类型>",
+          "enum": [
+            "Volume",
+            "File",
+            "Application",
+            "BareMetalRecovery"
+          ]
+        },
+        {
+          "token": "-items:",
+          "kind": "option",
+          "desc": "要还原的具体卷或文件列表",
+          "valueHint": "<项目>"
+        },
+        {
+          "token": "-recoveryTarget:",
+          "kind": "option",
+          "desc": "还原的目标位置，可以是盘符或目录",
+          "valueHint": "<目标>"
+        },
+        {
+          "token": "-machine:",
+          "kind": "option",
+          "desc": "指定要还原的计算机名",
+          "valueHint": "<计算机名>"
+        },
+        {
+          "token": "-quiet",
+          "kind": "flag",
+          "desc": "所有操作都不再询问确认，适合脚本调用"
+        },
+        {
+          "token": "-allCritical",
+          "kind": "flag",
+          "desc": "包含系统恢复必需的关键卷"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 wbadmin 的子命令列表与帮助"
+        }
+      ]
+    },
+    {
+      "name": "cleanmgr",
+      "title": "磁盘清理释放空间",
+      "desc": "启动磁盘清理工具，删除临时文件、更新残留、回收站内容等以释放空间。带 /sageset 可以先勾选要清理的项目，再用 /sagerun 静默批量执行，非常适合做成定期维护任务。清理前请确认勾选项，某些项目删除后无法找回。",
+      "usage": "cleanmgr [/d <盘符>] [/sageset:<编号>] [/sagerun:<编号>] [/lowdisk] [/verylowdisk] [/autoclean]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "磁盘清理",
+        "临时文件",
+        "释放空间"
+      ],
+      "examples": [
+        {
+          "cmd": "cleanmgr",
+          "desc": "打开磁盘清理界面，选择驱动器后手动勾选清理项目"
+        },
+        {
+          "cmd": "cleanmgr /d C:",
+          "desc": "直接对 C 盘打开磁盘清理界面"
+        },
+        {
+          "cmd": "cleanmgr /sageset:11",
+          "desc": "打开配置界面，把勾选结果保存为编号 11 的方案"
+        },
+        {
+          "cmd": "cleanmgr /sagerun:11",
+          "desc": "静默执行编号 11 的清理方案，适合计划任务"
+        },
+        {
+          "cmd": "cleanmgr /verylowdisk",
+          "desc": "磁盘空间极低时自动清理，不再询问用户"
+        }
+      ],
+      "form": [
+        {
+          "token": "/d",
+          "label": "目标盘符",
+          "type": "text",
+          "value": "C:",
+          "hint": "要清理的驱动器，例如 C: 或 D:"
+        },
+        {
+          "token": "/sageset:",
+          "label": "配置方案编号",
+          "type": "number",
+          "value": "",
+          "hint": "0 到 65535，勾选结果按此编号保存"
+        },
+        {
+          "token": "/sagerun:",
+          "label": "执行方案编号",
+          "type": "number",
+          "value": "",
+          "hint": "执行之前用 sageset 保存的同一编号方案"
+        },
+        {
+          "token": "/lowdisk",
+          "label": "低磁盘模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "磁盘空间不足时使用最少的提示"
+        },
+        {
+          "token": "/verylowdisk",
+          "label": "极低磁盘模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "空间极低时自动清理，适合部署脚本"
+        },
+        {
+          "token": "/autoclean",
+          "label": "自动清理",
+          "type": "flag",
+          "value": "false",
+          "hint": "对设置了自动清理的驱动器执行清理"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/d",
+          "kind": "option",
+          "desc": "指定要清理的驱动器盘符",
+          "valueHint": "<盘符>",
+          "children": [
+            {
+              "token": "C:",
+              "kind": "value",
+              "desc": "系统盘，通常可释放最多空间",
+              "valueHint": "C:"
+            },
+            {
+              "token": "D:",
+              "kind": "value",
+              "desc": "数据盘，清理临时文件与回收站",
+              "valueHint": "D:"
+            }
+          ]
+        },
+        {
+          "token": "/sageset:",
+          "kind": "option",
+          "desc": "打开设置界面，把勾选项目保存为指定编号方案",
+          "valueHint": "<编号>",
+          "children": [
+            {
+              "token": "<编号>",
+              "kind": "value",
+              "desc": "方案编号，取值 0 至 65535",
+              "valueHint": "编号"
+            }
+          ]
+        },
+        {
+          "token": "/sagerun:",
+          "kind": "option",
+          "desc": "静默执行指定编号的方案，不显示界面",
+          "valueHint": "<编号>",
+          "children": [
+            {
+              "token": "<编号>",
+              "kind": "value",
+              "desc": "与 sageset 使用同一个编号",
+              "valueHint": "编号"
+            }
+          ]
+        },
+        {
+          "token": "/lowdisk",
+          "kind": "flag",
+          "desc": "磁盘空间不足时以最少提示方式运行清理"
+        },
+        {
+          "token": "/verylowdisk",
+          "kind": "flag",
+          "desc": "空间极低时自动清理，无需用户干预"
+        },
+        {
+          "token": "/autoclean",
+          "kind": "flag",
+          "desc": "对启用了自动清理的驱动器执行清理"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把清理输出重定向写入日志文件",
+          "valueHint": "<文件名>"
+        }
+      ]
+    },
+    {
+      "name": "sysprep",
+      "title": "系统准备与映像通用化",
+      "desc": "让 Windows 进入出厂准备状态，可清除计算机特有的信息并进入欢迎界面或审核模式，是做系统母盘和批量装机前的标准步骤。它位于系统盘的 Sysprep 目录下，执行后当前用户配置会被回收，运行前请务必备份数据。",
+      "usage": "%windir%\\System32\\Sysprep\\sysprep.exe [/generalize] [/oobe] [/reboot] [/shutdown] [/quiet] [/audit] [/unattend:<应答文件>]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "系统封装",
+        "母盘",
+        "部署"
+      ],
+      "examples": [
+        {
+          "cmd": "C:\\Windows\\System32\\Sysprep\\sysprep.exe /oobe /generalize /shutdown",
+          "desc": "通用化后关机，常用于制作系统母盘"
+        },
+        {
+          "cmd": "C:\\Windows\\System32\\Sysprep\\sysprep.exe /audit /reboot",
+          "desc": "进入审核模式并重启，便于预装软件"
+        },
+        {
+          "cmd": "C:\\Windows\\System32\\Sysprep\\sysprep.exe /oobe /generalize /quiet /shutdown",
+          "desc": "静默通用化并关机，适合脚本自动执行"
+        }
+      ],
+      "form": [
+        {
+          "token": "/generalize",
+          "label": "通用化",
+          "type": "flag",
+          "value": "false",
+          "hint": "清除 SID 等计算机专有信息，母盘必备"
+        },
+        {
+          "token": "/oobe",
+          "label": "进入欢迎界面",
+          "type": "flag",
+          "value": "false",
+          "hint": "重启后显示首次使用设置界面"
+        },
+        {
+          "token": "/audit",
+          "label": "审核模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "重启后进入审核模式，用于预装软件"
+        },
+        {
+          "token": "/reboot",
+          "label": "完成后重启",
+          "type": "flag",
+          "value": "false",
+          "hint": "操作完成后自动重启计算机"
+        },
+        {
+          "token": "/shutdown",
+          "label": "完成后关机",
+          "type": "flag",
+          "value": "false",
+          "hint": "操作完成后自动关机，母盘常这样用"
+        },
+        {
+          "token": "/quiet",
+          "label": "静默执行",
+          "type": "flag",
+          "value": "false",
+          "hint": "不显示任何界面，适合自动化脚本"
+        },
+        {
+          "token": "/unattend:",
+          "label": "应答文件",
+          "type": "path",
+          "value": "",
+          "hint": "指定无人参与安装的应答文件路径"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/generalize",
+          "kind": "flag",
+          "desc": "清除计算机专有信息如事件日志与 SID，母盘必备"
+        },
+        {
+          "token": "/oobe",
+          "kind": "flag",
+          "desc": "重启后进入欢迎界面，让用户完成初始设置"
+        },
+        {
+          "token": "/audit",
+          "kind": "flag",
+          "desc": "重启后进入审核模式，便于预装驱动和软件"
+        },
+        {
+          "token": "/reboot",
+          "kind": "flag",
+          "desc": "操作完成后自动重启计算机"
+        },
+        {
+          "token": "/shutdown",
+          "kind": "flag",
+          "desc": "操作完成后自动关机，适合制作母盘"
+        },
+        {
+          "token": "/quiet",
+          "kind": "flag",
+          "desc": "不显示任何确认界面，静默完成操作"
+        },
+        {
+          "token": "/unattend:",
+          "kind": "option",
+          "desc": "指定无人参与安装使用的应答文件",
+          "valueHint": "<文件路径>",
+          "children": [
+            {
+              "token": "<文件路径>",
+              "kind": "value",
+              "desc": "应答文件完整路径，扩展名为 xml",
+              "valueHint": "文件路径"
+            }
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示该命令的语法帮助"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把执行输出重定向写入日志文件",
+          "valueHint": "<文件名>"
+        }
+      ]
+    }
+  ]
+}

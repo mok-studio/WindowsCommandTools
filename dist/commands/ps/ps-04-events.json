@@ -1,0 +1,1156 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "事件日志、性能与 CIM",
+  "icon": "list",
+  "commands": [
+    {
+      "name": "Get-WinEvent",
+      "aliases": [],
+      "title": "读取事件日志",
+      "desc": "读取新版 Windows 事件日志以及 evtx、evt、etl 归档日志，支持哈希表、XPath 和 XML 三种筛选方式。哈希表筛选在检索阶段就完成过滤，比管道接 Where-Object 快得多，是排查开机慢、蓝屏、服务异常的主力命令。",
+      "usage": "Get-WinEvent [[-LogName] <string[]>] [-MaxEvents <long>] [-ComputerName <string>] [-Credential <pscredential>] [-FilterXPath <string>] [-Force] [-Oldest]；另有 -ListLog、-ListProvider、-ProviderName、-Path、-FilterHashtable、-FilterXml 六个参数集",
+      "admin": false,
+      "danger": 0,
+      "tags": ["事件日志", "排错", "筛选", "XPath", "哈希表"],
+      "examples": [
+        { "cmd": "Get-WinEvent -LogName System -MaxEvents 20", "desc": "读取系统日志最新的 20 条事件" },
+        { "cmd": "Get-WinEvent -FilterHashtable @{LogName='System'; Level=2; StartTime=(Get-Date).AddDays(-1)}", "desc": "筛选最近一天的系统错误事件，Level 2 表示错误" },
+        { "cmd": "Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error'} -MaxEvents 10", "desc": "只看应用程序崩溃记录" },
+        { "cmd": "Get-WinEvent -ListLog * | Where-Object { $_.RecordCount -gt 0 }", "desc": "列出本机所有非空事件日志及其容量" },
+        { "cmd": "Get-WinEvent -Path 'C:\\Logs\\System.evtx' -Oldest -MaxEvents 50", "desc": "从归档的 evtx 文件中读取最早的 50 条事件" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "select", "value": "System", "hint": "要读取的事件日志，支持通配符", "options": ["System", "Application", "Security", "Setup", "Windows PowerShell", "Microsoft-Windows-PowerShell/Operational", "Microsoft-Windows-TaskScheduler/Operational"] },
+        { "token": "-MaxEvents", "label": "最大条数", "type": "number", "value": "20", "hint": "最多返回多少条事件，默认全部" },
+        { "token": "-FilterHashtable", "label": "哈希表筛选", "type": "text", "value": "@{LogName='System'; Level=2}", "hint": "键只能用 LogName、ProviderName、Path、Keywords、Id、Level、StartTime、EndTime、UserID、Data" },
+        { "token": "-FilterXPath", "label": "XPath 筛选", "type": "text", "value": "", "hint": "形如 *[System[(Level=2)]]" },
+        { "token": "-Oldest", "label": "从旧到新", "type": "flag", "value": "", "hint": "读取 etl 文件时必须加上" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "一次只能指定一台" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，事件日志名称，支持通配符", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "指定要读取的事件日志名称", "valueHint": "<日志名>", "enum": ["System", "Application", "Security", "Setup", "Windows PowerShell", "ForwardedEvents"] },
+        { "token": "-FilterHashtable", "kind": "option", "desc": "用哈希表筛选事件，性能最好", "valueHint": "<哈希表>", "children": [
+          { "token": "LogName", "kind": "value", "desc": "日志名称，支持通配符", "valueHint": "System" },
+          { "token": "ProviderName", "kind": "value", "desc": "事件提供程序名称，支持通配符", "valueHint": "Service Control Manager" },
+          { "token": "Path", "kind": "value", "desc": "evtx、evt、etl 日志文件的完整路径", "valueHint": "C:\\Logs\\System.evtx" },
+          { "token": "Keywords", "kind": "value", "desc": "关键字位掩码，必须写数字不能写名称", "valueHint": "36028797018963968", "enum": ["0", "281474976710656", "562949953421312", "1125899906842624", "2251799813685248", "4503599627370496", "9007199254740992", "18014398509481984", "36028797018963968"] },
+          { "token": "Id", "kind": "value", "desc": "事件 ID，可写多个", "valueHint": "7036" },
+          { "token": "Level", "kind": "value", "desc": "级别数字：1 严重 2 错误 3 警告 4 信息 5 详细", "valueHint": "2", "enum": ["0", "1", "2", "3", "4", "5"] },
+          { "token": "StartTime", "kind": "value", "desc": "起始时间，包含该时刻", "valueHint": "(Get-Date).AddDays(-1)" },
+          { "token": "EndTime", "kind": "value", "desc": "结束时间，与起始时间类型要一致", "valueHint": "(Get-Date)" },
+          { "token": "UserID", "kind": "value", "desc": "用户 SID 或可解析的账户名", "valueHint": "S-1-5-18" },
+          { "token": "Data", "kind": "value", "desc": "经典日志中未命名的事件数据字段", "valueHint": "iexplore.exe" }
+        ] },
+        { "token": "-FilterXPath", "kind": "option", "desc": "用 XPath 表达式筛选事件", "valueHint": "<XPath>" },
+        { "token": "-FilterXml", "kind": "option", "desc": "用结构化 XML 查询语句筛选事件", "valueHint": "<XML 文本>" },
+        { "token": "-MaxEvents", "kind": "option", "desc": "最多返回多少条事件", "valueHint": "<条数>" },
+        { "token": "-ListLog", "kind": "option", "desc": "列出日志的配置信息而不是事件", "valueHint": "<日志名>", "enum": ["*", "System", "Application", "Security", "Setup"] },
+        { "token": "-ListProvider", "kind": "option", "desc": "列出事件提供程序及其写入的日志", "valueHint": "<提供程序名>", "enum": ["*"] },
+        { "token": "-ProviderName", "kind": "option", "desc": "按事件提供程序读取事件", "valueHint": "<提供程序名>", "enum": ["Service Control Manager", "Application Error", ".NET Runtime", "Microsoft-Windows-Kernel-Power"] },
+        { "token": "-Path", "kind": "option", "desc": "从归档日志文件读取事件", "valueHint": "<文件路径>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "远程计算机名，一次只接受一个值", "valueHint": "<计算机>" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机时使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Oldest", "kind": "flag", "desc": "改为从旧到新输出，读 etl 时必需" },
+        { "token": "-Force", "kind": "flag", "desc": "连同调试日志和分析日志一起获取" }
+      ]
+    },
+    {
+      "name": "Get-EventLog",
+      "aliases": [],
+      "title": "读取经典事件日志",
+      "desc": "读取 Windows 经典事件日志，只能处理 Application、System、Security 这类传统日志，读不到应用与服务日志。它比 Get-WinEvent 多了按来源、条目类型和时间范围筛选的便利参数，适合快速捞日志。微软已将其标记为不推荐，新脚本建议改用 Get-WinEvent。",
+      "usage": "Get-EventLog [-LogName] <string> [[-InstanceId] <long[]>] [-ComputerName <string[]>] [-Newest <int>] [-After <datetime>] [-Before <datetime>] [-UserName <string[]>] [-Index <int[]>] [-EntryType <string[]>] [-Source <string[]>] [-Message <string>] [-AsBaseObject]；列出日志：Get-EventLog [-ComputerName <string[]>] [-List] [-AsString]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["事件日志", "经典日志", "排错", "来源"],
+      "examples": [
+        { "cmd": "Get-EventLog -LogName System -Newest 20", "desc": "读取系统日志最新的 20 条事件" },
+        { "cmd": "Get-EventLog -LogName Application -EntryType Error -Newest 10", "desc": "只看应用程序日志里的错误事件" },
+        { "cmd": "Get-EventLog -LogName System -After (Get-Date).AddHours(-6)", "desc": "读取最近 6 小时的系统日志" },
+        { "cmd": "Get-EventLog -List", "desc": "列出本机所有经典日志及其大小和保留方式" },
+        { "cmd": "Get-EventLog -LogName Application -Source 'Application Error' -Newest 5", "desc": "按来源筛选应用程序崩溃事件" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "select", "value": "System", "hint": "要读取的经典日志", "options": ["System", "Application", "Security", "Windows PowerShell", "Internet Explorer", "HardwareEvents"] },
+        { "token": "-Newest", "label": "最新条数", "type": "number", "value": "20", "hint": "只取最新的 N 条" },
+        { "token": "-EntryType", "label": "条目类型", "type": "select", "value": "Error", "hint": "按级别筛选事件", "options": ["Error", "Warning", "Information", "SuccessAudit", "FailureAudit"] },
+        { "token": "-Source", "label": "事件来源", "type": "text", "value": "", "hint": "来源名，支持通配符" },
+        { "token": "-After", "label": "起始时间", "type": "text", "value": "(Get-Date).AddHours(-6)", "hint": "只返回该时间之后的事件" },
+        { "token": "-Before", "label": "结束时间", "type": "text", "value": "", "hint": "只返回该时间之前的事件" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，经典日志名称", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "指定要读取的经典日志名称", "valueHint": "<日志名>", "enum": ["System", "Application", "Security", "Windows PowerShell", "Internet Explorer"] },
+        { "token": "-EntryType", "kind": "option", "desc": "按条目类型筛选事件", "valueHint": "<类型>", "enum": ["Error", "Warning", "Information", "SuccessAudit", "FailureAudit"] },
+        { "token": "-Source", "kind": "option", "desc": "按事件来源筛选，支持通配符", "valueHint": "<来源名>", "enum": ["Application Error", ".NET Runtime", "Windows Error Reporting", "Service Control Manager"] },
+        { "token": "-Newest", "kind": "option", "desc": "只返回最新的若干条事件", "valueHint": "<条数>" },
+        { "token": "-After", "kind": "option", "desc": "只返回指定时间之后的事件", "valueHint": "<日期时间>" },
+        { "token": "-Before", "kind": "option", "desc": "只返回指定时间之前的事件", "valueHint": "<日期时间>" },
+        { "token": "-Message", "kind": "option", "desc": "按消息正文中的字符串筛选", "valueHint": "<关键字>" },
+        { "token": "-UserName", "kind": "option", "desc": "按触发事件的用户名筛选", "valueHint": "<用户名>" },
+        { "token": "-Index", "kind": "option", "desc": "按事件索引号读取，索引从 1 开始", "valueHint": "<索引号>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按事件的实例 ID 筛选", "valueHint": "<实例 ID>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定远程计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-List", "kind": "flag", "desc": "列出日志清单而不是读取事件" },
+        { "token": "-AsString", "kind": "flag", "desc": "把日志清单以字符串形式返回" },
+        { "token": "-AsBaseObject", "kind": "flag", "desc": "返回原始 EventLogEntry 对象而不是包装对象" }
+      ]
+    },
+    {
+      "name": "New-EventLog",
+      "aliases": [],
+      "title": "新建事件日志与来源",
+      "desc": "在注册表中创建一个新的经典事件日志，并为其注册一个或多个事件来源。事件来源必须先注册，之后脚本才能用 Write-EventLog 写入事件。该命令写入 HKLM 注册表，必须以管理员身份运行，且只对经典日志有效。",
+      "usage": "New-EventLog [-LogName] <string> [-Source] <string[]> [[-ComputerName] <string[]>] [-CategoryResourceFile <string>] [-MessageResourceFile <string>] [-ParameterResourceFile <string>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["事件日志", "新建", "来源", "注册表"],
+      "examples": [
+        { "cmd": "New-EventLog -LogName MyApp -Source MyApp", "desc": "新建名为 MyApp 的日志并注册同名来源" },
+        { "cmd": "New-EventLog -LogName MyApp -Source MyApp,MyAppUpdater", "desc": "为同一个日志注册两个事件来源" },
+        { "cmd": "New-EventLog -LogName MyApp -Source MyApp -MessageResourceFile 'C:\\App\\MyApp.dll'", "desc": "指定消息资源 DLL 以便显示事件描述" },
+        { "cmd": "Get-EventLog -List | Where-Object { $_.Log -eq 'MyApp' }", "desc": "确认新日志是否创建成功" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "text", "value": "MyApp", "hint": "新日志的名称，不能与现有日志重名" },
+        { "token": "-Source", "label": "事件来源", "type": "text", "value": "MyApp", "hint": "一个或多个来源名，逗号分隔" },
+        { "token": "-MessageResourceFile", "label": "消息资源文件", "type": "path", "value": "", "hint": "包含事件描述文本的 DLL 路径" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "在远程计算机上创建日志" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，新建日志的名称", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "要创建的日志名称", "valueHint": "<日志名>" },
+        { "token": "-Source", "kind": "option", "desc": "要注册的事件来源，可写多个", "valueHint": "<来源名>", "repeatable": true },
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，远程计算机名称", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "在指定的远程计算机上创建日志", "valueHint": "<计算机>" },
+        { "token": "-CategoryResourceFile", "kind": "option", "desc": "包含事件分类字符串的资源文件", "valueHint": "<文件路径>" },
+        { "token": "-MessageResourceFile", "kind": "option", "desc": "包含事件消息模板的资源文件", "valueHint": "<文件路径>" },
+        { "token": "-ParameterResourceFile", "kind": "option", "desc": "包含消息插入参数字符串的资源文件", "valueHint": "<文件路径>" },
+        { "token": "New-EventLog -LogName App -Source App", "kind": "syntax", "desc": "-LogName 与 -Source 均为必需参数" },
+        { "token": "Get-EventLog -List", "kind": "syntax", "desc": "创建后用该命令确认新日志已出现" }
+      ]
+    },
+    {
+      "name": "Remove-EventLog",
+      "aliases": [],
+      "title": "删除事件日志",
+      "desc": "删除一个事件日志并注销其事件来源，日志中已有的全部事件会一并消失且无法恢复。也可以只注销某个事件来源而保留日志本身。需要管理员权限，删除后必须重新执行 New-EventLog 才能再次写入。",
+      "usage": "Remove-EventLog [-LogName] <string[]> [[-ComputerName] <string[]>]；按来源删除：Remove-EventLog [[-ComputerName] <string[]>] [-Source <string[]>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["事件日志", "删除", "注销来源", "清理"],
+      "examples": [
+        { "cmd": "Remove-EventLog -LogName MyApp", "desc": "删除自建的 MyApp 日志及其全部事件" },
+        { "cmd": "Remove-EventLog -Source MyApp", "desc": "只注销 MyApp 事件来源，保留日志本身" },
+        { "cmd": "Get-EventLog -List | Where-Object { $_.Log -eq 'MyApp' }", "desc": "确认日志是否已被删除" },
+        { "cmd": "Remove-EventLog -LogName MyApp -ComputerName Server01", "desc": "删除远程计算机上的指定日志" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "text", "value": "MyApp", "hint": "要删除的日志名称，支持通配符" },
+        { "token": "-Source", "label": "事件来源", "type": "text", "value": "", "hint": "只注销这些来源，不删除日志" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "操作远程计算机上的日志" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，要删除的日志名称", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "要删除的日志名称，支持通配符", "valueHint": "<日志名>" },
+        { "token": "-Source", "kind": "option", "desc": "只注销事件来源而不删除日志", "valueHint": "<来源名>", "repeatable": true },
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，远程计算机名称", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定远程计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-LogName 与 -Source 分属不同参数集", "kind": "syntax", "desc": "两者不能在同一次调用中同时使用" },
+        { "token": "Remove-EventLog -LogName MyApp*", "kind": "syntax", "desc": "-LogName 支持通配符，可批量删除日志" },
+        { "token": "Remove-EventLog -Source App1,App2", "kind": "syntax", "desc": "-Source 接受数组，一次注销多个来源" },
+        { "token": "Remove-EventLog -LogName MyApp", "kind": "syntax", "desc": "删除后该日志的全部事件无法恢复" },
+        { "token": "Remove-EventLog -LogName Application", "kind": "syntax", "desc": "系统内置日志不可删除，会直接报错" }
+      ]
+    },
+    {
+      "name": "Write-EventLog",
+      "aliases": [],
+      "title": "写入事件日志",
+      "desc": "向经典事件日志写入一条自定义事件，脚本常用它记录运行过程和错误。写入前该日志和事件来源必须已存在，否则要先执行 New-EventLog 注册。写入 Security 日志或新建来源都需要管理员权限。",
+      "usage": "Write-EventLog [-LogName] <string> [-Source] <string> [-EventId] <int> [[-EntryType] <EventLogEntryType>] [-Message] <string> [-Category <int16>] [-RawData <byte[]>] [-ComputerName <string>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["事件日志", "写入", "记录", "脚本"],
+      "examples": [
+        { "cmd": "Write-EventLog -LogName Application -Source 'Application' -EventId 100 -EntryType Information -Message '脚本执行完成'", "desc": "向应用程序日志写入一条信息事件" },
+        { "cmd": "Write-EventLog -LogName MyApp -Source MyApp -EventId 500 -EntryType Error -Message '任务失败' -Category 2", "desc": "写入带分类号的错误事件" },
+        { "cmd": "Write-EventLog -LogName Application -Source 'Application' -EventId 101 -EntryType Warning -Message '磁盘空间不足' -RawData ([byte[]](1,2,3))", "desc": "写入带二进制原始数据的警告事件" },
+        { "cmd": "Get-EventLog -LogName Application -Source 'Application' -Newest 1", "desc": "验证刚写入的事件" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "select", "value": "Application", "hint": "目标经典日志", "options": ["Application", "System", "MyApp"] },
+        { "token": "-Source", "label": "事件来源", "type": "text", "value": "Application", "hint": "必须已注册的来源名" },
+        { "token": "-EventId", "label": "事件 ID", "type": "number", "value": "100", "hint": "自定义的事件编号" },
+        { "token": "-EntryType", "label": "事件类型", "type": "select", "value": "Information", "hint": "事件的严重级别", "options": ["Information", "Warning", "Error", "SuccessAudit", "FailureAudit"] },
+        { "token": "-Message", "label": "消息内容", "type": "text", "value": "脚本执行完成", "hint": "事件的描述文本" },
+        { "token": "-Category", "label": "分类号", "type": "number", "value": "0", "hint": "可选的任务分类编号" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，目标日志名称", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "要写入的日志名称", "valueHint": "<日志名>", "enum": ["Application", "System", "MyApp"] },
+        { "token": "-Source", "kind": "option", "desc": "事件来源，必须事先注册过", "valueHint": "<来源名>", "enum": ["Application", "Application Error", ".NET Runtime", "MyApp"] },
+        { "token": "-EventId", "kind": "option", "desc": "事件编号，取值范围 1 到 65535", "valueHint": "<整数>" },
+        { "token": "-EntryType", "kind": "option", "desc": "事件类型，默认 Information", "valueHint": "<类型>", "enum": ["Information", "Warning", "Error", "SuccessAudit", "FailureAudit"] },
+        { "token": "-Message", "kind": "option", "desc": "事件的描述文本，最长约 32KB", "valueHint": "<消息>" },
+        { "token": "-Category", "kind": "option", "desc": "任务分类号，需资源文件支持", "valueHint": "<Int16>" },
+        { "token": "-RawData", "kind": "option", "desc": "附加的二进制数据，字节数组类型", "valueHint": "<byte[]>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "写入远程计算机的事件日志", "valueHint": "<计算机>" },
+        { "token": "New-EventLog -LogName App -Source App", "kind": "syntax", "desc": "日志或来源不存在时先执行本命令注册" }
+      ]
+    },
+    {
+      "name": "Clear-EventLog",
+      "aliases": [],
+      "title": "清空事件日志",
+      "desc": "删除指定日志中的全部事件条目，日志本身保留但内容被清空，清掉的事件无法找回。清空安全审计记录会破坏溯源证据，属于不可逆的高危操作。需要管理员权限，务必确认日志名后再执行。",
+      "usage": "Clear-EventLog [-LogName] <string[]> [[-ComputerName] <string[]>]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["事件日志", "清空", "不可逆", "清理"],
+      "examples": [
+        { "cmd": "Clear-EventLog -LogName MyApp", "desc": "清空自建日志的全部事件，操作不可撤销" },
+        { "cmd": "Clear-EventLog -LogName Application -ComputerName Server01", "desc": "清空远程计算机的应用程序日志" },
+        { "cmd": "Get-EventLog -LogName MyApp -Newest 1", "desc": "清空后确认已无事件可读" },
+        { "cmd": "Get-WinEvent -ListLog MyApp | Select-Object LogName,RecordCount", "desc": "查看清空后日志的条目数是否归零" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "text", "value": "MyApp", "hint": "要清空的日志，支持通配符" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "清空远程计算机上的日志" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，要清空的日志名称", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "要清空的日志名称，支持通配符", "valueHint": "<日志名>", "enum": ["Application", "System", "Security", "MyApp"] },
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，远程计算机名称", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定远程计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "Clear-EventLog -LogName MyApp, System", "kind": "syntax", "desc": "-LogName 接受数组，一次清空多个日志" },
+        { "token": "Clear-EventLog -LogName *", "kind": "syntax", "desc": "-LogName 支持通配符，可清空全部日志" },
+        { "token": "Clear-EventLog -LogName MyApp", "kind": "syntax", "desc": "操作不可逆，清空后事件无法恢复" },
+        { "token": "Clear-EventLog -LogName Security", "kind": "syntax", "desc": "清空 Security 日志会丢失全部审计记录" },
+        { "token": "Get-WinEvent -ListLog MyApp", "kind": "syntax", "desc": "清空后用该命令确认 RecordCount 归零" },
+        { "token": "Clear-EventLog -LogName MyApp -ComputerName Server01", "kind": "syntax", "desc": "远程清空需要目标机的日志访问权限" }
+      ]
+    },
+    {
+      "name": "Limit-EventLog",
+      "aliases": [],
+      "title": "设置日志容量上限",
+      "desc": "调整事件日志的最大容量、覆盖策略和保留天数。日志写满后如果覆盖策略不合适，新事件会被直接丢弃，等到排查问题时才发现日志断档。修改日志配置需要管理员权限。",
+      "usage": "Limit-EventLog [-LogName] <string[]> [-ComputerName <string[]>] [-RetentionDays <int>] [-OverflowAction <OverflowAction>] [-MaximumSize <long>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["事件日志", "容量", "覆盖策略", "保留天数"],
+      "examples": [
+        { "cmd": "Limit-EventLog -LogName Application -MaximumSize 20MB", "desc": "把应用程序日志的容量上限设为 20MB" },
+        { "cmd": "Limit-EventLog -LogName System -OverflowAction OverwriteOlder -RetentionDays 7", "desc": "日志写满后按需要覆盖 7 天前的旧事件" },
+        { "cmd": "Limit-EventLog -LogName MyApp -OverflowAction DoNotOverwrite", "desc": "日志写满后不再覆盖，改为丢弃新事件" },
+        { "cmd": "Get-WinEvent -ListLog Application | Select-Object LogName,MaximumSizeInBytes,LogMode", "desc": "查看日志当前的容量和覆盖模式" }
+      ],
+      "form": [
+        { "token": "", "label": "日志名称", "type": "text", "value": "Application", "hint": "要配置的日志，支持通配符" },
+        { "token": "-MaximumSize", "label": "容量上限", "type": "text", "value": "20MB", "hint": "支持 KB、MB、GB 后缀或直接写字节数" },
+        { "token": "-OverflowAction", "label": "覆盖策略", "type": "select", "value": "OverwriteOlder", "hint": "日志写满后的处理方式", "options": ["OverwriteAsNeeded", "OverwriteOlder", "DoNotOverwrite"] },
+        { "token": "-RetentionDays", "label": "保留天数", "type": "number", "value": "7", "hint": "OverwriteOlder 策略下旧事件的最短保留天数" }
+      ],
+      "nodes": [
+        { "token": "<日志名>", "kind": "value", "desc": "位置参数，要配置的日志名称", "valueHint": "日志名" },
+        { "token": "-LogName", "kind": "option", "desc": "要配置的日志名称，可写多个", "valueHint": "<日志名>", "enum": ["Application", "System", "Security", "Setup", "MyApp"] },
+        { "token": "-MaximumSize", "kind": "option", "desc": "日志容量上限，可带 KB、MB、GB 后缀", "valueHint": "<大小>" },
+        { "token": "-OverflowAction", "kind": "option", "desc": "日志写满后的处理策略", "valueHint": "<策略>", "enum": ["OverwriteAsNeeded", "OverwriteOlder", "DoNotOverwrite"] },
+        { "token": "-RetentionDays", "kind": "option", "desc": "旧事件至少保留多少天，0 表示不保留", "valueHint": "<天数>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "配置远程计算机上的日志", "valueHint": "<计算机>" },
+        { "token": "-MaximumSize 支持 KB、MB、GB 后缀", "kind": "syntax", "desc": "也可以直接写字节数，如 20971520" },
+        { "token": "-OverflowAction OverwriteOlder", "kind": "syntax", "desc": "该策略一般要与 -RetentionDays 一起指定" },
+        { "token": "-OverflowAction DoNotOverwrite", "kind": "syntax", "desc": "日志满后新事件直接丢失，排错前请慎用" },
+        { "token": "Get-WinEvent -ListLog Application", "kind": "syntax", "desc": "用该命令查看容量上限与 LogMode 字段" }
+      ]
+    },
+    {
+      "name": "Get-Counter",
+      "aliases": [],
+      "title": "读取性能计数器",
+      "desc": "读取 CPU、内存、磁盘、网络等性能计数器，是排查性能问题的主力工具。可以用 -Continuous 持续采样，也可以用 -MaxSamples 限定采样次数。计数器路径用反斜杠分段，本机可以省略计算机名。",
+      "usage": "Get-Counter [[-Counter] <string[]>] [-SampleInterval <int>] [-MaxSamples <long>] [-Continuous] [-ComputerName <string[]>]；列出计数器集：Get-Counter [-ListSet] <string[]> [-ComputerName <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["性能", "计数器", "CPU", "内存", "监控"],
+      "examples": [
+        { "cmd": "Get-Counter '\\Processor(_Total)\\% Processor Time' -MaxSamples 5 -SampleInterval 1", "desc": "每秒采样一次 CPU 总占用率，共采 5 次" },
+        { "cmd": "Get-Counter '\\Memory\\Available MBytes'", "desc": "读取当前可用内存的兆字节数" },
+        { "cmd": "Get-Counter '\\PhysicalDisk(_Total)\\% Disk Time','\\LogicalDisk(C:)\\Free Megabytes'", "desc": "一次读取多个计数器，逗号分隔" },
+        { "cmd": "(Get-Counter -ListSet Memory).Counter", "desc": "展开内存计数器集里的全部计数器路径" },
+        { "cmd": "Get-Counter -ListSet 'Network Interface' ", "desc": "列出网络接口计数器集的全部计数器" }
+      ],
+      "form": [
+        { "token": "", "label": "计数器路径", "type": "select", "value": "\\Processor(_Total)\\% Processor Time", "hint": "形如 \\计算机\\对象(实例)\\计数器", "options": ["\\Processor(_Total)\\% Processor Time", "\\Memory\\Available MBytes", "\\PhysicalDisk(_Total)\\% Disk Time", "\\LogicalDisk(C:)\\Free Megabytes", "\\System\\Processes", "\\Network Interface(*)\\Bytes Total/sec"] },
+        { "token": "-SampleInterval", "label": "采样间隔秒", "type": "number", "value": "1", "hint": "两次采样之间的秒数，默认 1 秒" },
+        { "token": "-MaxSamples", "label": "采样次数", "type": "number", "value": "5", "hint": "采多少次后自动结束" },
+        { "token": "-Continuous", "label": "持续采样", "type": "flag", "value": "", "hint": "按 Ctrl+C 才会停止" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "可指定多台计算机" }
+      ],
+      "nodes": [
+        { "token": "<计数器路径>", "kind": "value", "desc": "位置参数，性能计数器路径，支持通配符", "valueHint": "计数器路径" },
+        { "token": "-Counter", "kind": "option", "desc": "要读取的计数器路径，可写多个", "valueHint": "<路径>", "repeatable": true },
+        { "token": "-ListSet", "kind": "option", "desc": "列出计数器集及其包含的计数器", "valueHint": "<计数器集>", "enum": ["*", "Processor", "Memory", "PhysicalDisk", "LogicalDisk", "Network Interface", "System", "Process", "Paging File", "Cache"] },
+        { "token": "-SampleInterval", "kind": "option", "desc": "两次采样之间的间隔秒数，默认 1 秒", "valueHint": "<秒数>" },
+        { "token": "-MaxSamples", "kind": "option", "desc": "最多采样多少次后结束", "valueHint": "<次数>" },
+        { "token": "-Continuous", "kind": "flag", "desc": "持续采样直到按 Ctrl+C 停止" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定远程计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "Get-Counter -ListSet *", "kind": "syntax", "desc": "列出本机全部计数器集的名称" },
+        { "token": "\\计算机\\对象(实例)\\计数器", "kind": "syntax", "desc": "计数器路径写法，本机可省略计算机名" },
+        { "token": "(Get-Counter -ListSet Memory).Counter", "kind": "syntax", "desc": "展开计数器集内的全部计数器路径" }
+      ]
+    },
+    {
+      "name": "Import-Counter",
+      "aliases": [],
+      "title": "导入计数器数据",
+      "desc": "读取 blg、csv、tsv 格式的性能计数器日志文件，把里面的样本还原成对象以便离线分析。可以按时间和计数器名筛选，也可以只查看文件的概要信息。常与 Export-Counter 配合完成格式转换。",
+      "usage": "Import-Counter [-Path] <string[]> [-StartTime <datetime>] [-EndTime <datetime>] [-Counter <string[]>] [-MaxSamples <long>]；另有 -ListSet 与 -Summary 参数集",
+      "admin": false,
+      "danger": 0,
+      "tags": ["性能", "计数器", "导入", "离线分析"],
+      "examples": [
+        { "cmd": "Import-Counter -Path C:\\Perf\\disk.blg -Summary", "desc": "查看计数器文件的时间范围和样本总数" },
+        { "cmd": "Import-Counter -Path C:\\Perf\\disk.blg -MaxSamples 10", "desc": "只导入前 10 个样本" },
+        { "cmd": "Import-Counter -Path C:\\Perf\\disk.blg -Counter '\\Memory\\Available MBytes'", "desc": "只导入指定的计数器" },
+        { "cmd": "Import-Counter -Path C:\\Perf\\disk.blg -ListSet *", "desc": "列出文件里包含的全部计数器集" },
+        { "cmd": "Import-Counter -Path C:\\Perf\\disk.blg | Export-Counter -Path C:\\Perf\\disk.csv -FileFormat CSV -Force", "desc": "把 blg 文件转换成 csv 便于表格分析" }
+      ],
+      "form": [
+        { "token": "", "label": "计数器文件", "type": "path", "value": "C:\\Perf\\disk.blg", "hint": "blg、csv 或 tsv 文件路径" },
+        { "token": "-Counter", "label": "指定计数器", "type": "text", "value": "", "hint": "只导入这些计数器，支持通配符" },
+        { "token": "-MaxSamples", "label": "最大样本数", "type": "number", "value": "10", "hint": "最多导入多少个样本" },
+        { "token": "-StartTime", "label": "起始时间", "type": "text", "value": "", "hint": "只导入该时间之后的样本" },
+        { "token": "-Summary", "label": "仅概要", "type": "flag", "value": "", "hint": "只返回时间范围和样本总数" }
+      ],
+      "nodes": [
+        { "token": "<路径>", "kind": "value", "desc": "位置参数，计数器日志文件路径，可写多个", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "要导入的 blg、csv、tsv 文件路径", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-Counter", "kind": "option", "desc": "只导入指定的计数器，支持通配符", "valueHint": "<计数器路径>", "repeatable": true },
+        { "token": "-MaxSamples", "kind": "option", "desc": "最多导入多少个样本", "valueHint": "<样本数>" },
+        { "token": "-StartTime", "kind": "option", "desc": "只导入该时刻之后的样本", "valueHint": "<日期时间>" },
+        { "token": "-EndTime", "kind": "option", "desc": "只导入该时刻之前的样本", "valueHint": "<日期时间>" },
+        { "token": "-ListSet", "kind": "option", "desc": "列出文件里包含的计数器集", "valueHint": "<计数器集>", "enum": ["*", "Processor", "Memory", "PhysicalDisk"] },
+        { "token": "-Summary", "kind": "flag", "desc": "只返回最早时间、最晚时间和样本数" },
+        { "token": "Import-Counter -Path x.blg -Summary", "kind": "syntax", "desc": "-Summary 只返回概要，不返回样本数据" },
+        { "token": "Import-Counter -Path x.blg | Export-Counter -Path y.csv -FileFormat CSV", "kind": "syntax", "desc": "配合导出命令实现计数器文件格式转换" }
+      ]
+    },
+    {
+      "name": "Export-Counter",
+      "aliases": [],
+      "title": "导出计数器数据",
+      "desc": "把性能计数器样本集保存成 blg、csv 或 tsv 文件，方便长期留档或交给别人分析。输入对象通常来自 Get-Counter 的实时采集或 Import-Counter 读取的旧文件。写入文件需要路径可写，加 -Force 会覆盖同名文件。",
+      "usage": "Export-Counter [-Path] <string> -InputObject <PerformanceCounterSampleSet[]> [-FileFormat <string>] [-MaxSize <uint32>] [-Force] [-Circular]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["性能", "计数器", "导出", "留档"],
+      "examples": [
+        { "cmd": "Get-Counter '\\Processor(_Total)\\% Processor Time' -MaxSamples 10 -SampleInterval 1 | Export-Counter -Path C:\\Perf\\cpu.blg -FileFormat BLG -Force", "desc": "采集 10 秒 CPU 数据并保存为 blg 文件" },
+        { "cmd": "Get-Counter '\\Memory\\Available MBytes' -MaxSamples 5 | Export-Counter -Path C:\\Perf\\mem.csv -FileFormat CSV -Circular -MaxSize 1048576 -Force", "desc": "循环覆盖写入 csv，文件上限 1MB" },
+        { "cmd": "Import-Counter C:\\Perf\\cpu.blg | Export-Counter -Path C:\\Perf\\cpu.csv -FileFormat CSV -Force", "desc": "把 blg 文件转换成 csv 便于表格分析" }
+      ],
+      "form": [
+        { "token": "", "label": "输出路径", "type": "path", "value": "C:\\Perf\\cpu.blg", "hint": "保存位置，扩展名要与格式一致" },
+        { "token": "-FileFormat", "label": "文件格式", "type": "select", "value": "BLG", "hint": "二进制 blg 体积小，csv 便于查看", "options": ["BLG", "CSV", "TSV"] },
+        { "token": "-MaxSize", "label": "文件上限字节", "type": "number", "value": "1048576", "hint": "只能写字节数，不能写 100MB 这种写法" },
+        { "token": "-Circular", "label": "循环覆盖", "type": "flag", "value": "", "hint": "必须同时指定 -MaxSize 才生效" },
+        { "token": "-Force", "label": "覆盖同名文件", "type": "flag", "value": "", "hint": "不加则同名文件会导致失败" }
+      ],
+      "nodes": [
+        { "token": "<路径>", "kind": "value", "desc": "位置参数，输出文件的保存路径", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "输出文件的完整路径", "valueHint": "<文件路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "要写入的性能计数器样本集，必需参数", "valueHint": "<样本集>" },
+        { "token": "-FileFormat", "kind": "option", "desc": "输出格式，blg 为二进制原始格式", "valueHint": "<格式>", "enum": ["BLG", "CSV", "TSV"] },
+        { "token": "-MaxSize", "kind": "option", "desc": "文件大小上限，单位是字节，不是字符串", "valueHint": "<字节数>" },
+        { "token": "-Circular", "kind": "flag", "desc": "写满后循环覆盖最早的样本" },
+        { "token": "-Force", "kind": "flag", "desc": "覆盖已存在的同名文件" },
+        { "token": "-FileFormat 只能取 BLG、CSV、TSV", "kind": "syntax", "desc": "写 XML 等其它值会直接报错" },
+        { "token": "-MaxSize 只接受纯字节数", "kind": "syntax", "desc": "写 100MB 会因无法转换为整数而失败" },
+        { "token": "-Circular 必须与 -MaxSize 同时使用", "kind": "syntax", "desc": "只写 -Circular 会被拒绝并提示需要 -MaxSize" }
+      ]
+    },
+    {
+      "name": "Get-CimInstance",
+      "aliases": [],
+      "title": "查询 CIM 实例",
+      "desc": "查询 CIM 类和 WMI 实例，是 Get-WmiObject 的现代替代品，默认走 WinRM 而不是 DCOM。支持类名加筛选、WQL 查询和 CIM 会话三种用法，可以读取本机和远程计算机的硬件、系统与服务信息。",
+      "usage": "Get-CimInstance [-ClassName] <string> [-ComputerName <string[]>] [-KeyOnly] [-Namespace <string>] [-OperationTimeoutSec <uint32>] [-QueryDialect <string>] [-Shallow] [-Filter <string>] [-Property <string[]>]；另有 -Query、-ResourceUri、-InputObject、-CimSession 参数集",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CIM", "WMI", "硬件信息", "系统查询"],
+      "examples": [
+        { "cmd": "Get-CimInstance -ClassName Win32_OperatingSystem", "desc": "查看操作系统版本、启动时间和内存总量" },
+        { "cmd": "Get-CimInstance -ClassName Win32_LogicalDisk -Filter \"DriveType=3\"", "desc": "列出本地固定磁盘及其剩余空间" },
+        { "cmd": "Get-CimInstance -ClassName Win32_Service -Filter \"State='Stopped'\" | Select-Object Name,StartMode", "desc": "找出所有已停止的服务及其启动方式" },
+        { "cmd": "Get-CimInstance -Query 'SELECT Caption,Version,LastBootUpTime FROM Win32_OperatingSystem'", "desc": "用 WQL 只取需要的属性，速度更快" },
+        { "cmd": "Get-CimInstance -ClassName Win32_Service -KeyOnly | Select-Object -First 5", "desc": "只取键属性，查询开销最小" }
+      ],
+      "form": [
+        { "token": "", "label": "CIM 类名", "type": "text", "value": "Win32_OperatingSystem", "hint": "常用类如 Win32_LogicalDisk、Win32_Service", "options": ["Win32_OperatingSystem", "Win32_ComputerSystem", "Win32_LogicalDisk", "Win32_PhysicalMemory", "Win32_Processor", "Win32_Service", "Win32_NetworkAdapterConfiguration", "Win32_BIOS"] },
+        { "token": "-Filter", "label": "WQL 筛选", "type": "text", "value": "DriveType=3", "hint": "只写 WHERE 后面的条件部分" },
+        { "token": "-Property", "label": "返回属性", "type": "text", "value": "", "hint": "只返回这些属性，用逗号分隔" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "root\\CIMV2", "hint": "默认就是 root\\CIMV2" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "可写多台，需要目标机启用 WinRM" }
+      ],
+      "nodes": [
+        { "token": "<类名>", "kind": "value", "desc": "位置参数，要查询的 CIM 类名", "valueHint": "类名" },
+        { "token": "-ClassName", "kind": "option", "desc": "要查询的 CIM 类名称", "valueHint": "<类名>", "enum": ["Win32_OperatingSystem", "Win32_ComputerSystem", "Win32_LogicalDisk", "Win32_PhysicalMemory", "Win32_Processor", "Win32_Service", "Win32_BIOS", "Win32_NetworkAdapterConfiguration"] },
+        { "token": "-Filter", "kind": "option", "desc": "WQL 的 WHERE 条件，不含 WHERE 关键字", "valueHint": "<条件>" },
+        { "token": "-Query", "kind": "option", "desc": "完整的 WQL 查询语句", "valueHint": "<WQL 语句>" },
+        { "token": "-QueryDialect", "kind": "option", "desc": "查询语句使用的方言", "valueHint": "<WQL 或 CQL>" },
+        { "token": "-Property", "kind": "option", "desc": "只返回指定的属性，减少数据传输", "valueHint": "<属性名>", "repeatable": true },
+        { "token": "-Namespace", "kind": "option", "desc": "CIM 命名空间，默认 root\\CIMV2", "valueHint": "<命名空间>", "enum": ["root\\CIMV2", "root\\StandardCimv2", "root\\Microsoft\\Windows\\Storage"] },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-CimSession", "kind": "option", "desc": "复用已建立的 CIM 会话，远程推荐用", "valueHint": "<会话>" },
+        { "token": "-KeyOnly", "kind": "flag", "desc": "只返回键属性，查询速度最快" },
+        { "token": "-Shallow", "kind": "flag", "desc": "只返回当前类的实例，不含子类" },
+        { "token": "-OperationTimeoutSec", "kind": "option", "desc": "单次操作的超时秒数，默认 0 表示不超时", "valueHint": "<秒数>" },
+        { "token": "-ResourceUri", "kind": "option", "desc": "按资源 URI 查询而不是按类名", "valueHint": "<URI>" },
+        { "token": "-InputObject", "kind": "option", "desc": "以已有 CIM 实例为输入继续查询", "valueHint": "<CIM 实例>" }
+      ]
+    },
+    {
+      "name": "Get-CimClass",
+      "aliases": [],
+      "title": "查询 CIM 类定义",
+      "desc": "列出命名空间中的 CIM 类，或者查看某个类的属性、方法和限定符。写脚本时先用它确认类名、方法名和参数，再调用 Invoke-CimMethod，可以避免凭记忆写错方法签名。类名支持通配符。",
+      "usage": "Get-CimClass [[-ClassName] <string>] [[-Namespace] <string>] [-OperationTimeoutSec <uint32>] [-ComputerName <string[]>] [-MethodName <string>] [-PropertyName <string>] [-QualifierName <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CIM", "类定义", "方法", "属性", "探查"],
+      "examples": [
+        { "cmd": "Get-CimClass -ClassName Win32_Service", "desc": "查看 Win32_Service 类的全部属性和方法" },
+        { "cmd": "Get-CimClass -ClassName Win32_Service -MethodName StartService", "desc": "只查看指定方法的签名信息" },
+        { "cmd": "(Get-CimClass -ClassName Win32_Process).CimClassMethods.Name", "desc": "列出该类支持的所有方法名" },
+        { "cmd": "Get-CimClass -ClassName 'Win32_Logical*'", "desc": "用通配符列出所有匹配的类" },
+        { "cmd": "Get-CimClass -ClassName Win32_OperatingSystem -PropertyName Caption", "desc": "只查看指定属性的定义" }
+      ],
+      "form": [
+        { "token": "", "label": "类名", "type": "text", "value": "Win32_Service", "hint": "支持通配符，省略则列出全部类" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "root\\CIMV2", "hint": "默认 root\\CIMV2" },
+        { "token": "-MethodName", "label": "方法名", "type": "text", "value": "", "hint": "只返回包含该方法的类" },
+        { "token": "-PropertyName", "label": "属性名", "type": "text", "value": "", "hint": "只返回包含该属性的类" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "可写多台，需要目标机启用 WinRM" }
+      ],
+      "nodes": [
+        { "token": "<类名>", "kind": "value", "desc": "位置参数，CIM 类名，支持通配符", "valueHint": "类名" },
+        { "token": "<命名空间>", "kind": "value", "desc": "位置参数，CIM 命名空间", "valueHint": "命名空间" },
+        { "token": "-ClassName", "kind": "option", "desc": "要查询的 CIM 类名，支持通配符", "valueHint": "<类名>", "enum": ["Win32_Service", "Win32_Process", "Win32_OperatingSystem", "Win32_LogicalDisk", "Win32_BIOS", "Win32_Logical*"] },
+        { "token": "-Namespace", "kind": "option", "desc": "类所在的 CIM 命名空间", "valueHint": "<命名空间>", "enum": ["root\\CIMV2", "root\\StandardCimv2", "root\\Microsoft\\Windows\\Storage"] },
+        { "token": "-MethodName", "kind": "option", "desc": "只返回包含指定方法的类", "valueHint": "<方法名>", "enum": ["StartService", "StopService", "Create", "Terminate", "GetOwner"] },
+        { "token": "-PropertyName", "kind": "option", "desc": "只返回包含指定属性的类", "valueHint": "<属性名>", "enum": ["Caption", "Name", "Status", "DeviceID"] },
+        { "token": "-QualifierName", "kind": "option", "desc": "按限定符筛选类", "valueHint": "<限定符>", "enum": ["dynamic", "association", "key", "read"] },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-CimSession", "kind": "option", "desc": "复用已建立的 CIM 会话", "valueHint": "<会话>" },
+        { "token": "-OperationTimeoutSec", "kind": "option", "desc": "单次操作的超时秒数", "valueHint": "<秒数>" }
+      ]
+    },
+    {
+      "name": "Invoke-CimMethod",
+      "aliases": [],
+      "title": "调用 CIM 方法",
+      "desc": "调用 CIM 类或实例上的方法，例如启动服务、结束进程、卸载软件。它是 Get-CimInstance 的写入侧搭档，方法参数以哈希表传入。调用会真实改动系统，执行前建议先用 Get-CimClass 确认方法签名。",
+      "usage": "Invoke-CimMethod [-ClassName] <string> [[-Arguments] <IDictionary>] [-MethodName] <string> [-ComputerName <string[]>] [-Namespace <string>] [-OperationTimeoutSec <uint32>]；另有 -CimSession、-ResourceUri、-InputObject、-CimClass、-Query 参数集",
+      "admin": false,
+      "danger": 1,
+      "tags": ["CIM", "调用方法", "服务", "进程"],
+      "examples": [
+        { "cmd": "Invoke-CimMethod -Query \"SELECT * FROM Win32_Service WHERE Name='Spooler'\" -MethodName InterrogateService", "desc": "用 WQL 定位实例并调用只读方法，返回值 0 表示成功" },
+        { "cmd": "Invoke-CimMethod -InputObject (Get-CimInstance -ClassName Win32_Service -Filter \"Name='Spooler'\") -MethodName InterrogateService", "desc": "把实例对象通过管道传进去调用方法" },
+        { "cmd": "Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine='notepad.exe'}", "desc": "创建新进程，会真实启动记事本" },
+        { "cmd": "Invoke-CimMethod -InputObject (Get-CimInstance -ClassName Win32_Service -Filter \"Name='Spooler'\") -MethodName StartService", "desc": "启动打印后台服务，会真实改动系统" }
+      ],
+      "form": [
+        { "token": "", "label": "CIM 类名", "type": "text", "value": "Win32_Service", "hint": "要调用方法的类，如 Win32_Process、Win32_Service", "options": ["Win32_Service", "Win32_Process", "Win32_OperatingSystem", "Win32_LogicalDisk", "Win32_Share"] },
+        { "token": "-MethodName", "label": "方法名", "type": "text", "value": "InterrogateService", "hint": "先用 Get-CimClass 查清方法名和参数" },
+        { "token": "-Arguments", "label": "方法参数", "type": "text", "value": "@{}", "hint": "哈希表形式，如 @{CommandLine='notepad.exe'}" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "root\\CIMV2", "hint": "默认 root\\CIMV2" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "可写多台，需要目标机启用 WinRM" }
+      ],
+      "nodes": [
+        { "token": "<类名>", "kind": "value", "desc": "位置参数，方法所在的 CIM 类名", "valueHint": "类名" },
+        { "token": "-ClassName", "kind": "option", "desc": "方法所在的 CIM 类名", "valueHint": "<类名>", "enum": ["Win32_Service", "Win32_Process", "Win32_OperatingSystem", "Win32_Share", "Win32_LogicalDisk"] },
+        { "token": "-MethodName", "kind": "option", "desc": "要调用的方法名称", "valueHint": "<方法名>", "enum": ["InterrogateService", "StartService", "StopService", "Create", "Terminate", "GetOwner"] },
+        { "token": "-Arguments", "kind": "option", "desc": "方法参数的哈希表，无参数可省略", "valueHint": "<哈希表>" },
+        { "token": "-Query", "kind": "option", "desc": "用 WQL 选出实例后对每个实例调用方法", "valueHint": "<WQL 语句>" },
+        { "token": "-QueryDialect", "kind": "option", "desc": "查询语句使用的方言", "valueHint": "<WQL 或 CQL>" },
+        { "token": "-CimClass", "kind": "option", "desc": "直接传 CIM 类对象作为调用目标", "valueHint": "<CIM 类>" },
+        { "token": "-InputObject", "kind": "option", "desc": "传 CIM 实例对象作为调用目标", "valueHint": "<CIM 实例>" },
+        { "token": "-ResourceUri", "kind": "option", "desc": "按资源 URI 定位而不是按类名", "valueHint": "<URI>" },
+        { "token": "-Namespace", "kind": "option", "desc": "CIM 命名空间，默认 root\\CIMV2", "valueHint": "<命名空间>", "enum": ["root\\CIMV2", "root\\StandardCimv2", "root\\Microsoft\\Windows\\Storage"] },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-CimSession", "kind": "option", "desc": "复用已建立的 CIM 会话", "valueHint": "<会话>" },
+        { "token": "-OperationTimeoutSec", "kind": "option", "desc": "单次操作的超时秒数", "valueHint": "<秒数>" },
+        { "token": "Invoke-CimMethod -ClassName X -MethodName Y -Arguments @{...}", "kind": "syntax", "desc": "类方法必须同时给出类名、方法名和参数表" }
+      ]
+    },
+    {
+      "name": "New-CimSession",
+      "aliases": [],
+      "title": "新建 CIM 会话",
+      "desc": "建立到本机或远程计算机的 CIM 会话，之后把会话对象传给其它 CIM 命令复用，避免每次查询都重新连接。默认走 WinRM，目标机必须启用 WinRM；本机调试可以改用 DCOM 协议绕过它。",
+      "usage": "New-CimSession [[-ComputerName] <string[]>] [[-Credential] <pscredential>] [-Authentication <PasswordAuthenticationMechanism>] [-Name <string>] [-OperationTimeoutSec <uint32>] [-SkipTestConnection] [-Port <uint32>] [-SessionOption <CimSessionOptions>]；证书认证：New-CimSession [[-ComputerName] <string[]>] [-CertificateThumbprint <string>] ...",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CIM", "会话", "远程", "WinRM"],
+      "examples": [
+        { "cmd": "New-CimSession -ComputerName localhost -SessionOption (New-CimSessionOption -Protocol Dcom)", "desc": "用 DCOM 协议建立本地会话，不需要 WinRM" },
+        { "cmd": "New-CimSession -ComputerName Server01 -Credential (Get-Credential) -Name PerfSession", "desc": "用指定凭据连接远程计算机并给会话命名" },
+        { "cmd": "New-CimSession -ComputerName Server01 -Authentication Negotiate -Port 5985", "desc": "指定认证方式和端口建立远程会话" },
+        { "cmd": "Get-CimSession | Select-Object Id,Name,ComputerName,Protocol", "desc": "查看刚建立的会话及其协议" },
+        { "cmd": "Get-CimSession | Remove-CimSession", "desc": "用完及时关闭会话释放连接" }
+      ],
+      "form": [
+        { "token": "", "label": "计算机名", "type": "text", "value": "localhost", "hint": "目标计算机，可写多台" },
+        { "token": "-Credential", "label": "凭据", "type": "text", "value": "", "hint": "远程连接使用的账户凭据" },
+        { "token": "-Authentication", "label": "认证方式", "type": "select", "value": "Negotiate", "hint": "默认 Negotiate，域环境常用 Kerberos", "options": ["Default", "Negotiate", "Kerberos", "NtlmDomain", "Basic", "Digest", "CredSsp"] },
+        { "token": "-Name", "label": "会话名称", "type": "text", "value": "", "hint": "便于后续按名字查找或关闭" },
+        { "token": "-Port", "label": "端口", "type": "number", "value": "5985", "hint": "WinRM 默认 5985，HTTPS 为 5986" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，目标计算机名或 IP，可写多台", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机名，省略表示本机", "valueHint": "<计算机>", "repeatable": true },
+        { "token": "<凭据>", "kind": "value", "desc": "位置参数，连接使用的凭据对象", "valueHint": "凭据" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机使用的账户凭据", "valueHint": "<凭据>" },
+        { "token": "-Authentication", "kind": "option", "desc": "与远程计算机协商的认证方式", "valueHint": "<认证方式>", "enum": ["Default", "Digest", "Negotiate", "Basic", "Kerberos", "NtlmDomain", "CredSsp"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用证书指纹做证书认证，需管理员权限", "valueHint": "<证书指纹>" },
+        { "token": "-Name", "kind": "option", "desc": "给会话起个名字，便于后续筛选", "valueHint": "<会话名>" },
+        { "token": "-Port", "kind": "option", "desc": "远程连接的端口号", "valueHint": "<端口>", "enum": ["5985", "5986"] },
+        { "token": "-SessionOption", "kind": "option", "desc": "会话选项对象，可切换 DCOM 协议", "valueHint": "<CimSessionOptions>" },
+        { "token": "-SkipTestConnection", "kind": "flag", "desc": "跳过连通性测试，建会话更快" },
+        { "token": "-OperationTimeoutSec", "kind": "option", "desc": "单次操作的超时秒数", "valueHint": "<秒数>" }
+      ]
+    },
+    {
+      "name": "Get-CimSession",
+      "aliases": [],
+      "title": "查看 CIM 会话",
+      "desc": "列出当前 PowerShell 会话中已经建立的 CIM 会话，可以按计算机名、编号、实例 ID 或名称筛选。会话对象只在同一个 PowerShell 进程里有效，换一个窗口就查不到了。配合 Remove-CimSession 可以批量清理。",
+      "usage": "Get-CimSession [[-ComputerName] <string[]>]；Get-CimSession [-Id] <uint32[]>；Get-CimSession -InstanceId <guid[]>；Get-CimSession -Name <string[]>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CIM", "会话", "查看", "清理"],
+      "examples": [
+        { "cmd": "Get-CimSession", "desc": "列出当前进程中的全部 CIM 会话" },
+        { "cmd": "Get-CimSession -ComputerName localhost", "desc": "查看指向本机的会话" },
+        { "cmd": "Get-CimSession -Id 1", "desc": "按会话编号精确查找" },
+        { "cmd": "Get-CimSession | Select-Object Id,Name,ComputerName,Protocol", "desc": "查看会话的编号、名称、目标机和协议" },
+        { "cmd": "Get-CimSession | Remove-CimSession", "desc": "关闭当前全部会话释放连接" }
+      ],
+      "form": [
+        { "token": "", "label": "计算机名", "type": "text", "value": "", "hint": "按目标机筛选，留空表示全部" },
+        { "token": "-Id", "label": "会话编号", "type": "number", "value": "1", "hint": "按 Id 精确查找" },
+        { "token": "-Name", "label": "会话名称", "type": "text", "value": "", "hint": "按创建时指定的名称查找" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，按目标计算机名筛选会话", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "按目标计算机名筛选，可写多台", "valueHint": "<计算机>" },
+        { "token": "<Id>", "kind": "value", "desc": "位置参数，会话编号", "valueHint": "编号" },
+        { "token": "-Id", "kind": "option", "desc": "按会话编号筛选", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话的实例 GUID 筛选", "valueHint": "<GUID>" },
+        { "token": "-Name", "kind": "option", "desc": "按创建会话时指定的名称筛选", "valueHint": "<会话名>" },
+        { "token": "Get-CimSession | Remove-CimSession", "kind": "syntax", "desc": "一次关闭当前进程内的全部会话" },
+        { "token": "New-CimSession -ComputerName Server01", "kind": "syntax", "desc": "先用该命令建立会话再回来查询" },
+        { "token": "Get-CimSession | Select-Object Id,Name,Protocol", "kind": "syntax", "desc": "返回 Id、Name、ComputerName、Protocol 属性" },
+        { "token": "会话只在当前 PowerShell 进程内有效", "kind": "syntax", "desc": "换一个窗口就查不到已建立的会话" }
+      ]
+    },
+    {
+      "name": "Remove-CimSession",
+      "aliases": [],
+      "title": "关闭 CIM 会话",
+      "desc": "关闭不再使用的 CIM 会话并释放连接资源。会话不关会一直占用内存和网络连接，批量查询结束后建议及时清理。可以按会话对象、计算机名、编号、实例 ID 或名称来关闭。",
+      "usage": "Remove-CimSession [-CimSession] <CimSession[]>；Remove-CimSession [-ComputerName] <string[]>；Remove-CimSession [-Id] <uint32[]>；Remove-CimSession -InstanceId <guid[]>；Remove-CimSession -Name <string[]>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CIM", "会话", "关闭", "释放"],
+      "examples": [
+        { "cmd": "Get-CimSession | Remove-CimSession", "desc": "关闭当前进程中的全部 CIM 会话" },
+        { "cmd": "Remove-CimSession -ComputerName localhost", "desc": "关闭指向本机的全部会话" },
+        { "cmd": "Remove-CimSession -Id 1", "desc": "按会话编号关闭指定的会话" },
+        { "cmd": "Remove-CimSession -Name PerfSession", "desc": "按创建时指定的名称关闭会话" }
+      ],
+      "form": [
+        { "token": "", "label": "会话对象", "type": "text", "value": "", "hint": "CimSession 对象，通常由管道传入" },
+        { "token": "-ComputerName", "label": "计算机名", "type": "text", "value": "localhost", "hint": "关闭指向该计算机的全部会话" },
+        { "token": "-Id", "label": "会话编号", "type": "number", "value": "1", "hint": "按 Id 关闭" },
+        { "token": "-Name", "label": "会话名称", "type": "text", "value": "", "hint": "按名称关闭" }
+      ],
+      "nodes": [
+        { "token": "<会话>", "kind": "value", "desc": "位置参数，要关闭的 CIM 会话对象", "valueHint": "会话对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "要关闭的 CIM 会话对象，可写多个", "valueHint": "<会话>", "repeatable": true },
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，按目标计算机名关闭会话", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "关闭指向指定计算机的全部会话", "valueHint": "<计算机>", "repeatable": true },
+        { "token": "<Id>", "kind": "value", "desc": "位置参数，要关闭的会话编号", "valueHint": "编号" },
+        { "token": "-Id", "kind": "option", "desc": "按会话编号关闭", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话的实例 GUID 关闭", "valueHint": "<GUID>" },
+        { "token": "-Name", "kind": "option", "desc": "按创建会话时指定的名称关闭", "valueHint": "<会话名>" },
+        { "token": "Get-CimSession | Remove-CimSession", "kind": "syntax", "desc": "最常见的用法，一次性清理全部会话" },
+        { "token": "Remove-CimSession -Name PerfSession", "kind": "syntax", "desc": "名字来自 New-CimSession 的 -Name 参数" }
+      ]
+    },
+    {
+      "name": "Get-WmiObject",
+      "aliases": ["gwmi"],
+      "title": "查询 WMI 对象",
+      "desc": "老一代的 WMI 查询命令，走 DCOM 协议，在 PowerShell 7 中已被彻底移除。查询本机或未启用 WinRM 的旧服务器时仍然好用，新脚本建议改用 Get-CimInstance。类名和属性名可以用通配符探查。",
+      "usage": "Get-WmiObject [-Class] <string> [[-Property] <string[]>] [-Filter <string>] [-Amended] [-DirectRead] [-AsJob] [-Impersonation <ImpersonationLevel>] [-Authentication <AuthenticationLevel>] [-Locale <string>] [-EnableAllPrivileges] [-Authority <string>] [-Credential <pscredential>] [-ThrottleLimit <int>] [-ComputerName <string[]>] [-Namespace <string>]；另有 -Query、-List、-Recurse 参数集",
+      "admin": false,
+      "danger": 0,
+      "tags": ["WMI", "硬件信息", "查询", "旧版兼容"],
+      "examples": [
+        { "cmd": "Get-WmiObject -Class Win32_BIOS", "desc": "查看主板 BIOS 版本和序列号" },
+        { "cmd": "Get-WmiObject -Class Win32_LogicalDisk -Filter \"DriveType=3\"", "desc": "列出本地固定磁盘及其剩余空间" },
+        { "cmd": "Get-WmiObject -Query 'SELECT Name FROM Win32_Service WHERE State = \"Stopped\"'", "desc": "用 WQL 语句只取停止状态的服务名" },
+        { "cmd": "Get-WmiObject -List | Where-Object { $_.Name -like 'Win32_Logical*' }", "desc": "列出名称匹配的 WMI 类，用于探查" },
+        { "cmd": "Get-WmiObject -Class Win32_Service -Property Name,State -ComputerName localhost", "desc": "只取指定属性，减少返回数据量" }
+      ],
+      "form": [
+        { "token": "", "label": "WMI 类名", "type": "text", "value": "Win32_BIOS", "hint": "常用类如 Win32_OperatingSystem、Win32_Service", "options": ["Win32_BIOS", "Win32_OperatingSystem", "Win32_ComputerSystem", "Win32_LogicalDisk", "Win32_PhysicalMemory", "Win32_Processor", "Win32_Service", "Win32_NetworkAdapterConfiguration"] },
+        { "token": "-Filter", "label": "WQL 筛选", "type": "text", "value": "DriveType=3", "hint": "只写 WHERE 后面的条件部分" },
+        { "token": "-Property", "label": "返回属性", "type": "text", "value": "", "hint": "只返回这些属性，用逗号分隔" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "root\\CIMV2", "hint": "默认 root\\CIMV2" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "走 DCOM，可连未启用 WinRM 的旧机器" }
+      ],
+      "nodes": [
+        { "token": "<类名>", "kind": "value", "desc": "位置参数，要查询的 WMI 类名", "valueHint": "类名" },
+        { "token": "-Class", "kind": "option", "desc": "要查询的 WMI 类名", "valueHint": "<类名>", "enum": ["Win32_BIOS", "Win32_OperatingSystem", "Win32_ComputerSystem", "Win32_LogicalDisk", "Win32_PhysicalMemory", "Win32_Processor", "Win32_Service"] },
+        { "token": "<属性>", "kind": "value", "desc": "位置参数，只取指定的属性", "valueHint": "属性名" },
+        { "token": "-Property", "kind": "option", "desc": "只返回指定的属性，可写多个", "valueHint": "<属性名>", "repeatable": true },
+        { "token": "-Filter", "kind": "option", "desc": "WQL 的 WHERE 条件，不含 WHERE 关键字", "valueHint": "<条件>" },
+        { "token": "-Query", "kind": "option", "desc": "完整的 WQL 查询语句", "valueHint": "<WQL 语句>" },
+        { "token": "-List", "kind": "flag", "desc": "列出命名空间中的全部 WMI 类" },
+        { "token": "-Recurse", "kind": "flag", "desc": "列出类时递归包含子类" },
+        { "token": "-Namespace", "kind": "option", "desc": "WMI 命名空间，默认 root\\CIMV2", "valueHint": "<命名空间>", "enum": ["root\\CIMV2", "root\\StandardCimv2", "root\\Microsoft\\Windows\\Storage"] },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Impersonation", "kind": "option", "desc": "远程调用的模拟级别", "valueHint": "<级别>", "enum": ["Default", "Anonymous", "Identify", "Impersonate", "Delegate"] },
+        { "token": "-Authentication", "kind": "option", "desc": "远程调用使用的认证级别", "valueHint": "<级别>", "enum": ["Default", "None", "Connect", "Call", "Packet", "PacketIntegrity", "PacketPrivacy", "Unchanged"] },
+        { "token": "-Locale", "kind": "option", "desc": "指定返回数据使用的区域设置", "valueHint": "<区域>" },
+        { "token": "-Authority", "kind": "option", "desc": "指定连接使用的验证机构", "valueHint": "<机构>" },
+        { "token": "-EnableAllPrivileges", "kind": "flag", "desc": "调用前启用当前账户的全部特权" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限，配合 -AsJob 使用", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行，适合大批量远程查询" },
+        { "token": "-Amended", "kind": "flag", "desc": "获取包含修订信息的对象" },
+        { "token": "-DirectRead", "kind": "flag", "desc": "直接从 WMI 提供程序读取，不走缓存" }
+      ]
+    },
+    {
+      "name": "Invoke-WmiMethod",
+      "aliases": ["iwmi"],
+      "title": "调用 WMI 方法",
+      "desc": "调用 WMI 类或实例上的方法，例如结束进程、启动服务。可以按类名加方法名调用，也可以直接给对象路径。作用与 Invoke-CimMethod 相同，但走 DCOM 协议，主要用于尚未启用 WinRM 的旧环境。",
+      "usage": "Invoke-WmiMethod [-Class] <string> [-Name] <string> [[-ArgumentList] <Object[]>] [-AsJob] [-Impersonation <ImpersonationLevel>] [-Authentication <AuthenticationLevel>] [-Locale <string>] [-EnableAllPrivileges] [-Authority <string>] [-Credential <pscredential>] [-ThrottleLimit <int>] [-ComputerName <string[]>] [-Namespace <string>]；另有 -InputObject、-Path 参数集",
+      "admin": false,
+      "danger": 1,
+      "tags": ["WMI", "调用方法", "进程", "服务"],
+      "examples": [
+        { "cmd": "Invoke-WmiMethod -Path 'Win32_Service.Name=\"Spooler\"' -Name InterrogateService", "desc": "对指定服务实例调用只读方法，返回 0 表示成功" },
+        { "cmd": "Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList 'notepad.exe'", "desc": "创建新进程，会真实启动记事本" },
+        { "cmd": "Invoke-WmiMethod -Path 'Win32_Service.Name=\"Spooler\"' -Name StartService", "desc": "启动打印后台服务，会真实改动系统" },
+        { "cmd": "Get-WmiObject -Class Win32_Service -Filter \"Name='Spooler'\" | Select-Object Name,State", "desc": "调用前后查看服务状态确认结果" }
+      ],
+      "form": [
+        { "token": "", "label": "类名", "type": "text", "value": "Win32_Process", "hint": "方法所在的 WMI 类", "options": ["Win32_Process", "Win32_Service", "Win32_OperatingSystem", "Win32_Share"] },
+        { "token": "-Name", "label": "方法名", "type": "text", "value": "Create", "hint": "如 Create、Terminate、StartService" },
+        { "token": "-ArgumentList", "label": "方法参数", "type": "text", "value": "notepad.exe", "hint": "按方法签名顺序传参，无参数可省略" },
+        { "token": "-Path", "label": "对象路径", "type": "text", "value": "Win32_Service.Name='Spooler'", "hint": "直接定位实例，与 -Class 互斥" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "root\\CIMV2", "hint": "默认 root\\CIMV2" }
+      ],
+      "nodes": [
+        { "token": "<类名>", "kind": "value", "desc": "位置参数，方法所在的 WMI 类名", "valueHint": "类名" },
+        { "token": "-Class", "kind": "option", "desc": "方法所在的 WMI 类名", "valueHint": "<类名>", "enum": ["Win32_Process", "Win32_Service", "Win32_OperatingSystem", "Win32_Share"] },
+        { "token": "<方法名>", "kind": "value", "desc": "位置参数，要调用的方法名称", "valueHint": "方法名" },
+        { "token": "-Name", "kind": "option", "desc": "要调用的方法名称", "valueHint": "<方法名>", "enum": ["Create", "Terminate", "StartService", "StopService", "InterrogateService"] },
+        { "token": "<参数列表>", "kind": "value", "desc": "位置参数，按顺序传给方法的参数", "valueHint": "参数" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "按方法签名顺序传入的参数数组", "valueHint": "<参数数组>" },
+        { "token": "-Path", "kind": "option", "desc": "WMI 对象路径，直接定位到实例", "valueHint": "<对象路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "以已有 WMI 对象为调用目标", "valueHint": "<WMI 对象>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-Namespace", "kind": "option", "desc": "WMI 命名空间，默认 root\\CIMV2", "valueHint": "<命名空间>", "enum": ["root\\CIMV2", "root\\StandardCimv2"] },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Impersonation", "kind": "option", "desc": "远程调用的模拟级别", "valueHint": "<级别>", "enum": ["Default", "Anonymous", "Identify", "Impersonate", "Delegate"] },
+        { "token": "-Authentication", "kind": "option", "desc": "远程调用使用的认证级别", "valueHint": "<级别>", "enum": ["Default", "None", "Connect", "Call", "Packet", "PacketIntegrity", "PacketPrivacy", "Unchanged"] },
+        { "token": "-Locale", "kind": "option", "desc": "指定返回数据使用的区域设置", "valueHint": "<区域>" },
+        { "token": "-Authority", "kind": "option", "desc": "指定连接使用的验证机构", "valueHint": "<机构>" },
+        { "token": "-EnableAllPrivileges", "kind": "flag", "desc": "调用前启用当前账户的全部特权" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" }
+      ]
+    },
+    {
+      "name": "Get-CimAssociatedInstance",
+      "aliases": [],
+      "title": "查询关联实例",
+      "desc": "顺着 CIM 关联关系查询与某个实例相关联的其它实例，例如从逻辑磁盘找到所属磁盘分区、从服务找到依赖的其它服务。输入必须是 CIM 实例对象，通常先由 Get-CimInstance 取得并通过管道传入。",
+      "usage": "Get-CimAssociatedInstance [-InputObject] <ciminstance> [[-Association] <string>] [-ResultClassName <string>] [-Namespace <string>] [-OperationTimeoutSec <uint32>] [-ResourceUri <uri>] [-ComputerName <string[]>] [-KeyOnly]；另有 -CimSession 参数集",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CIM", "关联查询", "硬件拓扑", "依赖"],
+      "examples": [
+        { "cmd": "Get-CimInstance -ClassName Win32_LogicalDisk -Filter \"DeviceID='C:'\" | Get-CimAssociatedInstance -ResultClassName Win32_DiskPartition", "desc": "从 C 盘找到它所在的磁盘分区" },
+        { "cmd": "Get-CimInstance -ClassName Win32_Service -Filter \"Name='Spooler'\" | Get-CimAssociatedInstance -Association Win32_DependentService", "desc": "查出打印后台服务依赖的其它服务" },
+        { "cmd": "Get-CimInstance -ClassName Win32_LogicalDisk -Filter \"DeviceID='C:'\" | Get-CimAssociatedInstance -ResultClassName Win32_DiskPartition | Get-CimAssociatedInstance -ResultClassName Win32_DiskDrive", "desc": "连续两级追踪，从 C 盘一直查到物理硬盘型号" },
+        { "cmd": "Get-CimInstance -ClassName Win32_ComputerSystem | Get-CimAssociatedInstance -ResultClassName Win32_Processor", "desc": "从计算机系统对象找到处理器实例" },
+        { "cmd": "Get-CimInstance -ClassName Win32_LogicalDisk -Filter \"DeviceID='C:'\" | Get-CimAssociatedInstance -ResultClassName Win32_DiskPartition -KeyOnly", "desc": "只返回键属性，减少数据量" }
+      ],
+      "form": [
+        { "token": "", "label": "输入实例", "type": "text", "value": "$disk", "hint": "CIM 实例对象，通常由管道传入" },
+        { "token": "-ResultClassName", "label": "结果类名", "type": "text", "value": "Win32_DiskPartition", "hint": "只返回该类的关联实例" },
+        { "token": "-Association", "label": "关联类名", "type": "text", "value": "", "hint": "指定要走的关联关系类" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "root\\CIMV2", "hint": "默认 root\\CIMV2" },
+        { "token": "-ComputerName", "label": "远程计算机", "type": "text", "value": "", "hint": "可写多台，需要目标机启用 WinRM" }
+      ],
+      "nodes": [
+        { "token": "<实例>", "kind": "value", "desc": "位置参数，作为起点的 CIM 实例对象", "valueHint": "CIM 实例" },
+        { "token": "-InputObject", "kind": "option", "desc": "作为起点的 CIM 实例，必需参数", "valueHint": "<CIM 实例>" },
+        { "token": "-Association", "kind": "option", "desc": "指定要遍历的关联关系类名", "valueHint": "<关联类>", "enum": ["Win32_DependentService", "Win32_LogicalDiskToPartition", "Win32_DiskDriveToDiskPartition"] },
+        { "token": "-ResultClassName", "kind": "option", "desc": "只返回指定类的关联实例", "valueHint": "<类名>", "enum": ["Win32_DiskPartition", "Win32_DiskDrive", "Win32_Processor", "Win32_Service", "Win32_NetworkAdapter"] },
+        { "token": "-Namespace", "kind": "option", "desc": "CIM 命名空间，默认 root\\CIMV2", "valueHint": "<命名空间>", "enum": ["root\\CIMV2", "root\\StandardCimv2"] },
+        { "token": "-OperationTimeoutSec", "kind": "option", "desc": "单次操作的超时秒数", "valueHint": "<秒数>" },
+        { "token": "-ResourceUri", "kind": "option", "desc": "按资源 URI 定位而不是按类名", "valueHint": "<URI>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，可写多台", "valueHint": "<计算机>" },
+        { "token": "-KeyOnly", "kind": "flag", "desc": "只返回结果实例的键属性" },
+        { "token": "-CimSession", "kind": "option", "desc": "复用已建立的 CIM 会话", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-AuthenticodeSignature",
+      "aliases": [],
+      "title": "查看签名状态",
+      "desc": "检查 PowerShell 脚本、可执行文件或驱动的数字签名状态，判断文件是否被篡改、来源是否可信。Status 为 Valid 才表示签名有效，NotSigned 表示完全没有签名。排查脚本被拦截、下载文件被标记时最常用。",
+      "usage": "Get-AuthenticodeSignature [-FilePath] <string[]>；Get-AuthenticodeSignature -LiteralPath <string[]>；Get-AuthenticodeSignature -SourcePathOrExtension <string[]> -Content <byte[]>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["数字签名", "脚本安全", "证书", "校验"],
+      "examples": [
+        { "cmd": "Get-AuthenticodeSignature \"$env:SystemRoot\\System32\\notepad.exe\"", "desc": "查看记事本的签名状态和签名者" },
+        { "cmd": "Get-AuthenticodeSignature -LiteralPath 'C:\\My Scripts\\deploy.ps1'", "desc": "路径含特殊字符时改用 -LiteralPath" },
+        { "cmd": "Get-ChildItem \"$env:SystemRoot\\System32\" -Filter *.dll | Select-Object -First 20 | Get-AuthenticodeSignature", "desc": "批量检查一批 DLL 的签名状态" },
+        { "cmd": "Get-ChildItem \"$env:SystemRoot\\System32\" -Filter *.exe | Get-AuthenticodeSignature | Where-Object Status -ne 'Valid'", "desc": "找出未通过签名验证的可执行文件" },
+        { "cmd": "(Get-AuthenticodeSignature \"$env:SystemRoot\\System32\\notepad.exe\").SignerCertificate.Subject", "desc": "查看签名证书的颁发对象" }
+      ],
+      "form": [
+        { "token": "", "label": "文件路径", "type": "path", "value": "C:\\Windows\\System32\\notepad.exe", "hint": "要检查的文件，可写多个" },
+        { "token": "-LiteralPath", "label": "原样路径", "type": "path", "value": "", "hint": "路径含方括号等通配符字符时使用" },
+        { "token": "-SourcePathOrExtension", "label": "内容来源名", "type": "text", "value": "", "hint": "与 -Content 搭配，说明字节数组的来源" }
+      ],
+      "nodes": [
+        { "token": "<文件路径>", "kind": "value", "desc": "位置参数，要检查的文件路径，可写多个", "valueHint": "文件路径" },
+        { "token": "-FilePath", "kind": "option", "desc": "要检查签名的文件路径，可写多个", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用路径，不解析通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-SourcePathOrExtension", "kind": "option", "desc": "字节数组来源的文件名或扩展名", "valueHint": "<文件名>" },
+        { "token": "-Content", "kind": "option", "desc": "要检查签名的文件内容字节数组", "valueHint": "<byte[]>" },
+        { "token": "Status 常见取值", "kind": "syntax", "desc": "Valid 有效、NotSigned 未签名、HashMismatch 内容被改" },
+        { "token": "Get-ChildItem *.dll | Get-AuthenticodeSignature", "kind": "syntax", "desc": "管道批量检查多个文件的签名状态" },
+        { "token": "-FilePath 与 -LiteralPath 二选一", "kind": "syntax", "desc": "路径含方括号时必须用 -LiteralPath" },
+        { "token": "-SourcePathOrExtension 需与 -Content 同时用", "kind": "syntax", "desc": "用来检查内存中字节数组的签名" },
+        { "token": "Set-AuthenticodeSignature", "kind": "syntax", "desc": "需要给文件加签名时改用该命令配合证书" }
+      ]
+    },
+    {
+      "name": "Set-AuthenticodeSignature",
+      "aliases": [],
+      "title": "给脚本签名",
+      "desc": "用证书给 PowerShell 脚本或其它文件加上 Authenticode 签名，签名后脚本才能在执行策略为 AllSigned、RemoteSigned 的机器上运行。该命令会改写文件内容，建议先备份，并且必须使用带私钥的代码签名证书。",
+      "usage": "Set-AuthenticodeSignature [-FilePath] <string[]> [-Certificate] <X509Certificate2> [-IncludeChain <string>] [-TimestampServer <string>] [-HashAlgorithm <string>] [-Force]；另有 -LiteralPath、-SourcePathOrExtension 参数集",
+      "admin": false,
+      "danger": 1,
+      "tags": ["数字签名", "脚本签名", "证书", "执行策略"],
+      "examples": [
+        { "cmd": "Set-AuthenticodeSignature -FilePath C:\\Scripts\\deploy.ps1 -Certificate (Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert)[0]", "desc": "用当前用户的代码签名证书给脚本签名" },
+        { "cmd": "Set-AuthenticodeSignature -FilePath C:\\Scripts\\deploy.ps1 -Certificate $cert -TimestampServer 'http://timestamp.digicert.com' -HashAlgorithm SHA256", "desc": "加可信时间戳，证书过期后签名依然有效" },
+        { "cmd": "Set-AuthenticodeSignature -FilePath C:\\Scripts\\deploy.ps1 -Certificate $cert -IncludeChain All", "desc": "把整条证书链一起写进签名" },
+        { "cmd": "Get-AuthenticodeSignature C:\\Scripts\\deploy.ps1", "desc": "签名后检查 Status 是否变为 Valid" }
+      ],
+      "form": [
+        { "token": "", "label": "文件路径", "type": "path", "value": "C:\\Scripts\\deploy.ps1", "hint": "要签名的文件，支持通配符" },
+        { "token": "-Certificate", "label": "签名证书", "type": "text", "value": "(Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert)[0]", "hint": "必须包含私钥的代码签名证书" },
+        { "token": "-TimestampServer", "label": "时间戳服务器", "type": "text", "value": "http://timestamp.digicert.com", "hint": "强烈建议指定，否则证书过期签名即失效" },
+        { "token": "-HashAlgorithm", "label": "哈希算法", "type": "text", "value": "SHA256", "hint": "常用 SHA256，旧系统可能只支持 SHA1" },
+        { "token": "-IncludeChain", "label": "包含证书链", "type": "select", "value": "All", "hint": "决定签名中写入多少证书链信息", "options": ["Signer", "NotRoot", "All"] },
+        { "token": "-Force", "label": "强制覆盖", "type": "flag", "value": "", "hint": "文件只读时使用" }
+      ],
+      "nodes": [
+        { "token": "<文件路径>", "kind": "value", "desc": "位置参数，要签名的文件路径，可写多个", "valueHint": "文件路径" },
+        { "token": "-FilePath", "kind": "option", "desc": "要签名的文件路径，支持通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "<证书>", "kind": "value", "desc": "位置参数，用于签名的证书对象", "valueHint": "证书" },
+        { "token": "-Certificate", "kind": "option", "desc": "用于签名的证书，必须带有私钥", "valueHint": "<证书>" },
+        { "token": "-IncludeChain", "kind": "option", "desc": "签名中包含哪些证书链信息", "valueHint": "<范围>", "enum": ["Signer", "NotRoot", "All"] },
+        { "token": "-TimestampServer", "kind": "option", "desc": "可信时间戳服务器地址，建议指定", "valueHint": "<URL>" },
+        { "token": "-HashAlgorithm", "kind": "option", "desc": "签名使用的哈希算法", "valueHint": "<SHA1|SHA256|SHA384|SHA512>" },
+        { "token": "-Force", "kind": "flag", "desc": "文件为只读时强制写入签名" },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用路径，不解析通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-SourcePathOrExtension", "kind": "option", "desc": "字节数组来源的文件名或扩展名", "valueHint": "<文件名>" },
+        { "token": "-Content", "kind": "option", "desc": "要签名的文件内容字节数组", "valueHint": "<byte[]>" }
+      ]
+    },
+    {
+      "name": "Get-WindowsOptionalFeature",
+      "aliases": [],
+      "title": "查看可选功能",
+      "desc": "查询 Windows 可选功能（系统组件）的启用状态，例如 Hyper-V、.NET Framework 3.5、WSL。必须指定 -Online 查询本机，或用 -Path 指向已挂载的离线映像。查询本机同样需要管理员权限。",
+      "usage": "Get-WindowsOptionalFeature -Online [-FeatureName <string>] [-PackageName <string>] [-PackagePath <string>] [-WindowsDirectory <string>] [-SystemDrive <string>] [-LogPath <string>] [-ScratchDirectory <string>] [-LogLevel <LogLevel>]；离线映像：Get-WindowsOptionalFeature -Path <string> [同上]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["可选功能", "系统组件", "DISM", "Hyper-V"],
+      "examples": [
+        { "cmd": "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux", "desc": "查看 WSL 功能是否已启用" },
+        { "cmd": "Get-WindowsOptionalFeature -Online | Where-Object State -eq 'Enabled'", "desc": "列出本机所有已启用的可选功能" },
+        { "cmd": "Get-WindowsOptionalFeature -Online | Where-Object { $_.State -eq 'Disabled' } | Select-Object -First 20 FeatureName", "desc": "列出未启用的功能，需管理员身份运行" },
+        { "cmd": "Get-WindowsOptionalFeature -Path D:\\Mount\\Windows -FeatureName NetFx3", "desc": "查看离线映像中该功能的状态" }
+      ],
+      "form": [
+        { "token": "-Online", "label": "查询本机", "type": "flag", "value": "", "hint": "查询正在运行的系统，与 -Path 互斥" },
+        { "token": "-FeatureName", "label": "功能名称", "type": "select", "value": "Microsoft-Windows-Subsystem-Linux", "hint": "留空则返回全部功能", "options": ["Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform", "Microsoft-Hyper-V-All", "Microsoft-Hyper-V", "NetFx3", "Containers", "SMB1Protocol", "TelnetClient", "IIS-WebServerRole", "MediaPlayback", "LegacyComponents", "DirectPlay", "Printing-XPSServices-Features", "WorkFolders-Client"] },
+        { "token": "-Path", "label": "离线映像路径", "type": "path", "value": "", "hint": "已挂载映像的 Windows 目录，与 -Online 互斥" },
+        { "token": "-LogLevel", "label": "日志级别", "type": "select", "value": "WarningsInfo", "hint": "显示哪些级别的诊断信息", "options": ["Errors", "Warnings", "WarningsInfo", "Debug"] }
+      ],
+      "nodes": [
+        { "token": "-Online", "kind": "flag", "desc": "操作正在运行的本机系统，与 -Path 互斥" },
+        { "token": "-Path", "kind": "option", "desc": "离线映像中 Windows 目录的根路径", "valueHint": "<映像路径>" },
+        { "token": "-FeatureName", "kind": "option", "desc": "只查询指定的功能，留空返回全部", "valueHint": "<功能名>", "enum": ["Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform", "Microsoft-Hyper-V-All", "NetFx3", "Containers", "SMB1Protocol", "TelnetClient", "IIS-WebServerRole", "MediaPlayback", "DirectPlay", "Printing-XPSServices-Features", "WorkFolders-Client"] },
+        { "token": "-PackageName", "kind": "option", "desc": "指定功能所属的包名称", "valueHint": "<包名>" },
+        { "token": "-PackagePath", "kind": "option", "desc": "指定包所在的路径", "valueHint": "<路径>" },
+        { "token": "-WindowsDirectory", "kind": "option", "desc": "离线映像中 Windows 目录的相对路径", "valueHint": "<路径>" },
+        { "token": "-SystemDrive", "kind": "option", "desc": "离线映像的系统驱动器盘符", "valueHint": "<盘符>" },
+        { "token": "-LogPath", "kind": "option", "desc": "DISM 日志文件的输出路径", "valueHint": "<日志路径>" },
+        { "token": "-ScratchDirectory", "kind": "option", "desc": "操作时使用的临时目录", "valueHint": "<目录>" },
+        { "token": "-LogLevel", "kind": "option", "desc": "日志与输出中显示的诊断级别", "valueHint": "<级别>", "enum": ["Errors", "Warnings", "WarningsInfo", "Debug"] }
+      ]
+    },
+    {
+      "name": "Enable-WindowsOptionalFeature",
+      "aliases": [],
+      "title": "启用可选功能",
+      "desc": "启用 Windows 可选功能，例如开启 WSL、Hyper-V 或 .NET Framework 3.5。部分功能需要从 Windows 更新或安装介质获取文件，可以用 -Source 指定本地源离线安装。必须用管理员身份运行，通常需要重启才生效。",
+      "usage": "Enable-WindowsOptionalFeature -FeatureName <string[]> -Online [-PackageName <string>] [-All] [-LimitAccess] [-Source <string[]>] [-NoRestart] [-WindowsDirectory <string>] [-SystemDrive <string>] [-LogPath <string>] [-ScratchDirectory <string>] [-LogLevel <LogLevel>]；离线映像：把 -Online 换成 -Path <string>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["可选功能", "启用", "WSL", "Hyper-V", "组件"],
+      "examples": [
+        { "cmd": "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart", "desc": "启用 WSL 功能，不自动重启" },
+        { "cmd": "Enable-WindowsOptionalFeature -Online -FeatureName NetFx3 -Source 'D:\\sources\\sxs' -LimitAccess", "desc": "从本地安装介质安装 .NET 3.5，不联网下载" },
+        { "cmd": "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart", "desc": "启用 Hyper-V 及其全部子功能" },
+        { "cmd": "Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform", "desc": "启用后确认 State 是否变为 Enabled" }
+      ],
+      "form": [
+        { "token": "-FeatureName", "label": "功能名称", "type": "select", "value": "Microsoft-Windows-Subsystem-Linux", "hint": "要启用的功能，可写多个", "options": ["Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform", "Microsoft-Hyper-V-All", "Microsoft-Hyper-V", "NetFx3", "Containers", "TelnetClient", "IIS-WebServerRole", "MediaPlayback", "LegacyComponents", "DirectPlay", "WorkFolders-Client"] },
+        { "token": "-Online", "label": "操作本机", "type": "flag", "value": "", "hint": "操作正在运行的系统，与 -Path 互斥" },
+        { "token": "-Source", "label": "安装源", "type": "text", "value": "D:\\sources\\sxs", "hint": "本地源目录，如安装介质的 sources\\sxs" },
+        { "token": "-LimitAccess", "label": "禁止联网", "type": "flag", "value": "", "hint": "只从 -Source 取文件，不访问 Windows 更新" },
+        { "token": "-All", "label": "包含父功能", "type": "flag", "value": "", "hint": "同时启用该功能的所有父功能" },
+        { "token": "-NoRestart", "label": "不自动重启", "type": "flag", "value": "", "hint": "抑制自动重启，改为手动重启" }
+      ],
+      "nodes": [
+        { "token": "-FeatureName", "kind": "option", "desc": "要启用的功能名称，必需参数", "valueHint": "<功能名>", "enum": ["Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform", "Microsoft-Hyper-V-All", "Microsoft-Hyper-V", "NetFx3", "Containers", "TelnetClient", "IIS-WebServerRole", "MediaPlayback", "DirectPlay", "WorkFolders-Client"], "repeatable": true },
+        { "token": "-Online", "kind": "flag", "desc": "操作正在运行的本机系统，与 -Path 互斥" },
+        { "token": "-Path", "kind": "option", "desc": "离线映像中 Windows 目录的根路径", "valueHint": "<映像路径>" },
+        { "token": "-Source", "kind": "option", "desc": "功能文件的来源目录，如 sources\\sxs", "valueHint": "<目录>", "repeatable": true },
+        { "token": "-LimitAccess", "kind": "flag", "desc": "只用 -Source 的文件，不访问 Windows 更新" },
+        { "token": "-All", "kind": "flag", "desc": "连同该功能的所有父功能一起启用" },
+        { "token": "-NoRestart", "kind": "flag", "desc": "抑制自动重启，改由用户手动重启" },
+        { "token": "-PackageName", "kind": "option", "desc": "指定功能所属的包名称", "valueHint": "<包名>" },
+        { "token": "-WindowsDirectory", "kind": "option", "desc": "离线映像中 Windows 目录的相对路径", "valueHint": "<路径>" },
+        { "token": "-SystemDrive", "kind": "option", "desc": "离线映像的系统驱动器盘符", "valueHint": "<盘符>" },
+        { "token": "-LogPath", "kind": "option", "desc": "DISM 日志文件的输出路径", "valueHint": "<日志路径>" },
+        { "token": "-ScratchDirectory", "kind": "option", "desc": "操作时使用的临时目录", "valueHint": "<目录>" },
+        { "token": "-LogLevel", "kind": "option", "desc": "日志与输出中显示的诊断级别", "valueHint": "<级别>", "enum": ["Errors", "Warnings", "WarningsInfo", "Debug"] }
+      ]
+    },
+    {
+      "name": "Disable-WindowsOptionalFeature",
+      "aliases": [],
+      "title": "禁用可选功能",
+      "desc": "关闭 Windows 可选功能，例如停用 Hyper-V、WSL 或不安全的 SMBv1 协议。加上 -Remove 会同时从组件存储中删除功能文件，之后重新启用需要联网或提供安装源。必须用管理员身份运行，通常需要重启才生效。",
+      "usage": "Disable-WindowsOptionalFeature -FeatureName <string[]> -Online [-PackageName <string>] [-Remove] [-NoRestart] [-WindowsDirectory <string>] [-SystemDrive <string>] [-LogPath <string>] [-ScratchDirectory <string>] [-LogLevel <LogLevel>]；离线映像：把 -Online 换成 -Path <string>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["可选功能", "禁用", "SMB1", "组件", "卸载"],
+      "examples": [
+        { "cmd": "Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart", "desc": "禁用 WSL 功能，不自动重启" },
+        { "cmd": "Disable-WindowsOptionalFeature -Online -FeatureName NetFx3 -Remove -NoRestart", "desc": "禁用并从组件存储中删除 .NET 3.5 的负载" },
+        { "cmd": "Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart", "desc": "关闭不安全的 SMBv1 协议" },
+        { "cmd": "Get-WindowsOptionalFeature -Online -FeatureName TelnetClient", "desc": "禁用后确认 State 是否变为 Disabled" }
+      ],
+      "form": [
+        { "token": "-FeatureName", "label": "功能名称", "type": "select", "value": "SMB1Protocol", "hint": "要禁用的功能，可写多个", "options": ["SMB1Protocol", "Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform", "Microsoft-Hyper-V-All", "Microsoft-Hyper-V", "NetFx3", "Containers", "TelnetClient", "IIS-WebServerRole", "MediaPlayback", "LegacyComponents", "DirectPlay"] },
+        { "token": "-Online", "label": "操作本机", "type": "flag", "value": "", "hint": "操作正在运行的系统，与 -Path 互斥" },
+        { "token": "-Remove", "label": "删除负载", "type": "flag", "value": "", "hint": "从组件存储中移除文件，重装需要安装源" },
+        { "token": "-NoRestart", "label": "不自动重启", "type": "flag", "value": "", "hint": "抑制自动重启，改为手动重启" },
+        { "token": "-LogLevel", "label": "日志级别", "type": "select", "value": "WarningsInfo", "hint": "显示哪些级别的诊断信息", "options": ["Errors", "Warnings", "WarningsInfo", "Debug"] }
+      ],
+      "nodes": [
+        { "token": "-FeatureName", "kind": "option", "desc": "要禁用的功能名称，必需参数", "valueHint": "<功能名>", "enum": ["SMB1Protocol", "Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform", "Microsoft-Hyper-V-All", "Microsoft-Hyper-V", "NetFx3", "Containers", "TelnetClient", "IIS-WebServerRole", "MediaPlayback", "DirectPlay"], "repeatable": true },
+        { "token": "-Online", "kind": "flag", "desc": "操作正在运行的本机系统，与 -Path 互斥" },
+        { "token": "-Path", "kind": "option", "desc": "离线映像中 Windows 目录的根路径", "valueHint": "<映像路径>" },
+        { "token": "-Remove", "kind": "flag", "desc": "同时从组件存储删除负载，重装需安装源" },
+        { "token": "-NoRestart", "kind": "flag", "desc": "抑制自动重启，改由用户手动重启" },
+        { "token": "-PackageName", "kind": "option", "desc": "指定功能所属的包名称", "valueHint": "<包名>" },
+        { "token": "-WindowsDirectory", "kind": "option", "desc": "离线映像中 Windows 目录的相对路径", "valueHint": "<路径>" },
+        { "token": "-SystemDrive", "kind": "option", "desc": "离线映像的系统驱动器盘符", "valueHint": "<盘符>" },
+        { "token": "-LogPath", "kind": "option", "desc": "DISM 日志文件的输出路径", "valueHint": "<日志路径>" },
+        { "token": "-ScratchDirectory", "kind": "option", "desc": "操作时使用的临时目录", "valueHint": "<目录>" },
+        { "token": "-LogLevel", "kind": "option", "desc": "日志与输出中显示的诊断级别", "valueHint": "<级别>", "enum": ["Errors", "Warnings", "WarningsInfo", "Debug"] }
+      ]
+    },
+    {
+      "name": "Get-AppxPackage",
+      "aliases": [],
+      "title": "查看应用商店应用",
+      "desc": "列出当前用户已安装的 UWP 应用商店应用，可以按名称、发布者、包类型筛选。返回值里的 PackageFullName 是卸载应用时必须提供的标识。加 -AllUsers 查看所有用户的应用需要管理员权限。",
+      "usage": "Get-AppxPackage [[-Name] <string>] [[-Publisher] <string>] [-AllUsers] [-PackageTypeFilter <PackageTypes>] [-User <string>] [-Volume <AppxVolume>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["应用商店", "UWP", "已装应用", "清理"],
+      "examples": [
+        { "cmd": "Get-AppxPackage -Name Microsoft.WindowsStore", "desc": "查看商店应用本身的安装信息" },
+        { "cmd": "Get-AppxPackage | Select-Object Name,PackageFullName,Version", "desc": "列出全部已安装的商店应用及其版本" },
+        { "cmd": "Get-AppxPackage -PackageTypeFilter Framework", "desc": "只列出框架类型的包" },
+        { "cmd": "Get-AppxPackage -Publisher '*Microsoft*'", "desc": "按发布者筛选应用" },
+        { "cmd": "Get-AppxPackage -Name *Store*", "desc": "用通配符按名称查找应用" }
+      ],
+      "form": [
+        { "token": "", "label": "应用名称", "type": "text", "value": "Microsoft.WindowsStore", "hint": "支持通配符，留空列出全部" },
+        { "token": "-Publisher", "label": "发布者", "type": "text", "value": "", "hint": "按发布者筛选，支持通配符" },
+        { "token": "-PackageTypeFilter", "label": "包类型", "type": "select", "value": "All", "hint": "只列出指定类型的包", "options": ["All", "Main", "Framework", "Resource", "Bundle", "Xap", "Optional", "None"] },
+        { "token": "-AllUsers", "label": "所有用户", "type": "flag", "value": "", "hint": "需要管理员权限，否则拒绝访问" }
+      ],
+      "nodes": [
+        { "token": "<名称>", "kind": "value", "desc": "位置参数，应用名称，支持通配符", "valueHint": "应用名" },
+        { "token": "-Name", "kind": "option", "desc": "应用名称，支持通配符", "valueHint": "<应用名>", "enum": ["Microsoft.WindowsStore", "Microsoft.WindowsCalculator", "Microsoft.WindowsNotepad", "Microsoft.ScreenSketch", "*Store*"] },
+        { "token": "<发布者>", "kind": "value", "desc": "位置参数，按发布者筛选，支持通配符", "valueHint": "发布者" },
+        { "token": "-Publisher", "kind": "option", "desc": "按发布者筛选，支持通配符", "valueHint": "<发布者>", "enum": ["*Microsoft*", "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"] },
+        { "token": "-PackageTypeFilter", "kind": "option", "desc": "按包类型筛选结果", "valueHint": "<包类型>", "enum": ["None", "Main", "Framework", "Resource", "Bundle", "Xap", "Optional", "All"] },
+        { "token": "-AllUsers", "kind": "flag", "desc": "列出所有用户已安装的应用，需管理员权限" },
+        { "token": "-User", "kind": "option", "desc": "指定要查询的用户名", "valueHint": "<用户名>" },
+        { "token": "-Volume", "kind": "option", "desc": "只返回安装在指定卷上的应用", "valueHint": "<AppxVolume>" },
+        { "token": "Get-AppxPackage | Select-Object Name,PackageFullName", "kind": "syntax", "desc": "卸载应用时需要的是 PackageFullName 字段" },
+        { "token": "-AllUsers 需要管理员权限", "kind": "syntax", "desc": "普通权限下会直接提示拒绝访问" },
+        { "token": "Remove-AppxPackage", "kind": "syntax", "desc": "要卸载查到的应用时改用该命令" }
+      ]
+    },
+    {
+      "name": "Remove-AppxPackage",
+      "aliases": [],
+      "title": "卸载商店应用",
+      "desc": "卸载当前用户已安装的应用商店应用，操作不可撤销，需要重新到商店下载才能恢复。最常用的写法是用 Get-AppxPackage 查出结果后通过管道传入。给所有用户卸载需要管理员权限。",
+      "usage": "Remove-AppxPackage [-Package] <string> [-PreserveApplicationData]；Remove-AppxPackage [-Package] <string> [-PreserveRoamableApplicationData]；Remove-AppxPackage [-Package] <string> [-AllUsers]；Remove-AppxPackage [-Package] <string> -User <string>",
+      "admin": false,
+      "danger": 1,
+      "tags": ["应用商店", "卸载", "UWP", "清理"],
+      "examples": [
+        { "cmd": "Get-AppxPackage -Name *Bing* | Remove-AppxPackage", "desc": "先查出再通过管道卸载，会真实移除应用" },
+        { "cmd": "Remove-AppxPackage -Package (Get-AppxPackage -Name *Store* | Select-Object -First 1).PackageFullName", "desc": "按包全名卸载，会真实移除应用" },
+        { "cmd": "Remove-AppxPackage -Package (Get-AppxPackage -Name *Bing* | Select-Object -First 1).PackageFullName -PreserveApplicationData", "desc": "卸载但保留应用数据，重新安装后数据还在" },
+        { "cmd": "Get-AppxPackage -Name *Bing*", "desc": "卸载前先确认到底要移除哪些包" }
+      ],
+      "form": [
+        { "token": "", "label": "包全名", "type": "text", "value": "(Get-AppxPackage -Name *Bing* | Select-Object -First 1).PackageFullName", "hint": "必须是 PackageFullName，不是 Name" },
+        { "token": "-PreserveApplicationData", "label": "保留应用数据", "type": "flag", "value": "", "hint": "卸载后保留本地数据以便重装恢复" },
+        { "token": "-AllUsers", "label": "所有用户", "type": "flag", "value": "", "hint": "为所有用户卸载，需要管理员权限" },
+        { "token": "-User", "label": "指定用户", "type": "text", "value": "", "hint": "只卸载该用户下的应用" }
+      ],
+      "nodes": [
+        { "token": "<包全名>", "kind": "value", "desc": "位置参数，要卸载的包全名", "valueHint": "PackageFullName" },
+        { "token": "-Package", "kind": "option", "desc": "要卸载的包全名，必需参数", "valueHint": "<PackageFullName>" },
+        { "token": "-PreserveApplicationData", "kind": "flag", "desc": "卸载后保留应用本地数据" },
+        { "token": "-PreserveRoamableApplicationData", "kind": "flag", "desc": "保留可漫游的应用数据" },
+        { "token": "-AllUsers", "kind": "flag", "desc": "为所有用户卸载，需要管理员权限" },
+        { "token": "-User", "kind": "option", "desc": "只卸载指定用户名下的应用", "valueHint": "<用户名>" },
+        { "token": "Get-AppxPackage -Name X | Remove-AppxPackage", "kind": "syntax", "desc": "最常用的写法，查询结果直接管道卸载" },
+        { "token": "-Package 需要 PackageFullName", "kind": "syntax", "desc": "只写应用名会提示找不到包" },
+        { "token": "Remove-AppxPackage -Package X -AllUsers", "kind": "syntax", "desc": "为所有用户卸载，必须用管理员身份运行" },
+        { "token": "Get-AppxPackage -AllUsers", "kind": "syntax", "desc": "配合该命令查看所有用户安装了哪些应用" }
+      ]
+    },
+    {
+      "name": "Get-Package",
+      "aliases": [],
+      "title": "查看已装软件包",
+      "desc": "列出通过 PackageManagement 管理的已安装软件包，涵盖控制面板程序、Windows Installer 程序和 PowerShell 模块。它把不同来源的软件统一成一种对象，方便筛选和批量卸载，是 Install-Package 与 Uninstall-Package 的查询入口。",
+      "usage": "Get-Package [[-Name] <string[]>] [-RequiredVersion <string>] [-MinimumVersion <string>] [-MaximumVersion <string>] [-AllVersions] [-Force] [-ForceBootstrap] [-ProviderName <string[]>] [-IncludeWindowsInstaller] [-IncludeSystemComponent]；另有 -AdditionalArguments、-PackageManagementProvider、-Type、-Scope 等参数集",
+      "admin": false,
+      "danger": 0,
+      "tags": ["软件包", "已装软件", "模块", "盘点"],
+      "examples": [
+        { "cmd": "Get-Package", "desc": "列出本机所有已安装的软件包" },
+        { "cmd": "Get-Package -Name '7-Zip*'", "desc": "按名称通配符查找已安装的软件" },
+        { "cmd": "Get-Package -ProviderName Programs", "desc": "只看控制面板里的桌面程序" },
+        { "cmd": "Get-Package -IncludeWindowsInstaller", "desc": "连同 Windows Installer 安装的程序一起列出" },
+        { "cmd": "Get-Package -ProviderName PowerShellGet -Name PackageManagement", "desc": "查看已安装的模块及其版本" }
+      ],
+      "form": [
+        { "token": "", "label": "包名称", "type": "text", "value": "", "hint": "支持通配符，留空列出全部" },
+        { "token": "-ProviderName", "label": "提供程序", "type": "select", "value": "Programs", "hint": "只看某个提供程序管理的包", "options": ["Programs", "msi", "msu", "PowerShellGet", "Bootstrap"] },
+        { "token": "-AllVersions", "label": "所有版本", "type": "flag", "value": "", "hint": "返回同名包的全部版本" },
+        { "token": "-IncludeWindowsInstaller", "label": "含 MSI 程序", "type": "flag", "value": "", "hint": "包含 Windows Installer 安装的程序" },
+        { "token": "-IncludeSystemComponent", "label": "含系统组件", "type": "flag", "value": "", "hint": "包含系统组件，结果会多很多" }
+      ],
+      "nodes": [
+        { "token": "<名称>", "kind": "value", "desc": "位置参数，包名称，支持通配符", "valueHint": "包名" },
+        { "token": "-Name", "kind": "option", "desc": "包名称，支持通配符，可写多个", "valueHint": "<包名>", "repeatable": true },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "只返回版本完全匹配的包", "valueHint": "<版本号>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "只返回不低于该版本的包", "valueHint": "<版本号>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "只返回不高于该版本的包", "valueHint": "<版本号>" },
+        { "token": "-AllVersions", "kind": "flag", "desc": "返回同名包的所有版本" },
+        { "token": "-ProviderName", "kind": "option", "desc": "只看指定提供程序管理的包", "valueHint": "<提供程序>", "enum": ["msu", "Bootstrap", "msi", "Programs", "PowerShellGet"] },
+        { "token": "-IncludeWindowsInstaller", "kind": "flag", "desc": "包含 Windows Installer 安装的程序" },
+        { "token": "-IncludeSystemComponent", "kind": "flag", "desc": "包含系统组件，结果会明显变多" },
+        { "token": "-Force", "kind": "flag", "desc": "强制操作，跳过部分确认与检查" },
+        { "token": "-ForceBootstrap", "kind": "flag", "desc": "需要时自动引导安装相应的提供程序" },
+        { "token": "-AdditionalArguments", "kind": "option", "desc": "透传给底层提供程序的额外参数", "valueHint": "<参数>" },
+        { "token": "-PackageManagementProvider", "kind": "option", "desc": "指定 PackageManagement 提供程序名", "valueHint": "<提供程序>" },
+        { "token": "-Type", "kind": "option", "desc": "只返回指定类型的包", "valueHint": "<类型>", "enum": ["Module", "Script", "All"] },
+        { "token": "-Scope", "kind": "option", "desc": "按安装范围筛选", "valueHint": "<范围>", "enum": ["CurrentUser", "AllUsers"] },
+        { "token": "-AllowClobber", "kind": "flag", "desc": "允许覆盖同名命令" },
+        { "token": "-SkipPublisherCheck", "kind": "flag", "desc": "跳过发布者签名校验" },
+        { "token": "-InstallUpdate", "kind": "flag", "desc": "安装可用的更新" },
+        { "token": "-NoPathUpdate", "kind": "flag", "desc": "不修改 PATH 环境变量" }
+      ]
+    },
+    {
+      "name": "Get-PackageProvider",
+      "aliases": [],
+      "title": "查看包提供程序",
+      "desc": "列出本机已安装的 PackageManagement 提供程序，或者查看可用的提供程序清单。提供程序决定了 Install-Package 能装什么：msi 管安装包，Programs 管控制面板程序，PowerShellGet 管模块。装模块报找不到提供程序时先用它排查。",
+      "usage": "Get-PackageProvider [[-Name] <string[]>] [-ListAvailable] [-Force] [-ForceBootstrap]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["软件包", "提供程序", "NuGet", "排查"],
+      "examples": [
+        { "cmd": "Get-PackageProvider", "desc": "列出本机已安装的包提供程序" },
+        { "cmd": "Get-PackageProvider -ListAvailable", "desc": "列出可用（含尚未安装）的提供程序" },
+        { "cmd": "Get-PackageProvider -Name PowerShellGet", "desc": "查看指定提供程序的信息和路径" },
+        { "cmd": "Get-PackageProvider -Name NuGet -ForceBootstrap", "desc": "NuGet 缺失时自动下载并安装该提供程序" }
+      ],
+      "form": [
+        { "token": "", "label": "提供程序名", "type": "select", "value": "PowerShellGet", "hint": "留空列出全部已安装的提供程序", "options": ["msi", "msu", "PowerShellGet", "Programs", "NuGet"] },
+        { "token": "-ListAvailable", "label": "列出可用", "type": "flag", "value": "", "hint": "包含尚未安装的提供程序" },
+        { "token": "-ForceBootstrap", "label": "自动引导安装", "type": "flag", "value": "", "hint": "缺失时联网下载安装，会写入用户配置目录" }
+      ],
+      "nodes": [
+        { "token": "<名称>", "kind": "value", "desc": "位置参数，提供程序名称", "valueHint": "提供程序名" },
+        { "token": "-Name", "kind": "option", "desc": "要查询的提供程序名称，可写多个", "valueHint": "<提供程序>", "enum": ["msi", "msu", "PowerShellGet", "Programs", "NuGet"], "repeatable": true },
+        { "token": "-ListAvailable", "kind": "flag", "desc": "列出可用（含未安装）的提供程序" },
+        { "token": "-Force", "kind": "flag", "desc": "强制操作，跳过部分检查" },
+        { "token": "-ForceBootstrap", "kind": "flag", "desc": "缺失时自动下载并安装该提供程序" },
+        { "token": "本机常见提供程序：msi、msu、PowerShellGet、Programs", "kind": "syntax", "desc": "直接运行 Get-PackageProvider 即可列出" },
+        { "token": "Get-Package -ProviderName Programs", "kind": "syntax", "desc": "查看某个提供程序管理的已装软件" },
+        { "token": "-ForceBootstrap 会联网下载并安装提供程序", "kind": "syntax", "desc": "会写入用户配置目录并产生网络流量" },
+        { "token": "Install-Package -ProviderName PowerShellGet", "kind": "syntax", "desc": "用提供程序装模块时要显式指定它的名字" },
+        { "token": "Get-PackageSource", "kind": "syntax", "desc": "查看某个提供程序下已注册的包源" }
+      ]
+    },
+    {
+      "name": "Install-Package",
+      "aliases": [],
+      "title": "安装软件包",
+      "desc": "从已注册的包源安装软件包，可以是 PowerShell 模块、MSI 安装包或系统更新包。必须用 -ProviderName 指定提供程序，否则会尝试引导 NuGet。安装会真实改动系统，安装模块时通常配合 -Scope CurrentUser 避免影响其他用户。",
+      "usage": "Install-Package [-Name] <string[]> [-RequiredVersion <string>] [-MinimumVersion <string>] [-MaximumVersion <string>] [-Source <string[]>] [-Credential <pscredential>] [-Proxy <uri>] [-ProxyCredential <pscredential>] [-AllVersions] [-Force] [-ForceBootstrap] [-ProviderName <string[]>]；另有 -InputObject 与 PowerShellGet 专用参数集",
+      "admin": false,
+      "danger": 1,
+      "tags": ["软件包", "安装", "模块", "包源"],
+      "examples": [
+        { "cmd": "Install-Package -Name Pester -ProviderName PowerShellGet -Scope CurrentUser -ForceBootstrap", "desc": "为当前用户安装 Pester 模块，缺 NuGet 时自动引导" },
+        { "cmd": "Install-Package -Name PackageManagement -ProviderName PowerShellGet -RequiredVersion 1.4.7", "desc": "安装指定版本的模块" },
+        { "cmd": "Install-Package -ProviderName msi -Name 'C:\\Temp\\app.msi'", "desc": "用 msi 提供程序安装本地安装包，路径必须真实存在" },
+        { "cmd": "Get-Package -Name Pester", "desc": "安装完成后确认包已经存在" }
+      ],
+      "form": [
+        { "token": "", "label": "包名称", "type": "text", "value": "Pester", "hint": "要安装的包名，可写多个" },
+        { "token": "-ProviderName", "label": "提供程序", "type": "select", "value": "PowerShellGet", "hint": "决定从哪里安装", "options": ["PowerShellGet", "msi", "msu"] },
+        { "token": "-RequiredVersion", "label": "指定版本", "type": "text", "value": "", "hint": "只安装这个确切版本" },
+        { "token": "-MinimumVersion", "label": "最低版本", "type": "text", "value": "", "hint": "安装不低于该版本的包" },
+        { "token": "-Source", "label": "包源", "type": "text", "value": "PSGallery", "hint": "指定包源名称或地址" },
+        { "token": "-Scope", "label": "安装范围", "type": "select", "value": "CurrentUser", "hint": "CurrentUser 不需要管理员权限", "options": ["CurrentUser", "AllUsers"] },
+        { "token": "-ForceBootstrap", "label": "自动引导", "type": "flag", "value": "", "hint": "缺少提供程序时自动下载安装" }
+      ],
+      "nodes": [
+        { "token": "<名称>", "kind": "value", "desc": "位置参数，要安装的包名称，可写多个", "valueHint": "包名" },
+        { "token": "-Name", "kind": "option", "desc": "要安装的包名称，可写多个", "valueHint": "<包名>", "repeatable": true },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "只安装这个确切版本", "valueHint": "<版本号>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "安装不低于该版本的包", "valueHint": "<版本号>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "安装不高于该版本的包", "valueHint": "<版本号>" },
+        { "token": "-Source", "kind": "option", "desc": "包源名称或地址，如 PSGallery", "valueHint": "<包源>", "enum": ["PSGallery", "nuget.org"] },
+        { "token": "-ProviderName", "kind": "option", "desc": "使用的包提供程序，强烈建议显式指定", "valueHint": "<提供程序>", "enum": ["PowerShellGet", "msi", "msu"] },
+        { "token": "-Credential", "kind": "option", "desc": "访问受保护包源使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Proxy", "kind": "option", "desc": "访问包源使用的代理地址", "valueHint": "<代理 URI>" },
+        { "token": "-ProxyCredential", "kind": "option", "desc": "访问代理使用的凭据", "valueHint": "<凭据>" },
+        { "token": "-AllVersions", "kind": "flag", "desc": "安装所有可用版本" },
+        { "token": "-Force", "kind": "flag", "desc": "强制安装，跳过部分确认与检查" },
+        { "token": "-ForceBootstrap", "kind": "flag", "desc": "缺少提供程序时自动下载并安装" },
+        { "token": "-InputObject", "kind": "option", "desc": "从管道传入软件标识对象来安装", "valueHint": "<软件标识>" },
+        { "token": "-Scope", "kind": "option", "desc": "安装范围，CurrentUser 不需要管理员权限", "valueHint": "<范围>", "enum": ["CurrentUser", "AllUsers"] },
+        { "token": "-Type", "kind": "option", "desc": "要安装的包类型", "valueHint": "<类型>", "enum": ["Module", "Script", "All"] },
+        { "token": "-AllowClobber", "kind": "flag", "desc": "允许安装会覆盖同名命令的模块" },
+        { "token": "-SkipPublisherCheck", "kind": "flag", "desc": "跳过发布者签名校验，有安全风险" },
+        { "token": "-InstallUpdate", "kind": "flag", "desc": "安装可用的更新" },
+        { "token": "-NoPathUpdate", "kind": "flag", "desc": "不修改 PATH 环境变量" },
+        { "token": "-PackageManagementProvider", "kind": "option", "desc": "指定 PackageManagement 提供程序名", "valueHint": "<提供程序>" },
+        { "token": "-Filter", "kind": "option", "desc": "按提供程序支持的筛选条件过滤", "valueHint": "<筛选条件>" },
+        { "token": "-Tag", "kind": "option", "desc": "按标签筛选模块", "valueHint": "<标签>", "repeatable": true },
+        { "token": "-Includes", "kind": "option", "desc": "筛选包含指定内容的模块", "valueHint": "<内容类型>", "repeatable": true },
+        { "token": "-DscResource", "kind": "option", "desc": "筛选包含指定 DSC 资源的模块", "valueHint": "<资源名>", "repeatable": true },
+        { "token": "-RoleCapability", "kind": "option", "desc": "筛选包含指定角色能力的模块", "valueHint": "<能力名>", "repeatable": true },
+        { "token": "-Command", "kind": "option", "desc": "筛选包含指定命令的模块", "valueHint": "<命令名>", "repeatable": true },
+        { "token": "-PublishLocation", "kind": "option", "desc": "指定包的发布位置", "valueHint": "<URI>" },
+        { "token": "-ScriptSourceLocation", "kind": "option", "desc": "指定脚本包的来源位置", "valueHint": "<URI>" },
+        { "token": "-ScriptPublishLocation", "kind": "option", "desc": "指定脚本包的发布位置", "valueHint": "<URI>" },
+        { "token": "-AdditionalArguments", "kind": "option", "desc": "透传给底层提供程序的额外参数", "valueHint": "<参数>" },
+        { "token": "-IncludeWindowsInstaller", "kind": "flag", "desc": "包含 Windows Installer 提供程序" },
+        { "token": "-IncludeSystemComponent", "kind": "flag", "desc": "包含系统组件" }
+      ]
+    },
+    {
+      "name": "Uninstall-Package",
+      "aliases": [],
+      "title": "卸载软件包",
+      "desc": "卸载通过 PackageManagement 安装的软件包，包括桌面程序、MSI 程序和 PowerShell 模块。卸载不可撤销，程序数据一般会一并清除。建议先用 Get-Package 查出确切名称，再通过管道卸载，避免误删。",
+      "usage": "Uninstall-Package [-Name] <string[]> [-RequiredVersion <string>] [-MinimumVersion <string>] [-MaximumVersion <string>] [-AllVersions] [-Force] [-ForceBootstrap] [-ProviderName <string[]>]；另有 -InputObject、-IncludeWindowsInstaller、-AdditionalArguments、-PackageManagementProvider 参数集",
+      "admin": false,
+      "danger": 1,
+      "tags": ["软件包", "卸载", "模块", "清理"],
+      "examples": [
+        { "cmd": "Get-Package -Name 'AppName*' | Uninstall-Package", "desc": "先查询再通过管道卸载，会真实移除程序" },
+        { "cmd": "Uninstall-Package -Name 'AppName' -ProviderName Programs", "desc": "按名称从控制面板程序里卸载，名称要与 Get-Package 一致" },
+        { "cmd": "Uninstall-Package -Name Pester -RequiredVersion 6.2.0", "desc": "卸载指定版本的模块" },
+        { "cmd": "Get-Package -Name 'AppName*'", "desc": "卸载前先确认到底要移除哪些包" }
+      ],
+      "form": [
+        { "token": "", "label": "包名称", "type": "text", "value": "AppName", "hint": "名称要与 Get-Package 输出完全一致" },
+        { "token": "-ProviderName", "label": "提供程序", "type": "select", "value": "Programs", "hint": "只在该提供程序范围内查找和卸载", "options": ["Programs", "msi", "msu", "PowerShellGet"] },
+        { "token": "-RequiredVersion", "label": "指定版本", "type": "text", "value": "", "hint": "只卸载这个确切版本" },
+        { "token": "-AllVersions", "label": "所有版本", "type": "flag", "value": "", "hint": "卸载该包的全部版本" },
+        { "token": "-IncludeWindowsInstaller", "label": "含 MSI 程序", "type": "flag", "value": "", "hint": "包含 Windows Installer 安装的程序" },
+        { "token": "-Force", "label": "强制卸载", "type": "flag", "value": "", "hint": "跳过部分确认与检查" }
+      ],
+      "nodes": [
+        { "token": "<名称>", "kind": "value", "desc": "位置参数，要卸载的包名称，可写多个", "valueHint": "包名" },
+        { "token": "-Name", "kind": "option", "desc": "要卸载的包名称，可写多个", "valueHint": "<包名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "从管道传入软件标识对象来卸载", "valueHint": "<软件标识>" },
+        { "token": "-RequiredVersion", "kind": "option", "desc": "只卸载这个确切版本", "valueHint": "<版本号>" },
+        { "token": "-MinimumVersion", "kind": "option", "desc": "卸载不低于该版本的包", "valueHint": "<版本号>" },
+        { "token": "-MaximumVersion", "kind": "option", "desc": "卸载不高于该版本的包", "valueHint": "<版本号>" },
+        { "token": "-AllVersions", "kind": "flag", "desc": "卸载该包的全部版本" },
+        { "token": "-ProviderName", "kind": "option", "desc": "只在该提供程序范围内卸载", "valueHint": "<提供程序>", "enum": ["msu", "Bootstrap", "msi", "Programs", "PowerShellGet"] },
+        { "token": "-Force", "kind": "flag", "desc": "强制卸载，跳过部分确认与检查" },
+        { "token": "-ForceBootstrap", "kind": "flag", "desc": "需要时自动下载并安装相应的提供程序" },
+        { "token": "-IncludeWindowsInstaller", "kind": "flag", "desc": "包含 Windows Installer 提供程序" },
+        { "token": "-IncludeSystemComponent", "kind": "flag", "desc": "包含系统组件" },
+        { "token": "-AdditionalArguments", "kind": "option", "desc": "透传给底层提供程序的额外参数", "valueHint": "<参数>" },
+        { "token": "-PackageManagementProvider", "kind": "option", "desc": "指定 PackageManagement 提供程序名", "valueHint": "<提供程序>" },
+        { "token": "-Type", "kind": "option", "desc": "要卸载的包类型", "valueHint": "<类型>", "enum": ["Module", "Script", "All"] },
+        { "token": "-Scope", "kind": "option", "desc": "按安装范围筛选", "valueHint": "<范围>", "enum": ["CurrentUser", "AllUsers"] },
+        { "token": "-AllowClobber", "kind": "flag", "desc": "允许覆盖同名命令" },
+        { "token": "-SkipPublisherCheck", "kind": "flag", "desc": "跳过发布者签名校验" },
+        { "token": "-InstallUpdate", "kind": "flag", "desc": "安装可用的更新" },
+        { "token": "-NoPathUpdate", "kind": "flag", "desc": "不修改 PATH 环境变量" }
+      ]
+    }
+  ]
+}

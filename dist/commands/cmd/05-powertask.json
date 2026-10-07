@@ -1,0 +1,2000 @@
+{
+  "schema": 1,
+  "category": "电源与计划任务",
+  "icon": "power",
+  "commands": [
+    {
+      "name": "powercfg",
+      "title": "电源方案与电池报告",
+      "desc": "管理 Windows 的电源计划、睡眠与休眠设置，可以生成电池健康报告和能耗分析报告。笔记本掉电快、睡眠异常、被莫名唤醒时用它排查。修改电源方案和关闭休眠会影响系统行为，执行前先确认。",
+      "usage": "powercfg /list | /query <方案GUID> | /setactive <方案GUID> | /change <设置> <分钟> | /hibernate on|off | /batteryreport",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "电源",
+        "电池",
+        "休眠",
+        "睡眠",
+        "节能"
+      ],
+      "examples": [
+        {
+          "cmd": "powercfg /batteryreport",
+          "desc": "生成电池健康报告 HTML 到当前目录"
+        },
+        {
+          "cmd": "powercfg /a",
+          "desc": "查看本机支持哪些睡眠状态"
+        },
+        {
+          "cmd": "powercfg /list",
+          "desc": "列出所有电源计划及其 GUID"
+        },
+        {
+          "cmd": "powercfg /query",
+          "desc": "查看当前电源计划的详细设置"
+        },
+        {
+          "cmd": "powercfg /change monitor-timeout-ac 10",
+          "desc": "把接通电源时的关闭显示器时间改为 10 分钟"
+        },
+        {
+          "cmd": "powercfg /change standby-timeout-dc 20",
+          "desc": "把电池供电时的睡眠等待时间改为 20 分钟"
+        },
+        {
+          "cmd": "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+          "desc": "切换到 Windows 内置的高性能电源计划"
+        },
+        {
+          "cmd": "powercfg /energy /duration 60",
+          "desc": "采集 60 秒能耗数据并生成能耗诊断报告"
+        },
+        {
+          "cmd": "powercfg /devicequery wake_armed",
+          "desc": "列出当前被允许唤醒系统的设备"
+        },
+        {
+          "cmd": "powercfg /lastwake",
+          "desc": "查看最近一次把系统从睡眠中唤醒的设备"
+        },
+        {
+          "cmd": "powercfg /waketimers",
+          "desc": "查看当前活动的唤醒定时器"
+        },
+        {
+          "cmd": "powercfg /sleepstudy",
+          "desc": "生成现代待机睡眠研究报告"
+        },
+        {
+          "cmd": "powercfg /hibernate off",
+          "desc": "关闭休眠功能并删除休眠文件，会同时失去快速启动"
+        },
+        {
+          "cmd": "powercfg /export c:\\backup\\scheme.pow 381b4222-f694-41f0-9685-ff5bb260df2e",
+          "desc": "把指定电源计划导出为文件备份"
+        }
+      ],
+      "form": [
+        {
+          "token": "/batteryreport",
+          "label": "生成电池报告",
+          "type": "flag",
+          "value": "true",
+          "hint": "输出 HTML 到当前目录"
+        },
+        {
+          "token": "/a",
+          "label": "查看可用睡眠状态",
+          "type": "flag",
+          "value": "true",
+          "hint": "只读，不修改任何设置"
+        },
+        {
+          "token": "/energy",
+          "label": "能耗诊断报告",
+          "type": "flag",
+          "value": "true",
+          "hint": "需管理员权限，采样约 60 秒"
+        },
+        {
+          "token": "/duration",
+          "label": "报告采样秒数",
+          "type": "number",
+          "value": "60",
+          "hint": "仅对 /energy 与 /sleepstudy 有意义"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/query",
+          "kind": "subcommand",
+          "desc": "显示指定电源方案的全部设置",
+          "children": [
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "电源方案 GUID，先用 /list 查看",
+              "valueHint": "<方案GUID>"
+            },
+            {
+              "token": "<子组GUID>",
+              "kind": "value",
+              "desc": "电源设置子组 GUID，可只查某一类设置",
+              "valueHint": "<子组GUID>"
+            }
+          ]
+        },
+        {
+          "token": "/change",
+          "kind": "subcommand",
+          "desc": "修改当前电源方案中的设置值",
+          "children": [
+            {
+              "token": "monitor-timeout-ac",
+              "kind": "value",
+              "desc": "接通电源时的关闭显示器时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "monitor-timeout-dc",
+              "kind": "value",
+              "desc": "电池供电时的关闭显示器时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "disk-timeout-ac",
+              "kind": "value",
+              "desc": "接通电源时的关闭硬盘时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "disk-timeout-dc",
+              "kind": "value",
+              "desc": "电池供电时的关闭硬盘时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "standby-timeout-ac",
+              "kind": "value",
+              "desc": "接通电源时的睡眠等待时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "standby-timeout-dc",
+              "kind": "value",
+              "desc": "电池供电时的睡眠等待时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "hibernate-timeout-ac",
+              "kind": "value",
+              "desc": "接通电源时的休眠等待时间（分钟）",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "hibernate-timeout-dc",
+              "kind": "value",
+              "desc": "电池供电时的休眠等待时间（分钟）",
+              "valueHint": "<分钟>"
+            }
+          ]
+        },
+        {
+          "token": "/setactive",
+          "kind": "subcommand",
+          "desc": "切换到指定的电源计划",
+          "children": [
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "目标电源方案 GUID，可用 /list 查看",
+              "valueHint": "<方案GUID>"
+            }
+          ]
+        },
+        {
+          "token": "/hibernate",
+          "kind": "subcommand",
+          "desc": "启用或关闭休眠功能，off 会删除休眠文件",
+          "children": [
+            {
+              "token": "on",
+              "kind": "value",
+              "desc": "开启休眠功能并创建休眠文件",
+              "valueHint": "<on|off>",
+              "enum": [
+                "on",
+                "off"
+              ]
+            },
+            {
+              "token": "off",
+              "kind": "value",
+              "desc": "关闭休眠功能，快速启动也会一并失效",
+              "valueHint": "<on|off>",
+              "enum": [
+                "on",
+                "off"
+              ]
+            },
+            {
+              "token": "/size",
+              "kind": "option",
+              "desc": "按物理内存的百分比设置休眠文件大小",
+              "valueHint": "<百分比>"
+            },
+            {
+              "token": "/type",
+              "kind": "option",
+              "desc": "指定休眠文件类型",
+              "valueHint": "<REDUCED|FULL>",
+              "enum": [
+                "REDUCED",
+                "FULL"
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/batteryreport",
+          "kind": "subcommand",
+          "desc": "生成电池使用与健康报告",
+          "children": [
+            {
+              "token": "/output",
+              "kind": "option",
+              "desc": "指定报告的保存路径与文件名",
+              "valueHint": "<文件路径>"
+            },
+            {
+              "token": "/duration",
+              "kind": "option",
+              "desc": "统计最近多少天的电池数据",
+              "valueHint": "<天数>"
+            },
+            {
+              "token": "/xml",
+              "kind": "flag",
+              "desc": "报告输出为 XML 格式而不是 HTML"
+            },
+            {
+              "token": "/transformxml",
+              "kind": "option",
+              "desc": "把已有的 XML 报告转换成 HTML",
+              "valueHint": "<XML文件>"
+            }
+          ]
+        },
+        {
+          "token": "/energy",
+          "kind": "subcommand",
+          "desc": "分析能耗效率与电池续航问题，需管理员",
+          "children": [
+            {
+              "token": "/output",
+              "kind": "option",
+              "desc": "指定能耗报告的保存路径与文件名",
+              "valueHint": "<文件路径>"
+            },
+            {
+              "token": "/duration",
+              "kind": "option",
+              "desc": "观测系统行为的秒数，默认 60",
+              "valueHint": "<秒数>"
+            },
+            {
+              "token": "/xml",
+              "kind": "flag",
+              "desc": "报告输出为 XML 格式而不是 HTML"
+            },
+            {
+              "token": "/trace",
+              "kind": "flag",
+              "desc": "只记录系统行为，不做能耗分析"
+            }
+          ]
+        },
+        {
+          "token": "/sleepstudy",
+          "kind": "subcommand",
+          "desc": "生成 Modern Standby 睡眠研究报告",
+          "children": [
+            {
+              "token": "/output",
+              "kind": "option",
+              "desc": "指定报告的保存路径与文件名",
+              "valueHint": "<文件路径>"
+            },
+            {
+              "token": "/duration",
+              "kind": "option",
+              "desc": "统计最近多少天的睡眠数据",
+              "valueHint": "<天数>"
+            },
+            {
+              "token": "/xml",
+              "kind": "flag",
+              "desc": "报告输出为 XML 格式而不是 HTML"
+            }
+          ]
+        },
+        {
+          "token": "/devicequery",
+          "kind": "subcommand",
+          "desc": "列出符合指定条件的设备",
+          "children": [
+            {
+              "token": "wake_armed",
+              "kind": "value",
+              "desc": "列出当前被配置为可唤醒系统的设备",
+              "valueHint": "<查询条件>"
+            },
+            {
+              "token": "wake_programmable",
+              "kind": "value",
+              "desc": "列出用户可配置唤醒功能的设备",
+              "valueHint": "<查询条件>"
+            },
+            {
+              "token": "wake_from_any",
+              "kind": "value",
+              "desc": "列出支持从任意睡眠状态唤醒的设备",
+              "valueHint": "<查询条件>"
+            },
+            {
+              "token": "S3_supported",
+              "kind": "value",
+              "desc": "列出支持从 S3 睡眠唤醒的设备",
+              "valueHint": "<查询条件>"
+            },
+            {
+              "token": "S4_supported",
+              "kind": "value",
+              "desc": "列出支持从休眠唤醒的设备",
+              "valueHint": "<查询条件>"
+            },
+            {
+              "token": "all_devices",
+              "kind": "value",
+              "desc": "返回系统中存在的所有设备",
+              "valueHint": "<查询条件>"
+            }
+          ]
+        },
+        {
+          "token": "/requestsoverride",
+          "kind": "subcommand",
+          "desc": "为进程、服务或驱动设置电源请求替代",
+          "children": [
+            {
+              "token": "PROCESS",
+              "kind": "value",
+              "desc": "调用方类型为进程",
+              "valueHint": "<PROCESS|SERVICE|DRIVER>"
+            },
+            {
+              "token": "SERVICE",
+              "kind": "value",
+              "desc": "调用方类型为服务",
+              "valueHint": "<PROCESS|SERVICE|DRIVER>"
+            },
+            {
+              "token": "DRIVER",
+              "kind": "value",
+              "desc": "调用方类型为驱动",
+              "valueHint": "<PROCESS|SERVICE|DRIVER>"
+            },
+            {
+              "token": "<名称>",
+              "kind": "value",
+              "desc": "调用方名称，例如 wmplayer.exe",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "<请求类型>",
+              "kind": "value",
+              "desc": "要替代的电源请求类型",
+              "valueHint": "<DISPLAY|SYSTEM|AWAYMODE>"
+            }
+          ]
+        },
+        {
+          "token": "/setacvalueindex",
+          "kind": "subcommand",
+          "desc": "交流供电时设置电源设置索引值，高级用法",
+          "children": [
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "电源方案 GUID，可从 /list 获取",
+              "valueHint": "<方案GUID>"
+            },
+            {
+              "token": "<子组GUID>",
+              "kind": "value",
+              "desc": "电源设置子组 GUID，可从 /query 获取",
+              "valueHint": "<子组GUID>"
+            },
+            {
+              "token": "<设置GUID>",
+              "kind": "value",
+              "desc": "具体电源设置 GUID，可从 /query 获取",
+              "valueHint": "<设置GUID>"
+            },
+            {
+              "token": "<索引值>",
+              "kind": "value",
+              "desc": "该设置要写入的取值索引",
+              "valueHint": "<索引值>"
+            }
+          ]
+        },
+        {
+          "token": "/setdcvalueindex",
+          "kind": "subcommand",
+          "desc": "直流供电时设置电源设置索引值，高级用法",
+          "children": [
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "电源方案 GUID，可从 /list 获取",
+              "valueHint": "<方案GUID>"
+            },
+            {
+              "token": "<子组GUID>",
+              "kind": "value",
+              "desc": "电源设置子组 GUID，可从 /query 获取",
+              "valueHint": "<子组GUID>"
+            },
+            {
+              "token": "<设置GUID>",
+              "kind": "value",
+              "desc": "具体电源设置 GUID，可从 /query 获取",
+              "valueHint": "<设置GUID>"
+            },
+            {
+              "token": "<索引值>",
+              "kind": "value",
+              "desc": "该设置要写入的取值索引",
+              "valueHint": "<索引值>"
+            }
+          ]
+        },
+        {
+          "token": "/export",
+          "kind": "subcommand",
+          "desc": "把指定电源方案导出为 .pow 文件",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "导出文件的完整路径，扩展名通常用 .pow",
+              "valueHint": "<文件路径>"
+            },
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "要导出的电源方案 GUID",
+              "valueHint": "<方案GUID>"
+            }
+          ]
+        },
+        {
+          "token": "/import",
+          "kind": "subcommand",
+          "desc": "从 .pow 文件导入电源方案",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "由 /export 生成的方案文件完整路径",
+              "valueHint": "<文件路径>"
+            },
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "可选，为导入的方案指定 GUID",
+              "valueHint": "<方案GUID>"
+            }
+          ]
+        },
+        {
+          "token": "/delete",
+          "kind": "subcommand",
+          "desc": "删除指定 GUID 的电源方案，需管理员",
+          "children": [
+            {
+              "token": "<方案GUID>",
+              "kind": "value",
+              "desc": "要删除的电源方案 GUID",
+              "valueHint": "<方案GUID>"
+            }
+          ]
+        },
+        {
+          "token": "/list",
+          "kind": "flag",
+          "desc": "列出当前所有电源计划及其 GUID",
+          "repeatable": false
+        },
+        {
+          "token": "/l",
+          "kind": "flag",
+          "desc": "/list 的简写，列出全部电源计划"
+        },
+        {
+          "token": "/q",
+          "kind": "flag",
+          "desc": "/query 的简写，查看当前方案设置"
+        },
+        {
+          "token": "/restoredefaultschemes",
+          "kind": "flag",
+          "desc": "把所有电源计划恢复为系统默认并删除自定义计划"
+        },
+        {
+          "token": "/a",
+          "kind": "flag",
+          "desc": "报告本机可用的睡眠状态"
+        },
+        {
+          "token": "/availablesleepstates",
+          "kind": "flag",
+          "desc": "/a 的完整写法，报告可用睡眠状态"
+        },
+        {
+          "token": "/requests",
+          "kind": "flag",
+          "desc": "枚举阻止睡眠或关屏的应用程序与驱动"
+        },
+        {
+          "token": "/waketimers",
+          "kind": "flag",
+          "desc": "枚举活动的唤醒定时器"
+        },
+        {
+          "token": "/lastwake",
+          "kind": "flag",
+          "desc": "显示最近一次唤醒系统的设备"
+        },
+        {
+          "token": "/aliases",
+          "kind": "flag",
+          "desc": "显示所有别名及其对应 GUID，可用于替换 GUID"
+        }
+      ]
+    },
+    {
+      "name": "schtasks",
+      "title": "计划任务创建与管理",
+      "desc": "创建、查询、修改、删除和手动运行 Windows 计划任务，可以按分钟、每日、开机、登录或事件触发。做定时备份、定时脚本、开机自启时使用，比图形界面更适合批处理自动化。/delete 与 /change 会直接改动系统任务，务必先 /query 确认任务名。",
+      "usage": "schtasks /create /tn <任务名> /tr <命令> /sc <频率> [/st <时间>] [/ru <用户>] [/rl HIGHEST] [/f]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "计划任务",
+        "定时",
+        "开机自启",
+        "自动化",
+        "触发器"
+      ],
+      "examples": [
+        {
+          "cmd": "schtasks /query",
+          "desc": "列出本机所有计划任务"
+        },
+        {
+          "cmd": "schtasks /query /tn TestTask /fo LIST /v",
+          "desc": "查看指定任务的详细信息（详细列表格式）"
+        },
+        {
+          "cmd": "schtasks /create /tn TestTask /tr notepad.exe /sc DAILY /st 09:00",
+          "desc": "创建每天早上 9 点运行记事本的任务"
+        },
+        {
+          "cmd": "schtasks /create /tn TestTask /tr notepad.exe /sc ONLOGON /rl HIGHEST /f",
+          "desc": "创建登录时以最高权限运行的任务并覆盖同名任务"
+        },
+        {
+          "cmd": "schtasks /create /tn TestTask /tr notepad.exe /sc MINUTE /mo 30",
+          "desc": "创建每 30 分钟运行一次的任务"
+        },
+        {
+          "cmd": "schtasks /create /tn TestTask /tr notepad.exe /sc WEEKLY /d MON /st 08:00",
+          "desc": "创建每周一 8 点运行的任务"
+        },
+        {
+          "cmd": "schtasks /create /tn TestTask /tr notepad.exe /sc ONSTART /delay 0001:00",
+          "desc": "创建开机后延迟 1 分钟运行的任务"
+        },
+        {
+          "cmd": "schtasks /run /tn TestTask",
+          "desc": "立即手动运行一次指定任务"
+        },
+        {
+          "cmd": "schtasks /change /tn TestTask /disable",
+          "desc": "禁用指定任务但保留其定义"
+        },
+        {
+          "cmd": "schtasks /change /tn TestTask /tr calc.exe /st 22:00",
+          "desc": "修改指定任务要运行的程序和启动时间"
+        },
+        {
+          "cmd": "schtasks /end /tn TestTask",
+          "desc": "结束正在运行的指定任务"
+        },
+        {
+          "cmd": "schtasks /query /tn TestTask /xml",
+          "desc": "以 XML 形式导出任务的完整定义"
+        },
+        {
+          "cmd": "schtasks /delete /tn TestTask /f",
+          "desc": "强制删除指定任务且不再提示确认"
+        }
+      ],
+      "form": [
+        {
+          "token": "query",
+          "label": "子命令",
+          "type": "select",
+          "value": "query",
+          "options": [
+            "query",
+            "create",
+            "change",
+            "delete",
+            "run",
+            "end"
+          ],
+          "hint": "决定本次操作类型"
+        },
+        {
+          "token": "/tn",
+          "label": "任务名",
+          "type": "text",
+          "value": "TestTask",
+          "hint": "路径写法可带文件夹，如 \\Backup\\Start"
+        },
+        {
+          "token": "/tr",
+          "label": "运行的程序或命令",
+          "type": "text",
+          "value": "notepad.exe",
+          "hint": "路径含空格时用单引号包住"
+        },
+        {
+          "token": "/sc",
+          "label": "触发频率",
+          "type": "select",
+          "value": "DAILY",
+          "options": [
+            "MINUTE",
+            "HOURLY",
+            "DAILY",
+            "WEEKLY",
+            "MONTHLY",
+            "ONCE",
+            "ONSTART",
+            "ONLOGON",
+            "ONIDLE",
+            "ONEVENT"
+          ],
+          "hint": "ONCE 必须同时给 /st"
+        },
+        {
+          "token": "/st",
+          "label": "启动时间",
+          "type": "text",
+          "value": "09:00",
+          "hint": "24 小时制 HH:mm"
+        },
+        {
+          "token": "/ru",
+          "label": "运行账户",
+          "type": "text",
+          "value": "",
+          "hint": "SYSTEM 可免密码后台运行"
+        },
+        {
+          "token": "/rl",
+          "label": "运行级别",
+          "type": "select",
+          "value": "",
+          "options": [
+            "LIMITED",
+            "HIGHEST"
+          ],
+          "hint": "HIGHEST 表示以最高权限运行"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/create",
+          "kind": "subcommand",
+          "desc": "创建一个计划任务",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "任务名称",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/tr",
+              "kind": "option",
+              "desc": "要运行的程序或命令",
+              "valueHint": "<命令>"
+            },
+            {
+              "token": "/sc",
+              "kind": "option",
+              "desc": "触发频率",
+              "valueHint": "<频率>",
+              "enum": [
+                "MINUTE",
+                "HOURLY",
+                "DAILY",
+                "WEEKLY",
+                "MONTHLY",
+                "ONCE",
+                "ONSTART",
+                "ONLOGON",
+                "ONIDLE",
+                "ONEVENT"
+              ]
+            },
+            {
+              "token": "/st",
+              "kind": "option",
+              "desc": "开始时间，24 小时制 HH:mm",
+              "valueHint": "<HH:mm>"
+            },
+            {
+              "token": "/mo",
+              "kind": "option",
+              "desc": "修饰频率，如每几分钟、每几周或第几个星期",
+              "valueHint": "<修饰值>"
+            },
+            {
+              "token": "/d",
+              "kind": "option",
+              "desc": "星期几或每月几号，可用 MON 与 1-31",
+              "valueHint": "<日期>"
+            },
+            {
+              "token": "/m",
+              "kind": "option",
+              "desc": "月份，取值 JAN 到 DEC 或通配 *",
+              "valueHint": "<月份>"
+            },
+            {
+              "token": "/ru",
+              "kind": "option",
+              "desc": "任务以哪个账户身份运行",
+              "valueHint": "<用户名>"
+            },
+            {
+              "token": "/rp",
+              "kind": "option",
+              "desc": "运行账户的密码，写 * 表示交互式输入",
+              "valueHint": "<密码>"
+            },
+            {
+              "token": "/rl",
+              "kind": "option",
+              "desc": "运行级别，默认 LIMITED",
+              "valueHint": "<LIMITED|HIGHEST>",
+              "enum": [
+                "LIMITED",
+                "HIGHEST"
+              ]
+            },
+            {
+              "token": "/it",
+              "kind": "flag",
+              "desc": "仅在指定用户登录时以交互方式运行"
+            },
+            {
+              "token": "/np",
+              "kind": "flag",
+              "desc": "不保存密码，任务以非交互方式运行"
+            },
+            {
+              "token": "/z",
+              "kind": "flag",
+              "desc": "任务最后一次运行结束后将其标记删除"
+            },
+            {
+              "token": "/f",
+              "kind": "flag",
+              "desc": "同名任务已存在时强制覆盖且不提示"
+            },
+            {
+              "token": "/delay",
+              "kind": "option",
+              "desc": "触发后再延迟多久执行，仅用于开机或登录触发",
+              "valueHint": "<mmmm:ss>"
+            },
+            {
+              "token": "/ri",
+              "kind": "option",
+              "desc": "重复间隔分钟数，取值范围 1-599940",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "/et",
+              "kind": "option",
+              "desc": "任务重复的结束时间 HH:mm",
+              "valueHint": "<HH:mm>"
+            },
+            {
+              "token": "/du",
+              "kind": "option",
+              "desc": "任务重复持续时长 HH:mm，不能与 /et 同用",
+              "valueHint": "<HH:mm>"
+            },
+            {
+              "token": "/k",
+              "kind": "flag",
+              "desc": "到达结束时间或时长后终止任务"
+            },
+            {
+              "token": "/sd",
+              "kind": "option",
+              "desc": "生效起始日期，格式 yyyy/mm/dd",
+              "valueHint": "<yyyy/mm/dd>"
+            },
+            {
+              "token": "/ed",
+              "kind": "option",
+              "desc": "生效结束日期，格式 yyyy/mm/dd",
+              "valueHint": "<yyyy/mm/dd>"
+            },
+            {
+              "token": "/i",
+              "kind": "option",
+              "desc": "ONIDLE 任务在空闲多少分钟后触发，1-999",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "/ec",
+              "kind": "option",
+              "desc": "ONEVENT 触发时要监听的 Windows 事件通道",
+              "valueHint": "<通道名>"
+            },
+            {
+              "token": "/xml",
+              "kind": "option",
+              "desc": "从 XML 文件创建任务，可与 /ru 或 /rp 搭配",
+              "valueHint": "<XML文件>"
+            },
+            {
+              "token": "/v1",
+              "kind": "flag",
+              "desc": "创建兼容旧版系统的任务，不能与 /xml 同用"
+            },
+            {
+              "token": "/s",
+              "kind": "option",
+              "desc": "目标远程计算机名或 IP",
+              "valueHint": "<\\\\计算机>"
+            },
+            {
+              "token": "/u",
+              "kind": "option",
+              "desc": "连接远程计算机使用的账户",
+              "valueHint": "<域\\用户>"
+            },
+            {
+              "token": "/p",
+              "kind": "option",
+              "desc": "远程连接账户的密码，省略则提示输入",
+              "valueHint": "<密码>"
+            },
+            {
+              "token": "/hresult",
+              "kind": "flag",
+              "desc": "退出码以 HRESULT 格式返回，便于诊断"
+            }
+          ]
+        },
+        {
+          "token": "/query",
+          "kind": "subcommand",
+          "desc": "查询计划任务列表或某个任务详情",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "只查询指定名称的任务",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/fo",
+              "kind": "option",
+              "desc": "输出格式",
+              "valueHint": "<TABLE|LIST|CSV>",
+              "enum": [
+                "TABLE",
+                "LIST",
+                "CSV"
+              ]
+            },
+            {
+              "token": "/v",
+              "kind": "flag",
+              "desc": "显示详细任务信息"
+            },
+            {
+              "token": "/nh",
+              "kind": "flag",
+              "desc": "不显示列标题，仅对表格与 CSV 有效"
+            },
+            {
+              "token": "/xml",
+              "kind": "flag",
+              "desc": "以 XML 形式显示任务定义"
+            },
+            {
+              "token": "/s",
+              "kind": "option",
+              "desc": "查询远程计算机上的任务",
+              "valueHint": "<\\\\计算机>"
+            },
+            {
+              "token": "/u",
+              "kind": "option",
+              "desc": "连接远程计算机使用的账户",
+              "valueHint": "<域\\用户>"
+            },
+            {
+              "token": "/p",
+              "kind": "option",
+              "desc": "远程连接账户的密码，省略则提示输入",
+              "valueHint": "<密码>"
+            }
+          ]
+        },
+        {
+          "token": "/change",
+          "kind": "subcommand",
+          "desc": "修改已有计划任务的属性",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "要修改的任务名称",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/tr",
+              "kind": "option",
+              "desc": "替换为新的运行程序或命令",
+              "valueHint": "<命令>"
+            },
+            {
+              "token": "/st",
+              "kind": "option",
+              "desc": "修改任务的开始时间 HH:mm",
+              "valueHint": "<HH:mm>"
+            },
+            {
+              "token": "/ru",
+              "kind": "option",
+              "desc": "修改任务运行使用的账户",
+              "valueHint": "<用户名>"
+            },
+            {
+              "token": "/rp",
+              "kind": "option",
+              "desc": "为运行账户设置新密码",
+              "valueHint": "<密码>"
+            },
+            {
+              "token": "/enable",
+              "kind": "flag",
+              "desc": "启用被禁用的计划任务"
+            },
+            {
+              "token": "/disable",
+              "kind": "flag",
+              "desc": "禁用计划任务但不删除定义"
+            },
+            {
+              "token": "/it",
+              "kind": "flag",
+              "desc": "改为仅在指定用户登录时交互运行"
+            },
+            {
+              "token": "/rl",
+              "kind": "option",
+              "desc": "修改运行级别，默认不改变",
+              "valueHint": "<LIMITED|HIGHEST>",
+              "enum": [
+                "LIMITED",
+                "HIGHEST"
+              ]
+            },
+            {
+              "token": "/ri",
+              "kind": "option",
+              "desc": "修改重复间隔分钟数，1-599940",
+              "valueHint": "<分钟>"
+            },
+            {
+              "token": "/z",
+              "kind": "flag",
+              "desc": "把任务标记为最后一次运行后删除"
+            },
+            {
+              "token": "/delay",
+              "kind": "option",
+              "desc": "修改触发后的延迟等待时间",
+              "valueHint": "<mmmm:ss>"
+            },
+            {
+              "token": "/s",
+              "kind": "option",
+              "desc": "操作远程计算机上的任务",
+              "valueHint": "<\\\\计算机>"
+            }
+          ]
+        },
+        {
+          "token": "/delete",
+          "kind": "subcommand",
+          "desc": "删除一个或多个计划任务",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "要删除的任务名称，通配 * 表示全部任务",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/f",
+              "kind": "flag",
+              "desc": "任务正在运行时也强制删除且不提示"
+            },
+            {
+              "token": "/s",
+              "kind": "option",
+              "desc": "删除远程计算机上的任务",
+              "valueHint": "<\\\\计算机>"
+            },
+            {
+              "token": "/u",
+              "kind": "option",
+              "desc": "连接远程计算机使用的账户",
+              "valueHint": "<域\\用户>"
+            },
+            {
+              "token": "/p",
+              "kind": "option",
+              "desc": "远程连接账户的密码，省略则提示输入",
+              "valueHint": "<密码>"
+            }
+          ]
+        },
+        {
+          "token": "/run",
+          "kind": "subcommand",
+          "desc": "立即按需运行指定的计划任务",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "要立即运行的任务名称",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/i",
+              "kind": "flag",
+              "desc": "忽略所有约束条件立即运行任务"
+            },
+            {
+              "token": "/s",
+              "kind": "option",
+              "desc": "运行远程计算机上的任务",
+              "valueHint": "<\\\\计算机>"
+            }
+          ]
+        },
+        {
+          "token": "/end",
+          "kind": "subcommand",
+          "desc": "停止正在运行的计划任务",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "要终止的任务名称",
+              "valueHint": "<名称>"
+            },
+            {
+              "token": "/s",
+              "kind": "option",
+              "desc": "终止远程计算机上的任务",
+              "valueHint": "<\\\\计算机>"
+            }
+          ]
+        },
+        {
+          "token": "/showsid",
+          "kind": "subcommand",
+          "desc": "显示任务的专用账户安全标识符 SID",
+          "children": [
+            {
+              "token": "/tn",
+              "kind": "option",
+              "desc": "要查询 SID 的任务名称",
+              "valueHint": "<名称>"
+            }
+          ]
+        },
+        {
+          "token": "/xml",
+          "kind": "option",
+          "desc": "任务 XML 定义文件，配合 /create 或 /query 使用",
+          "valueHint": "<XML文件>"
+        }
+      ]
+    },
+    {
+      "name": "shutdown",
+      "title": "关机重启与注销",
+      "desc": "关闭、重启、休眠或注销本机与远程计算机，支持延时和强制关闭程序。常用于批处理收尾、远程维护和定时关机。/s 与 /r 会立即中断当前工作，配合 /t 设置缓冲时间可避免来不及保存。",
+      "usage": "shutdown [/s | /r | /l | /h | /a | /p] [/t <秒>] [/f] [/c <注释>] [/d <原因>] [/m <\\\\计算机>]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "关机",
+        "重启",
+        "注销",
+        "定时关机",
+        "远程"
+      ],
+      "examples": [
+        {
+          "cmd": "shutdown /s /t 60",
+          "desc": "60 秒后关机，期间可执行 /a 取消"
+        },
+        {
+          "cmd": "shutdown /a",
+          "desc": "取消已经排定的关机或重启"
+        },
+        {
+          "cmd": "shutdown /r /t 0 /f",
+          "desc": "立即强制重启并关闭所有未保存的程序"
+        },
+        {
+          "cmd": "shutdown /l",
+          "desc": "注销当前登录用户"
+        },
+        {
+          "cmd": "shutdown /h",
+          "desc": "让本机进入休眠"
+        },
+        {
+          "cmd": "shutdown /s /hybrid /t 30",
+          "desc": "混合关机以启用快速启动"
+        },
+        {
+          "cmd": "shutdown /r /o /t 0",
+          "desc": "重启并进入高级启动选项菜单"
+        },
+        {
+          "cmd": "shutdown /s /t 0 /d p:2:4 /c \"系统维护重启\"",
+          "desc": "带原因和注释的立即关机，适合记录审计"
+        }
+      ],
+      "form": [
+        {
+          "token": "/s",
+          "label": "关机",
+          "type": "flag",
+          "value": "true",
+          "hint": "与 /r、/l、/h 互斥"
+        },
+        {
+          "token": "/r",
+          "label": "重启",
+          "type": "flag",
+          "value": "false",
+          "hint": "完全关机后再启动"
+        },
+        {
+          "token": "/t",
+          "label": "倒计时秒数",
+          "type": "number",
+          "value": "60",
+          "hint": "范围 0-315360000，默认 30"
+        },
+        {
+          "token": "/f",
+          "label": "强制关闭程序",
+          "type": "flag",
+          "value": "false",
+          "hint": "不提示用户直接结束应用"
+        },
+        {
+          "token": "/c",
+          "label": "原因注释",
+          "type": "text",
+          "value": "系统维护",
+          "hint": "最多 512 个字符"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/d",
+          "kind": "subcommand",
+          "desc": "记录重启或关机的原因代码",
+          "children": [
+            {
+              "token": "p:<主原因>:<次原因>",
+              "kind": "value",
+              "desc": "已计划的关机原因，如 p:2:4",
+              "valueHint": "<p:xx:yy>"
+            },
+            {
+              "token": "u:<主原因>:<次原因>",
+              "kind": "value",
+              "desc": "用户自定义的关机原因",
+              "valueHint": "<u:xx:yy>"
+            },
+            {
+              "token": "<主原因>:<次原因>",
+              "kind": "value",
+              "desc": "不写前缀表示非计划原因，如 0:0",
+              "valueHint": "<xx:yy>"
+            }
+          ]
+        },
+        {
+          "token": "/m",
+          "kind": "subcommand",
+          "desc": "指定要关机或重启的目标计算机",
+          "children": [
+            {
+              "token": "<\\\\计算机名>",
+              "kind": "value",
+              "desc": "远程计算机名或 IP，双反斜杠开头",
+              "valueHint": "<\\\\计算机名>"
+            }
+          ]
+        },
+        {
+          "token": "/s",
+          "kind": "flag",
+          "desc": "关闭计算机"
+        },
+        {
+          "token": "/r",
+          "kind": "flag",
+          "desc": "完全关机并重新启动计算机"
+        },
+        {
+          "token": "/l",
+          "kind": "flag",
+          "desc": "注销当前用户，不能与 /m 或 /d 同用"
+        },
+        {
+          "token": "/h",
+          "kind": "option",
+          "desc": "让本机进入休眠，可与 /f 同用",
+          "valueHint": "<无附加取值>"
+        },
+        {
+          "token": "/a",
+          "kind": "flag",
+          "desc": "在倒计时期间中止关机或重启"
+        },
+        {
+          "token": "/p",
+          "kind": "flag",
+          "desc": "无超时无警告直接关闭本机，可与 /d /f 同用"
+        },
+        {
+          "token": "/g",
+          "kind": "flag",
+          "desc": "重启并在登录后自动恢复已注册的应用"
+        },
+        {
+          "token": "/sg",
+          "kind": "flag",
+          "desc": "关机，下次启动时自动登录并锁定用户"
+        },
+        {
+          "token": "/hybrid",
+          "kind": "flag",
+          "desc": "混合关机以准备快速启动，必须与 /s 同用"
+        },
+        {
+          "token": "/fw",
+          "kind": "flag",
+          "desc": "下次启动进入固件设置界面，可配合 /a 清除"
+        },
+        {
+          "token": "/o",
+          "kind": "flag",
+          "desc": "重启并进入高级启动选项菜单，必须与 /r 同用"
+        },
+        {
+          "token": "/e",
+          "kind": "flag",
+          "desc": "记录计算机意外关机的原因"
+        },
+        {
+          "token": "/soft",
+          "kind": "flag",
+          "desc": "配合关机选项进行软关机，不强制结束会话"
+        },
+        {
+          "token": "/t",
+          "kind": "option",
+          "desc": "关机前的等待秒数，默认 30，范围 0-315360000",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "/f",
+          "kind": "flag",
+          "desc": "强制关闭正在运行的程序且不提前警告"
+        },
+        {
+          "token": "/c",
+          "kind": "option",
+          "desc": "关机或重启原因的注释文字，最长 512 字",
+          "valueHint": "<注释>"
+        },
+        {
+          "token": "/i",
+          "kind": "flag",
+          "desc": "显示远程关机图形界面，必须作为第一个选项"
+        }
+      ]
+    },
+    {
+      "name": "logoff",
+      "title": "注销指定会话",
+      "desc": "终止本机或远程桌面服务器上的用户会话，强制该用户注销。远程桌面服务器上踢掉挂死或占资源的会话时最常用。未保存的工作会随注销丢失，应先提醒对应用户。",
+      "usage": "logoff <会话名> [ | <会话ID>] [/server:<服务器>] [/v] [/vm]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "注销",
+        "会话",
+        "远程桌面",
+        "多用户"
+      ],
+      "examples": [
+        {
+          "cmd": "logoff",
+          "desc": "注销当前登录的会话"
+        },
+        {
+          "cmd": "logoff 2",
+          "desc": "注销会话 ID 为 2 的用户会话"
+        },
+        {
+          "cmd": "logoff console /v",
+          "desc": "注销控制台会话并显示详细过程"
+        },
+        {
+          "cmd": "logoff 3 /server:192.168.1.10",
+          "desc": "注销远程桌面服务器上的 3 号会话"
+        },
+        {
+          "cmd": "logoff 5 /vm /v",
+          "desc": "注销虚拟机或服务器内的指定会话"
+        },
+        {
+          "cmd": "query session",
+          "desc": "先列出所有会话及其 ID，再决定注销哪个"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "会话名或会话 ID",
+          "type": "text",
+          "value": "",
+          "hint": "留空表示注销当前会话"
+        },
+        {
+          "token": "/server:",
+          "label": "目标服务器",
+          "type": "text",
+          "value": "",
+          "hint": "远程桌面服务器名或 IP"
+        },
+        {
+          "token": "/v",
+          "label": "显示详细信息",
+          "type": "flag",
+          "value": "true",
+          "hint": "输出注销过程的动作信息"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/vm",
+          "kind": "subcommand",
+          "desc": "注销服务器或虚拟机内的会话",
+          "children": [
+            {
+              "token": "<会话ID>",
+              "kind": "value",
+              "desc": "虚拟机内需要注销的唯一会话编号",
+              "valueHint": "<会话ID>"
+            }
+          ]
+        },
+        {
+          "token": "/server:",
+          "kind": "option",
+          "desc": "指定包含该会话的远程桌面服务器",
+          "valueHint": "<服务器名>"
+        },
+        {
+          "token": "/v",
+          "kind": "flag",
+          "desc": "显示正在执行的操作信息"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 logoff 命令的帮助信息"
+        },
+        {
+          "token": "<会话ID>",
+          "kind": "value",
+          "desc": "要注销的会话编号，可用 query session 查看",
+          "valueHint": "<会话ID>"
+        },
+        {
+          "token": "console",
+          "kind": "value",
+          "desc": "本机控制台会话的常用名称",
+          "valueHint": "<会话名>"
+        },
+        {
+          "token": "rdp-tcp",
+          "kind": "value",
+          "desc": "远程桌面监听会话的常用名称",
+          "valueHint": "<会话名>"
+        },
+        {
+          "token": "<会话名>",
+          "kind": "value",
+          "desc": "要注销的会话名称，如 console",
+          "valueHint": "<会话名>"
+        }
+      ]
+    },
+    {
+      "name": "timeout",
+      "title": "批处理中暂停等待",
+      "desc": "在批处理中暂停指定秒数，或等待用户按任意键后继续，常用于给用户留出确认和取消的时间。相比 pause 可以设置固定秒数并在脚本里判断返回值。必须在真实控制台窗口运行，重定向输入时会直接报错。",
+      "usage": "timeout [/t <秒数>] [/nobreak]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "延时",
+        "批处理",
+        "等待",
+        "暂停"
+      ],
+      "examples": [
+        {
+          "cmd": "timeout /t 10",
+          "desc": "等待 10 秒，按键可提前结束等待"
+        },
+        {
+          "cmd": "timeout /t 300 /nobreak",
+          "desc": "无视按键强制等待 300 秒"
+        },
+        {
+          "cmd": "timeout /t -1",
+          "desc": "一直等待直到用户按下任意键"
+        },
+        {
+          "cmd": "timeout /t 5 /nobreak >nul",
+          "desc": "静默等待 5 秒，不在屏幕上显示倒计时"
+        },
+        {
+          "cmd": "timeout /t 30 && echo 继续执行",
+          "desc": "等待 30 秒后继续执行后续命令"
+        },
+        {
+          "cmd": "timeout /t 3 >nul & shutdown /s /t 0",
+          "desc": "等待 3 秒后立即关机"
+        }
+      ],
+      "form": [
+        {
+          "token": "/t",
+          "label": "等待秒数",
+          "type": "number",
+          "value": "10",
+          "hint": "范围 -1 到 99999，-1 表示等待按键"
+        },
+        {
+          "token": "/nobreak",
+          "label": "忽略按键",
+          "type": "flag",
+          "value": "false",
+          "hint": "必须等满全部时间"
+        }
+      ],
+      "nodes": [
+        {
+          "token": ">nul",
+          "kind": "syntax",
+          "desc": "重定向输出以隐藏倒计时显示",
+          "valueHint": "<重定向>"
+        },
+        {
+          "token": "&&",
+          "kind": "syntax",
+          "desc": "等待成功结束后再执行后续命令",
+          "valueHint": "<连接符>"
+        },
+        {
+          "token": "/t",
+          "kind": "option",
+          "desc": "等待的秒数，取值 -1 到 99999",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "/nobreak",
+          "kind": "flag",
+          "desc": "忽略按键并等待完指定时间"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 timeout 命令的帮助信息"
+        },
+        {
+          "token": "<秒数>",
+          "kind": "value",
+          "desc": "具体等待秒数，例如 10 或 300",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "-1",
+          "kind": "value",
+          "desc": "特殊值，表示一直等待直到按下任意键",
+          "valueHint": "<秒数>"
+        }
+      ]
+    },
+    {
+      "name": "waitfor",
+      "title": "跨机器等待与同步信号",
+      "desc": "在多台机器之间发送或等待一个命名信号，用来做批处理的同步，等待方会阻塞到信号到达为止。适合多机顺序部署、等另一台机器跑完再开工的场景。域环境默认广播信号，非域环境可能收不到，需要网络与权限配合。",
+      "usage": "waitfor <信号名> [/s <系统> [/u <用户> [/p <密码>]]] /si 　|　waitfor [/t <秒数>] <信号名>",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "信号",
+        "同步",
+        "多机",
+        "等待",
+        "批处理"
+      ],
+      "examples": [
+        {
+          "cmd": "waitfor SetupReady",
+          "desc": "等待名为 SetupReady 的信号，收到后再继续"
+        },
+        {
+          "cmd": "waitfor CopyDone /t 100",
+          "desc": "最多等待 100 秒，超时则返回失败"
+        },
+        {
+          "cmd": "waitfor /si SetupReady",
+          "desc": "向等待中的机器发送 SetupReady 信号"
+        },
+        {
+          "cmd": "waitfor /s 192.168.1.20 /u domain\\user /p Passw0rd /si CopyDone",
+          "desc": "向指定远程计算机发送信号"
+        },
+        {
+          "cmd": "waitfor InstallDone /t 300 && echo 安装已完成",
+          "desc": "等待信号成功后继续执行下一步"
+        },
+        {
+          "cmd": "start /b waitfor BackupFinish",
+          "desc": "在后台等待信号，不阻塞当前窗口"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "信号名",
+          "type": "text",
+          "value": "SetupReady",
+          "hint": "只能含字母数字，长度不超过 225 字符"
+        },
+        {
+          "token": "/t",
+          "label": "等待秒数",
+          "type": "number",
+          "value": "100",
+          "hint": "范围 1-99999，不填则一直等待"
+        },
+        {
+          "token": "/si",
+          "label": "发送信号",
+          "type": "flag",
+          "value": "false",
+          "hint": "勾选表示发送而不是等待"
+        },
+        {
+          "token": "/s",
+          "label": "目标计算机",
+          "type": "text",
+          "value": "",
+          "hint": "仅发送信号时有效"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<信号名>",
+          "kind": "value",
+          "desc": "要等待或发送的信号名称",
+          "valueHint": "<信号名>"
+        },
+        {
+          "token": "/s",
+          "kind": "subcommand",
+          "desc": "指定接收信号的远程计算机",
+          "children": [
+            {
+              "token": "<系统名>",
+              "kind": "value",
+              "desc": "目标计算机名或 IP 地址",
+              "valueHint": "<系统名>"
+            }
+          ]
+        },
+        {
+          "token": "/u",
+          "kind": "subcommand",
+          "desc": "指定执行命令时使用的用户上下文",
+          "children": [
+            {
+              "token": "<域\\用户>",
+              "kind": "value",
+              "desc": "域账号或本地账号名称",
+              "valueHint": "<域\\用户>"
+            }
+          ]
+        },
+        {
+          "token": "&&",
+          "kind": "syntax",
+          "desc": "等到信号后再执行后续命令",
+          "valueHint": "<连接符>"
+        },
+        {
+          "token": "/si",
+          "kind": "flag",
+          "desc": "向网络中等待的机器发送该信号"
+        },
+        {
+          "token": "/t",
+          "kind": "option",
+          "desc": "等待信号的秒数，范围 1-99999",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "/p",
+          "kind": "option",
+          "desc": "指定用户上下文对应的密码",
+          "valueHint": "<密码>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 waitfor 命令的帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "at",
+      "title": "老式定时任务 at 已弃用",
+      "desc": "把命令安排到指定时间运行，是早期 Windows 的计划任务工具，微软已明确标记为弃用。Windows 11 上运行它会直接提示「The request is not supported」而无法使用，仅在老系统上有效。新脚本请改用 schtasks。",
+      "usage": "at <时间> [\\\\计算机名] [<任务ID> [/delete] | /delete [/yes]]　|　at [\\\\计算机名]  [/interactive] [/every:<日期> | /next:<日期>] <命令>",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "计划任务",
+        "弃用",
+        "定时",
+        "旧版"
+      ],
+      "examples": [
+        {
+          "cmd": "at",
+          "desc": "列出本机已经安排的 at 任务"
+        },
+        {
+          "cmd": "at 23:00 \"shutdown /s /t 0\"",
+          "desc": "安排今晚 23 点执行关机"
+        },
+        {
+          "cmd": "at 12:00 /interactive notepad.exe",
+          "desc": "安排 12 点在与登录用户交互的桌面运行程序"
+        },
+        {
+          "cmd": "at 08:00 /every:M,W,F backup.bat",
+          "desc": "每周一、三、五早上 8 点运行备份脚本"
+        },
+        {
+          "cmd": "at 18:00 /next:THU report.bat",
+          "desc": "在下个周四 18 点运行报表脚本"
+        },
+        {
+          "cmd": "at /delete /yes",
+          "desc": "取消本机所有 at 任务且不再逐个确认"
+        },
+        {
+          "cmd": "at 1 /delete",
+          "desc": "按任务 ID 删除编号为 1 的 at 任务"
+        }
+      ],
+      "form": [
+        {
+          "token": "/delete",
+          "label": "删除任务",
+          "type": "flag",
+          "value": "false",
+          "hint": "不指定 ID 时删除全部任务"
+        },
+        {
+          "token": "/yes",
+          "label": "跳过确认",
+          "type": "flag",
+          "value": "false",
+          "hint": "仅与 /delete 搭配使用"
+        },
+        {
+          "token": "",
+          "label": "时间",
+          "type": "text",
+          "value": "23:00",
+          "hint": "24 小时制，需与命令一起给出"
+        },
+        {
+          "token": "/interactive",
+          "label": "交互运行",
+          "type": "flag",
+          "value": "false",
+          "hint": "允许任务与登录桌面交互"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<时间>",
+          "kind": "value",
+          "desc": "任务运行时间，24 小时制 HH:mm",
+          "valueHint": "<HH:mm>"
+        },
+        {
+          "token": "<命令>",
+          "kind": "value",
+          "desc": "到点要执行的命令或批处理",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "<任务ID>",
+          "kind": "value",
+          "desc": "at 为任务分配的编号，先运行 at 查看",
+          "valueHint": "<任务ID>"
+        },
+        {
+          "token": "\\\\<计算机名>",
+          "kind": "value",
+          "desc": "在指定远程计算机上安排任务",
+          "valueHint": "<\\\\计算机名>"
+        },
+        {
+          "token": "/every:",
+          "kind": "subcommand",
+          "desc": "在每周或每月的指定日期重复运行",
+          "children": [
+            {
+              "token": "<日期列表>",
+              "kind": "value",
+              "desc": "星期缩写或日期，如 M,W,F 或 1,15",
+              "valueHint": "<日期列表>"
+            }
+          ]
+        },
+        {
+          "token": "/next:",
+          "kind": "subcommand",
+          "desc": "在下一个指定的日期运行一次",
+          "children": [
+            {
+              "token": "<日期>",
+              "kind": "value",
+              "desc": "目标日期，如 THU 或具体月内日期",
+              "valueHint": "<日期>"
+            }
+          ]
+        },
+        {
+          "token": "/delete",
+          "kind": "flag",
+          "desc": "取消已安排的任务，省略 ID 时取消全部"
+        },
+        {
+          "token": "/yes",
+          "kind": "flag",
+          "desc": "取消全部任务时不再要求确认"
+        },
+        {
+          "token": "/interactive",
+          "kind": "flag",
+          "desc": "允许任务与登录用户的桌面交互"
+        }
+      ]
+    },
+    {
+      "name": "msg",
+      "title": "向用户发送弹窗消息",
+      "desc": "向本机或远程计算机上登录的用户、会话发送弹窗消息，常用于管理员广播通知或批量提示。可以指定等待确认的秒数，还能从文件读取收件人列表。仅在 Windows 专业版及以上版本提供，家庭版通常没有该命令。",
+      "usage": "msg {<用户名> | <会话名> | <会话ID> | @<文件名> | *} [/server:<服务器>] [/time:<秒>] [/v] [/w] [<消息>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "消息",
+        "弹窗",
+        "通知",
+        "会话",
+        "远程"
+      ],
+      "examples": [
+        {
+          "cmd": "msg * 系统将在 10 分钟后重启，请及时保存",
+          "desc": "向本机所有会话广播通知"
+        },
+        {
+          "cmd": "msg error 请保存工作，即将断网",
+          "desc": "向指定用户名的会话发送消息"
+        },
+        {
+          "cmd": "msg console 服务器今晚 22 点维护",
+          "desc": "向控制台会话发送维护通知"
+        },
+        {
+          "cmd": "msg 1 /time:60 请确认收到",
+          "desc": "向 1 号会话发送消息并等待 60 秒确认"
+        },
+        {
+          "cmd": "msg @D:\\list.txt 机房即将断电",
+          "desc": "按文件中的用户或会话列表批量发送"
+        },
+        {
+          "cmd": "msg * /server:192.168.1.20 /v 远程主机即将重启",
+          "desc": "向远程计算机的所有会话发消息并显示过程"
+        },
+        {
+          "cmd": "query session",
+          "desc": "先查看当前有哪些会话名和会话 ID"
+        },
+        {
+          "cmd": "msg * /w /v 请回复确认",
+          "desc": "发送并等待用户响应，便于确认通知送达"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "收件人",
+          "type": "text",
+          "value": "*",
+          "hint": "* 表示所有会话，也可写用户名或会话 ID"
+        },
+        {
+          "token": "/time:",
+          "label": "等待确认秒数",
+          "type": "number",
+          "value": "60",
+          "hint": "等待接收方回应的时间"
+        },
+        {
+          "token": "",
+          "label": "消息内容",
+          "type": "text",
+          "value": "系统将在10分钟后重启，请保存工作",
+          "hint": "建议不超过一屏文字"
+        },
+        {
+          "token": "/v",
+          "label": "显示详细信息",
+          "type": "flag",
+          "value": "true",
+          "hint": "输出正在执行的动作"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<用户名>",
+          "kind": "value",
+          "desc": "接收消息的登录用户名",
+          "valueHint": "<用户名>"
+        },
+        {
+          "token": "<会话名>",
+          "kind": "value",
+          "desc": "接收消息的会话名称，如 console",
+          "valueHint": "<会话名>"
+        },
+        {
+          "token": "<会话ID>",
+          "kind": "value",
+          "desc": "接收消息的会话编号，可用 query session 查看",
+          "valueHint": "<会话ID>"
+        },
+        {
+          "token": "@<文件名>",
+          "kind": "value",
+          "desc": "从文件读取用户名或会话列表批量发送",
+          "valueHint": "<@文件名>"
+        },
+        {
+          "token": "*",
+          "kind": "value",
+          "desc": "向指定服务器上的所有会话发送消息",
+          "valueHint": "<通配>"
+        },
+        {
+          "token": "<消息>",
+          "kind": "value",
+          "desc": "要发送的消息正文，省略则提示输入",
+          "valueHint": "<消息内容>"
+        },
+        {
+          "token": "/server:",
+          "kind": "subcommand",
+          "desc": "指定要联系的远程服务器",
+          "children": [
+            {
+              "token": "<服务器名>",
+              "kind": "value",
+              "desc": "目标服务器名或 IP，默认本机",
+              "valueHint": "<服务器名>"
+            }
+          ]
+        },
+        {
+          "token": "/time:",
+          "kind": "option",
+          "desc": "等待接收方确认的秒数",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "/v",
+          "kind": "flag",
+          "desc": "显示正在执行的操作信息"
+        },
+        {
+          "token": "/w",
+          "kind": "flag",
+          "desc": "等待用户响应，常与 /v 搭配"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "显示 msg 命令的帮助信息"
+        }
+      ]
+    }
+  ]
+}

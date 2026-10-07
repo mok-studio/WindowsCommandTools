@@ -1,0 +1,1422 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "管道与数据处理",
+  "icon": "layers",
+  "commands": [
+    {
+      "name": "Where-Object",
+      "aliases": ["where", "?"],
+      "title": "按条件筛选对象",
+      "desc": "从管道里挑出符合条件的对象，条件可以写成比较语句（属性加运算符加值），也可以写成脚本块。比较语句写法简短直观，脚本块写法能做任意复杂判断。筛选发生在内存里，不改变数据源。",
+      "usage": "Where-Object [-Property] <string> [[-Value] <Object>] [-EQ|-NE|-GT|-LT|-GE|-LE] [-InputObject <psobject>]\nWhere-Object [-Property] <string> [[-Value] <Object>] [-Like|-NotLike|-Match|-NotMatch|-Contains|-NotContains|-In|-NotIn|-Is|-IsNot] [-InputObject <psobject>]\nWhere-Object [-FilterScript] <scriptblock> [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["筛选", "过滤", "条件", "管道"],
+      "examples": [
+        { "cmd": "Get-Process | Where-Object -Property CPU -GT 100 | Select-Object Name,CPU", "desc": "找出累计 CPU 时间超过 100 秒的进程" },
+        { "cmd": "Get-ChildItem -File | Where-Object -FilterScript { $_.Length -gt 1MB }", "desc": "用脚本块筛选大于 1MB 的文件" },
+        { "cmd": "Get-Service | Where-Object Status -EQ 'Running'", "desc": "只保留正在运行的服务" }
+      ],
+      "form": [
+        { "token": "", "label": "属性名", "type": "text", "value": "CPU", "hint": "第一个位置参数，要比较的属性" },
+        { "token": "", "label": "比较值", "type": "text", "value": "100", "hint": "第二个位置参数，配合运算符使用" },
+        { "token": "-GT", "label": "比较运算符", "type": "select", "value": "-GT", "hint": "选一个运算符开关", "options": ["-EQ", "-NE", "-GT", "-LT", "-GE", "-LE", "-Like", "-NotLike", "-Match", "-NotMatch"] },
+        { "token": "-FilterScript", "label": "脚本块", "type": "text", "value": "{ $_.Length -gt 1MB }", "hint": "高级条件写法，用 $_ 表示当前对象" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要比较的属性名", "valueHint": "属性名" },
+        { "token": "-Property", "kind": "option", "desc": "筛选依据的属性名，可写多个", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "按名称筛选", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "按状态筛选，如 Running", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "按文件大小筛选", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "按最后修改时间筛选", "valueHint": "属性名" },
+          { "token": "CPU", "kind": "value", "desc": "按进程 CPU 占用筛选", "valueHint": "属性名" },
+          { "token": "Id", "kind": "value", "desc": "按进程或对象 ID 筛选", "valueHint": "属性名" }
+        ]},
+        { "token": "-Value", "kind": "option", "desc": "与属性比较的值，位置参数", "valueHint": "<值>" },
+        { "token": "-FilterScript", "kind": "option", "desc": "用脚本块编写任意判断条件", "valueHint": "<脚本块>", "children": [
+          { "token": "{ $_.Length -gt 1MB }", "kind": "value", "desc": "大于 1MB 的对象", "valueHint": "脚本块" },
+          { "token": "{ $_.Status -eq 'Running' }", "kind": "value", "desc": "状态为运行中", "valueHint": "脚本块" },
+          { "token": "{ $_.Name -like '*.log' }", "kind": "value", "desc": "名称以 .log 结尾", "valueHint": "脚本块" },
+          { "token": "{ $_.LastWriteTime -gt (Get-Date).AddDays(-7) }", "kind": "value", "desc": "最近七天修改过", "valueHint": "脚本块" }
+        ]},
+        { "token": "-EQ", "kind": "flag", "desc": "等于指定值，默认比较方式" },
+        { "token": "-NE", "kind": "flag", "desc": "不等于指定值" },
+        { "token": "-GT", "kind": "flag", "desc": "大于指定值" },
+        { "token": "-LT", "kind": "flag", "desc": "小于指定值" },
+        { "token": "-GE", "kind": "flag", "desc": "大于或等于指定值" },
+        { "token": "-LE", "kind": "flag", "desc": "小于或等于指定值" },
+        { "token": "-Like", "kind": "flag", "desc": "通配符匹配，支持星号与问号" },
+        { "token": "-NotLike", "kind": "flag", "desc": "通配符不匹配" },
+        { "token": "-Match", "kind": "flag", "desc": "正则表达式匹配" },
+        { "token": "-NotMatch", "kind": "flag", "desc": "正则表达式不匹配" },
+        { "token": "-Contains", "kind": "flag", "desc": "集合中包含指定值" },
+        { "token": "-NotContains", "kind": "flag", "desc": "集合中不包含指定值" },
+        { "token": "-In", "kind": "flag", "desc": "属性值属于给定集合" },
+        { "token": "-NotIn", "kind": "flag", "desc": "属性值不属于给定集合" },
+        { "token": "-Is", "kind": "flag", "desc": "判断对象是否为指定类型" },
+        { "token": "-IsNot", "kind": "flag", "desc": "判断对象不是指定类型" },
+        { "token": "-CEQ", "kind": "flag", "desc": "区分大小写的等于比较" },
+        { "token": "-CIn", "kind": "flag", "desc": "区分大小写的集合包含判断" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "Select-Object",
+      "aliases": ["select"],
+      "title": "挑选属性与条数",
+      "desc": "从管道对象里挑出需要的属性，构造只含指定列的新对象；也能按位置取前几条、后几条或指定下标。属性可以写成哈希表做计算列。配合 -First 时 PowerShell 会在取够后自动停止上游命令。",
+      "usage": "Select-Object [[-Property] <Object[]>] [-InputObject <psobject>] [-ExcludeProperty <string[]>] [-ExpandProperty <string>] [-Unique] [-Last <int>] [-First <int>] [-Skip <int>] [-Wait]\nSelect-Object [[-Property] <Object[]>] [-InputObject <psobject>] [-ExcludeProperty <string[]>] [-ExpandProperty <string>] [-Unique] [-SkipLast <int>]\nSelect-Object [-InputObject <psobject>] [-Unique] [-Wait] [-Index <int[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["选择", "属性", "列", "取前几条"],
+      "examples": [
+        { "cmd": "Get-Process | Select-Object -Property Name,Id,CPU -First 10", "desc": "只看前 10 个进程的名称、ID 与 CPU" },
+        { "cmd": "Get-ChildItem -File | Select-Object -Property Name,Length,LastWriteTime", "desc": "列出文件名、大小与修改时间" },
+        { "cmd": "Get-ChildItem | Select-Object -Property Name,@{Name='MB';Expression={[math]::Round($_.Length/1MB,2)}}", "desc": "用计算列把字节换算成 MB" }
+      ],
+      "form": [
+        { "token": "", "label": "属性列表", "type": "text", "value": "Name,Length", "hint": "位置参数，多个属性用逗号分隔" },
+        { "token": "-First", "label": "取前 N 条", "type": "number", "value": "10", "hint": "取够后自动停止上游命令" },
+        { "token": "-Last", "label": "取后 N 条", "type": "number", "value": "", "hint": "取末尾若干条" },
+        { "token": "-Unique", "label": "去重", "type": "flag", "value": "false", "hint": "属性值完全相同只保留一条" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要保留的属性，可写多个", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "要选择的属性，支持通配符与计算列", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "名称属性", "valueHint": "属性名" },
+          { "token": "Id", "kind": "value", "desc": "进程或对象编号", "valueHint": "属性名" },
+          { "token": "CPU", "kind": "value", "desc": "进程累计 CPU 时间", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "文件大小，单位字节", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "最后修改时间", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "服务或任务状态", "valueHint": "属性名" },
+          { "token": "DisplayName", "kind": "value", "desc": "服务的显示名称", "valueHint": "属性名" },
+          { "token": "*", "kind": "value", "desc": "通配符，选择全部属性", "valueHint": "属性名" }
+        ]},
+        { "token": "-ExcludeProperty", "kind": "option", "desc": "排除指定属性，需与 -Property 同用", "valueHint": "<属性名>", "repeatable": true },
+        { "token": "-ExpandProperty", "kind": "option", "desc": "展开指定属性，输出其内部值", "valueHint": "<属性名>" },
+        { "token": "-Unique", "kind": "flag", "desc": "属性完全相同的对象只保留一条" },
+        { "token": "-First", "kind": "option", "desc": "取开头 N 条对象", "valueHint": "<条数>" },
+        { "token": "-Last", "kind": "option", "desc": "取末尾 N 条对象", "valueHint": "<条数>" },
+        { "token": "-Skip", "kind": "option", "desc": "跳过开头 N 条，从第 N+1 条开始", "valueHint": "<条数>" },
+        { "token": "-SkipLast", "kind": "option", "desc": "跳过末尾 N 条", "valueHint": "<条数>" },
+        { "token": "-Index", "kind": "option", "desc": "按数组下标取值，从 0 开始", "valueHint": "<下标>" },
+        { "token": "-Wait", "kind": "flag", "desc": "关闭优化，让上游把对象全部生成完" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "Sort-Object",
+      "aliases": ["sort"],
+      "title": "排序管道对象",
+      "desc": "按一个或多个属性给管道里的对象排序，默认升序。加 -Descending 降序，加 -Unique 顺便去重。排序会把全部对象读进内存，数据量大时较慢。",
+      "usage": "Sort-Object [[-Property] <Object[]>] [-Descending] [-Unique] [-InputObject <psobject>] [-Culture <string>] [-CaseSensitive]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["排序", "管道", "去重"],
+      "examples": [
+        { "cmd": "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 10", "desc": "找出最吃 CPU 的 10 个进程" },
+        { "cmd": "Get-ChildItem -File | Sort-Object Length -Descending", "desc": "按文件大小从大到小列出" },
+        { "cmd": "Get-ChildItem | Sort-Object -Property Extension,Name", "desc": "先按扩展名再按文件名排序" }
+      ],
+      "form": [
+        { "token": "", "label": "排序属性", "type": "text", "value": "CPU", "hint": "可用逗号分隔多个属性" },
+        { "token": "-Descending", "label": "降序", "type": "flag", "value": "false", "hint": "从大到小" },
+        { "token": "-Unique", "label": "去重", "type": "flag", "value": "false", "hint": "排序后去重" },
+        { "token": "-CaseSensitive", "label": "区分大小写", "type": "flag", "value": "false", "hint": "字符串比较时生效" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，排序依据的属性名", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "排序依据，支持哈希表自定义升降序", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "按名称排序", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "按文件大小排序", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "按修改时间排序", "valueHint": "属性名" },
+          { "token": "CPU", "kind": "value", "desc": "按进程 CPU 占用排序", "valueHint": "属性名" },
+          { "token": "Id", "kind": "value", "desc": "按进程编号排序", "valueHint": "属性名" },
+          { "token": "Extension", "kind": "value", "desc": "按扩展名排序", "valueHint": "属性名" }
+        ]},
+        { "token": "-Descending", "kind": "flag", "desc": "降序排列，默认是升序" },
+        { "token": "-Unique", "kind": "flag", "desc": "排序的同时去掉重复项" },
+        { "token": "-CaseSensitive", "kind": "flag", "desc": "字符串比较区分大小写" },
+        { "token": "-Culture", "kind": "option", "desc": "指定排序使用的区域文化", "valueHint": "<区域>", "children": [
+          { "token": "zh-CN", "kind": "value", "desc": "简体中文排序规则", "valueHint": "区域" },
+          { "token": "en-US", "kind": "value", "desc": "英文排序规则", "valueHint": "区域" }
+        ]},
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" },
+        { "token": "@{Expression='属性';Descending=$true}", "kind": "syntax", "desc": "哈希表写法，单列单独降序" },
+        { "token": "-Property Name,Length", "kind": "syntax", "desc": "多列排序，先按 Name 再按 Length" },
+        { "token": "{ $_.Length / 1MB }", "kind": "syntax", "desc": "用表达式块做计算后排序" }
+      ]
+    },
+    {
+      "name": "Group-Object",
+      "aliases": ["group"],
+      "title": "按属性分组统计",
+      "desc": "按一个或多个属性的值把对象分组，输出每组的名称、数量与成员。加 -NoElement 只看分组名与计数，加 -AsHashTable 直接得到哈希表方便按名取值。常用于做分布统计。",
+      "usage": "Group-Object [[-Property] <Object[]>] [-NoElement] [-AsHashTable] [-AsString] [-InputObject <psobject>] [-Culture <string>] [-CaseSensitive]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["分组", "统计", "计数", "管道"],
+      "examples": [
+        { "cmd": "Get-Process | Group-Object -Property ProcessName | Sort-Object Count -Descending | Select-Object -First 10", "desc": "统计同名进程的实例数量并排序" },
+        { "cmd": "Get-ChildItem -File | Group-Object -Property Extension -NoElement", "desc": "按扩展名统计文件个数" },
+        { "cmd": "Get-Service | Group-Object -Property Status -AsHashTable", "desc": "按状态分组并返回哈希表" }
+      ],
+      "form": [
+        { "token": "", "label": "分组属性", "type": "text", "value": "Extension", "hint": "位置参数，多个属性用逗号分隔" },
+        { "token": "-NoElement", "label": "只输出计数", "type": "flag", "value": "false", "hint": "不保留组内成员" },
+        { "token": "-AsHashTable", "label": "输出哈希表", "type": "flag", "value": "false", "hint": "用组名作键" },
+        { "token": "-AsString", "label": "键转字符串", "type": "flag", "value": "false", "hint": "需与 -AsHashTable 同用" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，分组依据的属性", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "分组依据的属性，可写多个", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "按名称分组", "valueHint": "属性名" },
+          { "token": "Extension", "kind": "value", "desc": "按扩展名分组", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "按状态分组", "valueHint": "属性名" },
+          { "token": "ProcessName", "kind": "value", "desc": "按进程名分组", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "按修改时间分组", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "按文件大小分组", "valueHint": "属性名" }
+        ]},
+        { "token": "-NoElement", "kind": "flag", "desc": "只输出组名与数量，省内存" },
+        { "token": "-AsHashTable", "kind": "flag", "desc": "以哈希表形式返回结果" },
+        { "token": "-AsString", "kind": "flag", "desc": "把哈希表的键转成字符串" },
+        { "token": "-CaseSensitive", "kind": "flag", "desc": "分组时区分大小写" },
+        { "token": "-Culture", "kind": "option", "desc": "指定分组比较用的区域文化", "valueHint": "<区域>", "children": [
+          { "token": "zh-CN", "kind": "value", "desc": "简体中文比较规则", "valueHint": "区域" },
+          { "token": "en-US", "kind": "value", "desc": "英文比较规则", "valueHint": "区域" }
+        ]},
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" },
+        { "token": "-Property Name,Status", "kind": "syntax", "desc": "多属性组合分组，组名用逗号连接" },
+        { "token": "{ $_.Length -gt 1MB }", "kind": "syntax", "desc": "用表达式块自定义分组键" }
+      ]
+    },
+    {
+      "name": "Measure-Object",
+      "aliases": ["measure"],
+      "title": "统计数量与数值",
+      "desc": "对管道对象做计数、求和、平均、最大最小等统计，也能统计文本的行数、单词数与字符数。默认只输出 Count，需要其它指标要显式加开关。统计结果是一个对象，可直接再取属性。",
+      "usage": "Measure-Object [[-Property] <string[]>] [-InputObject <psobject>] [-Sum] [-Average] [-Maximum] [-Minimum]\nMeasure-Object [[-Property] <string[]>] [-InputObject <psobject>] [-Line] [-Word] [-Character] [-IgnoreWhiteSpace]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["统计", "计数", "求和", "平均值"],
+      "examples": [
+        { "cmd": "Get-ChildItem -File | Measure-Object -Property Length -Sum -Average -Maximum", "desc": "统计文件总大小、平均值与最大值" },
+        { "cmd": "Get-Process | Measure-Object -Property WorkingSet -Sum", "desc": "统计所有进程占用的内存总量" },
+        { "cmd": "Get-Content C:\\Temp\\app.log | Measure-Object -Line -Word -Character", "desc": "统计日志文件的行数、词数与字符数" }
+      ],
+      "form": [
+        { "token": "", "label": "统计属性", "type": "text", "value": "Length", "hint": "位置参数，数值型属性" },
+        { "token": "-Sum", "label": "求和", "type": "flag", "value": "true", "hint": "输出总和" },
+        { "token": "-Average", "label": "平均值", "type": "flag", "value": "false", "hint": "输出算术平均" },
+        { "token": "-Maximum", "label": "最大值", "type": "flag", "value": "false", "hint": "输出最大项" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，参与统计的属性名", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "要统计的属性，必须是数值或文本", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Length", "kind": "value", "desc": "文件大小，常用求和对象", "valueHint": "属性名" },
+          { "token": "Count", "kind": "value", "desc": "数量属性", "valueHint": "属性名" },
+          { "token": "CPU", "kind": "value", "desc": "进程 CPU 时间", "valueHint": "属性名" },
+          { "token": "WorkingSet", "kind": "value", "desc": "进程工作集内存", "valueHint": "属性名" },
+          { "token": "Id", "kind": "value", "desc": "编号属性", "valueHint": "属性名" }
+        ]},
+        { "token": "-Sum", "kind": "flag", "desc": "输出属性值的总和" },
+        { "token": "-Average", "kind": "flag", "desc": "输出属性值的算术平均值" },
+        { "token": "-Maximum", "kind": "flag", "desc": "输出属性值的最大值" },
+        { "token": "-Minimum", "kind": "flag", "desc": "输出属性值的最小值" },
+        { "token": "-Line", "kind": "flag", "desc": "统计输入文本的行数" },
+        { "token": "-Word", "kind": "flag", "desc": "统计输入文本的单词数" },
+        { "token": "-Character", "kind": "flag", "desc": "统计输入文本的字符数" },
+        { "token": "-IgnoreWhiteSpace", "kind": "flag", "desc": "统计字符时忽略空白字符" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" },
+        { "token": "(Get-ChildItem | Measure-Object Length -Sum).Sum", "kind": "syntax", "desc": "取出统计结果里的汇总值" }
+      ]
+    },
+    {
+      "name": "ForEach-Object",
+      "aliases": ["%", "foreach"],
+      "title": "逐个处理管道对象",
+      "desc": "对管道里的每个对象执行脚本块，$_ 代表当前对象。可配合 -Begin 做初始化、-End 做收尾。它是管道里最常用的循环方式，比 foreach 语句更省内存。",
+      "usage": "ForEach-Object [-Process] <scriptblock[]> [-InputObject <psobject>] [-Begin <scriptblock>] [-End <scriptblock>] [-RemainingScripts <scriptblock[]>]\nForEach-Object [-MemberName] <string> [-InputObject <psobject>] [-ArgumentList <Object[]>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["循环", "遍历", "管道", "脚本块"],
+      "examples": [
+        { "cmd": "Get-ChildItem -File | ForEach-Object -Process { $_.Name.ToUpper() }", "desc": "把每个文件名转成大写" },
+        { "cmd": "1..5 | ForEach-Object -Begin { $i = 0 } -Process { $i += $_ } -End { $i }", "desc": "用 Begin 与 End 做累加统计" },
+        { "cmd": "Get-Process | ForEach-Object -MemberName ProcessName", "desc": "直接取每个对象的成员值" }
+      ],
+      "form": [
+        { "token": "", "label": "处理脚本块", "type": "text", "value": "{ $_.Name }", "hint": "位置参数，$_ 表示当前对象" },
+        { "token": "-Begin", "label": "开始前脚本块", "type": "text", "value": "", "hint": "处理第一条之前执行一次" },
+        { "token": "-End", "label": "结束后脚本块", "type": "text", "value": "", "hint": "所有对象处理完后执行一次" },
+        { "token": "-MemberName", "label": "成员名", "type": "text", "value": "ProcessName", "hint": "取属性值或调用方法名" }
+      ],
+      "nodes": [
+        { "token": "<脚本块>", "kind": "value", "desc": "位置参数，对每个对象执行的脚本块", "valueHint": "脚本块" },
+        { "token": "-Process", "kind": "option", "desc": "处理每个对象的脚本块，用 $_ 引用", "valueHint": "<脚本块>", "children": [
+          { "token": "{ $_.Name }", "kind": "value", "desc": "输出当前对象的名称属性", "valueHint": "脚本块" },
+          { "token": "{ $_.Length / 1MB }", "kind": "value", "desc": "换算成 MB 后输出", "valueHint": "脚本块" },
+          { "token": "{ Rename-Item -Path $_.FullName -NewName $_.Name }", "kind": "value", "desc": "对每个文件执行改名", "valueHint": "脚本块" }
+        ]},
+        { "token": "-Begin", "kind": "option", "desc": "处理第一条之前执行的脚本块", "valueHint": "<脚本块>" },
+        { "token": "-End", "kind": "option", "desc": "所有对象处理完后执行的脚本块", "valueHint": "<脚本块>" },
+        { "token": "-RemainingScripts", "kind": "option", "desc": "除 Process 外的其余脚本块", "valueHint": "<脚本块>", "repeatable": true },
+        { "token": "-MemberName", "kind": "option", "desc": "要取值的属性名或要调用的方法名", "valueHint": "<成员名>" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "传给方法的实参，配合 -MemberName", "valueHint": "<参数>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" },
+        { "token": "$_", "kind": "syntax", "desc": "脚本块里代表当前管道的对象" },
+        { "token": "$PSItem", "kind": "syntax", "desc": "与 $_ 等价的正式名称" },
+        { "token": "ForEach-Object -Parallel", "kind": "syntax", "desc": "5.1 不支持该参数，需 PowerShell 7" },
+        { "token": "-Begin { } -Process { } -End { }", "kind": "syntax", "desc": "三段式写法，适合初始化与汇总" }
+      ]
+    },
+    {
+      "name": "Compare-Object",
+      "aliases": ["compare", "diff"],
+      "title": "比较两组对象差异",
+      "desc": "把参照集合与差异集合逐项比较，默认只输出不同的项，用侧边指示符标记来源。加 -IncludeEqual 也输出相同项，加 -PassThru 输出原始对象。常用来核对两份清单。",
+      "usage": "Compare-Object [-ReferenceObject] <psobject[]> [-DifferenceObject] <psobject[]> [-SyncWindow <int>] [-Property <Object[]>] [-ExcludeDifferent] [-IncludeEqual] [-PassThru] [-Culture <string>] [-CaseSensitive]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["比较", "差异", "对照", "集合"],
+      "examples": [
+        { "cmd": "Compare-Object -ReferenceObject (Get-Content a.txt) -DifferenceObject (Get-Content b.txt)", "desc": "比较两个文本文件的每行差异" },
+        { "cmd": "$a = Get-Service; Start-Sleep 2; Compare-Object $a (Get-Service) -Property Name,Status", "desc": "比较服务状态是否发生变化" },
+        { "cmd": "Compare-Object (Get-ChildItem C:\\Temp) (Get-ChildItem C:\\Windows\\Temp) -Property Name -IncludeEqual", "desc": "比较两个目录的文件名异同" }
+      ],
+      "form": [
+        { "token": "", "label": "参照对象", "type": "text", "value": "$a", "hint": "第一个位置参数，基准集合" },
+        { "token": "", "label": "差异对象", "type": "text", "value": "$b", "hint": "第二个位置参数，要对比的集合" },
+        { "token": "-Property", "label": "比较属性", "type": "text", "value": "Name", "hint": "只比较指定属性" },
+        { "token": "-IncludeEqual", "label": "包含相同项", "type": "flag", "value": "false", "hint": "指示符为等号" }
+      ],
+      "nodes": [
+        { "token": "<参照对象>", "kind": "value", "desc": "位置参数，作为基准的集合", "valueHint": "对象集合" },
+        { "token": "<差异对象>", "kind": "value", "desc": "位置参数，要与之对比的集合", "valueHint": "对象集合" },
+        { "token": "-ReferenceObject", "kind": "option", "desc": "参照集合，比较的基准", "valueHint": "<对象集合>" },
+        { "token": "-DifferenceObject", "kind": "option", "desc": "差异集合，与基准对比", "valueHint": "<对象集合>" },
+        { "token": "-Property", "kind": "option", "desc": "只比较这些属性，而不是整个对象", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "按名称比较", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "按状态比较", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "按大小比较", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "按修改时间比较", "valueHint": "属性名" }
+        ]},
+        { "token": "-SyncWindow", "kind": "option", "desc": "在相邻多少条内寻找匹配项", "valueHint": "<条数>", "children": [
+          { "token": "0", "kind": "value", "desc": "不回溯，最快但易误判顺序差异", "valueHint": "条数" },
+          { "token": "5", "kind": "value", "desc": "在 5 条范围内寻找匹配", "valueHint": "条数" }
+        ]},
+        { "token": "-ExcludeDifferent", "kind": "flag", "desc": "只输出相同的项，不输出差异" },
+        { "token": "-IncludeEqual", "kind": "flag", "desc": "同时输出相同的项，标记为等于" },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出原始对象而不是比较结果包装" },
+        { "token": "-CaseSensitive", "kind": "flag", "desc": "字符串比较区分大小写" },
+        { "token": "-Culture", "kind": "option", "desc": "指定比较使用的区域文化", "valueHint": "<区域>", "children": [
+          { "token": "zh-CN", "kind": "value", "desc": "简体中文比较规则", "valueHint": "区域" },
+          { "token": "en-US", "kind": "value", "desc": "英文比较规则", "valueHint": "区域" }
+        ]}
+      ]
+    },
+    {
+      "name": "ConvertTo-Json",
+      "aliases": [],
+      "title": "对象转 JSON 文本",
+      "desc": "把对象或哈希表序列化成 JSON 字符串。默认深度是 2，超过深度的层会被转成类型名字符串，需要更深要显式加 -Depth。中文默认按原样输出，不会被转义。",
+      "usage": "ConvertTo-Json [-InputObject] <Object> [-Depth <int>] [-Compress]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["JSON", "序列化", "转换", "文本"],
+      "examples": [
+        { "cmd": "Get-Process | Select-Object Name,Id,CPU -First 3 | ConvertTo-Json -Depth 3", "desc": "把进程信息转成 JSON 文本" },
+        { "cmd": "Get-Service | ConvertTo-Json -Compress | Out-File -FilePath C:\\Temp\\svc.json -Encoding UTF8", "desc": "生成紧凑 JSON 并写入文件" },
+        { "cmd": "$h = @{ Name = '测试'; Items = 1,2,3 }; $h | ConvertTo-Json -Depth 5 -Compress", "desc": "把哈希表转成一行 JSON" }
+      ],
+      "form": [
+        { "token": "", "label": "输入对象", "type": "text", "value": "$obj", "hint": "位置参数，要序列化的对象" },
+        { "token": "-Depth", "label": "序列化深度", "type": "number", "value": "5", "hint": "默认 2，超出层会被截断" },
+        { "token": "-Compress", "label": "紧凑输出", "type": "flag", "value": "false", "hint": "去掉换行与缩进" }
+      ],
+      "nodes": [
+        { "token": "<对象>", "kind": "value", "desc": "位置参数，要转换的对象", "valueHint": "对象" },
+        { "token": "-InputObject", "kind": "option", "desc": "要转换成 JSON 的对象", "valueHint": "<对象>" },
+        { "token": "-Depth", "kind": "option", "desc": "最大序列化深度，默认 2", "valueHint": "<层数>", "children": [
+          { "token": "2", "kind": "value", "desc": "默认值，嵌套超过两层会截断", "valueHint": "层数" },
+          { "token": "3", "kind": "value", "desc": "适合两三层嵌套的配置对象", "valueHint": "层数" },
+          { "token": "5", "kind": "value", "desc": "常用折中值", "valueHint": "层数" },
+          { "token": "10", "kind": "value", "desc": "较深的树形结构", "valueHint": "层数" },
+          { "token": "100", "kind": "value", "desc": "上限 100，最完整的输出", "valueHint": "层数" }
+        ]},
+        { "token": "-Compress", "kind": "flag", "desc": "输出单行紧凑 JSON，不含空白" },
+        { "token": "Get-Process | ConvertTo-Json", "kind": "syntax", "desc": "管道直接输入，逐个对象转换" },
+        { "token": "ConvertTo-Json -Depth 5 | Out-File -Encoding UTF8", "kind": "syntax", "desc": "写文件时显式指定 UTF8 编码" },
+        { "token": "@(1,2) | ConvertTo-Json", "kind": "syntax", "desc": "数组输出为 JSON 数组" },
+        { "token": "ConvertTo-Json | Set-Content -Encoding UTF8", "kind": "syntax", "desc": "写入文件时显式指定编码避免乱码" },
+        { "token": "ConvertFrom-Json | ConvertTo-Json", "kind": "syntax", "desc": "往返转换可校验结构是否丢失" },
+        { "token": "$obj | ConvertTo-Json -Compress", "kind": "syntax", "desc": "传给接口或命令前压成一行" }
+      ]
+    },
+    {
+      "name": "ConvertFrom-Json",
+      "aliases": [],
+      "title": "JSON 文本转对象",
+      "desc": "把 JSON 字符串转换成 PowerShell 对象，属性可用点号直接访问。5.1 只支持 -InputObject 一个参数，没有 -AsHashtable 与 -Depth。日期字符串会保持为字符串，需要时自己转。",
+      "usage": "ConvertFrom-Json [-InputObject] <string>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["JSON", "反序列化", "解析", "转换"],
+      "examples": [
+        { "cmd": "Get-Content -Raw C:\\Temp\\svc.json | ConvertFrom-Json | Select-Object -First 3", "desc": "读取 JSON 文件并查看前几条" },
+        { "cmd": "$j = Get-Content -Raw C:\\Temp\\data.json | ConvertFrom-Json; $j.items.Count", "desc": "解析文件后统计数组属性里的元素个数" },
+        { "cmd": "(Get-Content -Raw C:\\Temp\\svc.json | ConvertFrom-Json) | Measure-Object", "desc": "解析后统计对象数量" }
+      ],
+      "form": [
+        { "token": "", "label": "JSON 字符串", "type": "text", "value": "$json", "hint": "位置参数，JSON 文本" },
+        { "token": "-InputObject", "label": "输入对象", "type": "text", "value": "$json", "hint": "作为字符串传入的 JSON" }
+      ],
+      "nodes": [
+        { "token": "<JSON字符串>", "kind": "value", "desc": "位置参数，要解析的 JSON 文本", "valueHint": "JSON 文本" },
+        { "token": "-InputObject", "kind": "option", "desc": "要解析的 JSON 字符串", "valueHint": "<JSON 文本>" },
+        { "token": "Get-Content -Raw data.json | ConvertFrom-Json", "kind": "syntax", "desc": "读取整个文件再解析" },
+        { "token": "$obj = $json | ConvertFrom-Json", "kind": "syntax", "desc": "解析结果存入变量备用" },
+        { "token": "$obj.属性名", "kind": "syntax", "desc": "用点号访问解析出的属性" },
+        { "token": "$obj | Get-Member", "kind": "syntax", "desc": "查看解析后对象有哪些成员" },
+        { "token": "$obj.数组 | Where-Object 属性 -EQ 值", "kind": "syntax", "desc": "对解析出的数组做筛选" },
+        { "token": "$obj | ConvertTo-Json -Depth 5", "kind": "syntax", "desc": "再转回 JSON 用于校验结构" },
+        { "token": "-AsHashtable / -Depth", "kind": "syntax", "desc": "5.1 不支持这两个参数，仅 PowerShell 7 可用" },
+        { "token": "日期字符串不自动转换", "kind": "syntax", "desc": "5.1 中 JSON 日期保持为字符串，需要自己转" }
+      ]
+    },
+    {
+      "name": "ConvertTo-Csv",
+      "aliases": [],
+      "title": "对象转 CSV 文本",
+      "desc": "把对象转换成逗号分隔的 CSV 文本行，结果显示在屏幕上而不写文件。加 -NoTypeInformation 可去掉首行的类型注释。要保存成文件请用 Export-Csv。",
+      "usage": "ConvertTo-Csv [-InputObject] <psobject> [[-Delimiter] <char>] [-NoTypeInformation]\nConvertTo-Csv [-InputObject] <psobject> [-UseCulture] [-NoTypeInformation]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CSV", "文本", "转换", "分隔符"],
+      "examples": [
+        { "cmd": "Get-Process | Select-Object Name,Id,CPU | ConvertTo-Csv -NoTypeInformation | Select-Object -First 5", "desc": "在屏幕上预览 CSV 格式结果" },
+        { "cmd": "Get-Service | ConvertTo-Csv -Delimiter ';' -NoTypeInformation", "desc": "用分号作分隔符生成 CSV 文本" },
+        { "cmd": "Get-ChildItem -File | ConvertTo-Csv -NoTypeInformation | Set-Content -Path C:\\Temp\\files.csv -Encoding UTF8", "desc": "手工把 CSV 文本写入文件" }
+      ],
+      "form": [
+        { "token": "", "label": "输入对象", "type": "text", "value": "$obj", "hint": "位置参数，要转换的对象" },
+        { "token": "-Delimiter", "label": "分隔符", "type": "select", "value": ",", "hint": "默认逗号", "options": [",", ";", "|", "\\t"] },
+        { "token": "-NoTypeInformation", "label": "去掉类型行", "type": "flag", "value": "true", "hint": "不输出开头的类型注释" }
+      ],
+      "nodes": [
+        { "token": "<对象>", "kind": "value", "desc": "位置参数，要转换的对象", "valueHint": "对象" },
+        { "token": "-InputObject", "kind": "option", "desc": "要转换成 CSV 的对象", "valueHint": "<对象>" },
+        { "token": "-Delimiter", "kind": "option", "desc": "字段分隔符，默认逗号", "valueHint": "<字符>", "children": [
+          { "token": ",", "kind": "value", "desc": "逗号，标准 CSV", "valueHint": "字符" },
+          { "token": ";", "kind": "value", "desc": "分号，部分区域设置使用", "valueHint": "字符" },
+          { "token": "|", "kind": "value", "desc": "竖线，便于人眼查看", "valueHint": "字符" },
+          { "token": "\\t", "kind": "value", "desc": "制表符，可直接粘进表格软件", "valueHint": "字符" }
+        ]},
+        { "token": "-NoTypeInformation", "kind": "flag", "desc": "不输出首行的对象类型注释" },
+        { "token": "-UseCulture", "kind": "flag", "desc": "使用当前区域设置的分隔符" },
+        { "token": "Get-Process | ConvertTo-Csv -NoTypeInformation", "kind": "syntax", "desc": "最常用写法，只输出数据行" },
+        { "token": "ConvertTo-Csv | Select-Object -First 5", "kind": "syntax", "desc": "先预览前几行再决定是否导出" },
+        { "token": "ConvertTo-Csv | Out-String", "kind": "syntax", "desc": "合并成一个完整字符串" },
+        { "token": "ConvertTo-Csv | Set-Content -Encoding UTF8", "kind": "syntax", "desc": "手工写文件，注意指定编码" },
+        { "token": "ConvertFrom-Csv", "kind": "syntax", "desc": "反向操作，把 CSV 文本还原成对象" }
+      ]
+    },
+    {
+      "name": "ConvertFrom-Csv",
+      "aliases": [],
+      "title": "CSV 文本转对象",
+      "desc": "把 CSV 格式的字符串行转换成对象，行首会作为属性名。用 -Header 可以自定义列名，适合处理没有表头的数据。它只接收文本，不读文件。",
+      "usage": "ConvertFrom-Csv [-InputObject] <psobject[]> [[-Delimiter] <char>] [-Header <string[]>]\nConvertFrom-Csv [-InputObject] <psobject[]> -UseCulture [-Header <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["CSV", "解析", "转换", "表头"],
+      "examples": [
+        { "cmd": "Get-Content C:\\Temp\\data.csv | ConvertFrom-Csv | Where-Object Status -EQ 'Running'", "desc": "读取 CSV 文本并筛选行" },
+        { "cmd": "'a,b,c','1,2,3' | ConvertFrom-Csv -Header 名称,数量,单位", "desc": "用自定义表头解析无表头数据" },
+        { "cmd": "(Get-Content C:\\Temp\\data.csv | ConvertFrom-Csv) | Measure-Object", "desc": "统计 CSV 里的记录条数" }
+      ],
+      "form": [
+        { "token": "", "label": "CSV 文本", "type": "text", "value": "$csv", "hint": "位置参数，CSV 文本行" },
+        { "token": "-Delimiter", "label": "分隔符", "type": "select", "value": ",", "hint": "默认逗号", "options": [",", ";", "|", "\\t"] },
+        { "token": "-Header", "label": "自定义表头", "type": "text", "value": "名称,数量", "hint": "逗号分隔的列名" }
+      ],
+      "nodes": [
+        { "token": "<CSV文本>", "kind": "value", "desc": "位置参数，一行或多行 CSV 文本", "valueHint": "CSV 文本" },
+        { "token": "-InputObject", "kind": "option", "desc": "要解析的 CSV 文本，可来自管道", "valueHint": "<CSV 文本>" },
+        { "token": "-Delimiter", "kind": "option", "desc": "字段分隔符，默认逗号", "valueHint": "<字符>", "children": [
+          { "token": ",", "kind": "value", "desc": "逗号，标准 CSV", "valueHint": "字符" },
+          { "token": ";", "kind": "value", "desc": "分号，部分区域设置使用", "valueHint": "字符" },
+          { "token": "|", "kind": "value", "desc": "竖线分隔", "valueHint": "字符" },
+          { "token": "\\t", "kind": "value", "desc": "制表符分隔", "valueHint": "字符" }
+        ]},
+        { "token": "-Header", "kind": "option", "desc": "自定义列名，原表头行会被当成数据", "valueHint": "<列名>", "repeatable": true },
+        { "token": "-UseCulture", "kind": "flag", "desc": "使用当前区域设置的分隔符" },
+        { "token": "Get-Content data.csv | ConvertFrom-Csv", "kind": "syntax", "desc": "从文件文本解析出对象" },
+        { "token": "Import-Csv data.csv", "kind": "syntax", "desc": "直接读文件，通常比手工解析方便" },
+        { "token": "ConvertFrom-Csv | Select-Object -First 3", "kind": "syntax", "desc": "先看前几条确认列名正确" },
+        { "token": "ConvertFrom-Csv | Export-Csv -NoTypeInformation", "kind": "syntax", "desc": "换分隔符后另存一份" },
+        { "token": "ConvertTo-Csv", "kind": "syntax", "desc": "反向操作，把对象转成 CSV 文本" }
+      ]
+    },
+    {
+      "name": "ConvertTo-Xml",
+      "aliases": [],
+      "title": "对象转 XML 文本",
+      "desc": "把对象序列化成 XML 表示，-As 决定输出字符串、流还是 XmlDocument。默认会写入类型信息，加 -NoTypeInformation 可去掉。适合生成配置文件或跨工具传递结构。",
+      "usage": "ConvertTo-Xml [-InputObject] <psobject> [-Depth <int>] [-NoTypeInformation] [-As <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["XML", "序列化", "转换", "文档"],
+      "examples": [
+        { "cmd": "Get-Service | Select-Object Name,Status -First 3 | ConvertTo-Xml -As String -NoTypeInformation", "desc": "把服务信息转成 XML 字符串" },
+        { "cmd": "Get-Process -Id $PID | ConvertTo-Xml -Depth 3 -As Document", "desc": "转成 XmlDocument 对象便于继续处理" },
+        { "cmd": "Get-ChildItem -File | ConvertTo-Xml -As String -NoTypeInformation | Set-Content C:\\Temp\\files.xml -Encoding UTF8", "desc": "生成 XML 文件" }
+      ],
+      "form": [
+        { "token": "", "label": "输入对象", "type": "text", "value": "$obj", "hint": "位置参数，要转换的对象" },
+        { "token": "-As", "label": "输出形式", "type": "select", "value": "String", "hint": "字符串、流或文档", "options": ["String", "Stream", "Document"] },
+        { "token": "-Depth", "label": "序列化深度", "type": "number", "value": "3", "hint": "默认 2" },
+        { "token": "-NoTypeInformation", "label": "去掉类型信息", "type": "flag", "value": "true", "hint": "不写类型名" }
+      ],
+      "nodes": [
+        { "token": "<对象>", "kind": "value", "desc": "位置参数，要转换的对象", "valueHint": "对象" },
+        { "token": "-InputObject", "kind": "option", "desc": "要转换成 XML 的对象", "valueHint": "<对象>" },
+        { "token": "-Depth", "kind": "option", "desc": "序列化深度，默认 2 层", "valueHint": "<层数>", "children": [
+          { "token": "2", "kind": "value", "desc": "默认值，适合简单对象", "valueHint": "层数" },
+          { "token": "3", "kind": "value", "desc": "常用值", "valueHint": "层数" },
+          { "token": "5", "kind": "value", "desc": "嵌套较深的对象", "valueHint": "层数" }
+        ]},
+        { "token": "-As", "kind": "option", "desc": "指定输出类型", "valueHint": "<形式>", "enum": ["String", "Stream", "Document"], "children": [
+          { "token": "String", "kind": "value", "desc": "输出 XML 字符串，可直接写文件", "valueHint": "形式" },
+          { "token": "Stream", "kind": "value", "desc": "输出 XmlWriter 流", "valueHint": "形式" },
+          { "token": "Document", "kind": "value", "desc": "输出 XmlDocument 可继续查询", "valueHint": "形式" }
+        ]},
+        { "token": "-NoTypeInformation", "kind": "flag", "desc": "不写入对象类型信息" },
+        { "token": "ConvertTo-Xml -As String | Set-Content", "kind": "syntax", "desc": "转成字符串后写入 xml 文件" },
+        { "token": "Export-Clixml", "kind": "syntax", "desc": "需要完整保真且能还原时用它" },
+        { "token": "Select-Xml -XPath", "kind": "syntax", "desc": "生成后用 XPath 查询节点" },
+        { "token": "(ConvertTo-Xml -As Document).OuterXml", "kind": "syntax", "desc": "从文档对象取原始 XML 文本" },
+        { "token": "ConvertFrom-Json", "kind": "syntax", "desc": "如果只是传数据，JSON 通常更简单" }
+      ]
+    },
+    {
+      "name": "ConvertTo-Html",
+      "aliases": [],
+      "title": "对象转 HTML 页面",
+      "desc": "把对象渲染成 HTML 表格或列表，可加上标题、表头与样式。加 -Fragment 只输出表格片段，方便嵌入已有页面。生成结果是文本，需要自己重定向到文件。",
+      "usage": "ConvertTo-Html [[-Property] <Object[]>] [[-Head] <string[]>] [[-Title] <string>] [[-Body] <string[]>] [-InputObject <psobject>] [-As <string>] [-CssUri <uri>] [-PostContent <string[]>] [-PreContent <string[]>]\nConvertTo-Html [[-Property] <Object[]>] [-InputObject <psobject>] [-As <string>] [-Fragment] [-PostContent <string[]>] [-PreContent <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["HTML", "报表", "网页", "表格"],
+      "examples": [
+        { "cmd": "Get-Service | ConvertTo-Html -Title '服务清单' -PreContent '<h2>本机服务</h2>' | Out-File C:\\Temp\\svc.html -Encoding UTF8", "desc": "生成带标题的服务清单网页" },
+        { "cmd": "Get-Process | Select-Object Name,Id,CPU -First 10 | ConvertTo-Html -As Table -Fragment", "desc": "只生成表格片段用于嵌入页面" },
+        { "cmd": "Get-ChildItem -File | ConvertTo-Html -Property Name,Length,LastWriteTime -CssUri style.css | Out-File C:\\Temp\\files.html -Encoding UTF8", "desc": "引用外部样式表生成文件列表" }
+      ],
+      "form": [
+        { "token": "", "label": "属性列表", "type": "text", "value": "Name,Length", "hint": "位置参数，要显示的属性" },
+        { "token": "-Title", "label": "页面标题", "type": "text", "value": "报表", "hint": "写入 title 标签" },
+        { "token": "-As", "label": "输出形式", "type": "select", "value": "Table", "hint": "表格或列表", "options": ["Table", "List"] },
+        { "token": "-Fragment", "label": "仅片段", "type": "flag", "value": "false", "hint": "不输出 html 与 body 标签" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要输出为列的属性", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "要包含在报表里的属性", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "名称列", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "状态列", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "大小列", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "修改时间列", "valueHint": "属性名" },
+          { "token": "CPU", "kind": "value", "desc": "CPU 时间列", "valueHint": "属性名" },
+          { "token": "DisplayName", "kind": "value", "desc": "显示名称列", "valueHint": "属性名" }
+        ]},
+        { "token": "-Head", "kind": "option", "desc": "head 标签内要插入的内容", "valueHint": "<HTML 文本>", "repeatable": true },
+        { "token": "-Title", "kind": "option", "desc": "页面标题，写入 title 标签", "valueHint": "<标题>" },
+        { "token": "-Body", "kind": "option", "desc": "body 标签的附加属性内容", "valueHint": "<HTML 文本>", "repeatable": true },
+        { "token": "-As", "kind": "option", "desc": "渲染成表格还是列表", "valueHint": "<形式>", "enum": ["Table", "List"], "children": [
+          { "token": "Table", "kind": "value", "desc": "生成 HTML 表格，默认形式", "valueHint": "形式" },
+          { "token": "List", "kind": "value", "desc": "生成名称与值的列表", "valueHint": "形式" }
+        ]},
+        { "token": "-CssUri", "kind": "option", "desc": "外链样式表的 URL", "valueHint": "<URI>" },
+        { "token": "-PreContent", "kind": "option", "desc": "表格之前插入的 HTML 内容", "valueHint": "<HTML 文本>", "repeatable": true },
+        { "token": "-PostContent", "kind": "option", "desc": "表格之后插入的 HTML 内容", "valueHint": "<HTML 文本>", "repeatable": true },
+        { "token": "-Fragment", "kind": "flag", "desc": "只生成表格片段，不含页面骨架" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "ConvertFrom-StringData",
+      "aliases": [],
+      "title": "键值对文本转哈希表",
+      "desc": "把每行一个「键等于值」的文本转成哈希表，常用于读取本地化字符串表。注释行以井号开头会被忽略，反斜杠是转义字符。输入必须是字符串，管道传入会被转成字符串数组报错，建议先用 -Raw 读取。",
+      "usage": "ConvertFrom-StringData [-StringData] <string>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["键值对", "哈希表", "配置", "多语言"],
+      "examples": [
+        { "cmd": "Get-Content -Raw C:\\Temp\\msg.txt | ConvertFrom-StringData", "desc": "读取键值对文件并转成哈希表" },
+        { "cmd": "$h = ConvertFrom-StringData -StringData '一=第一项' + [Environment]::NewLine + '二=第二项'; $h.一", "desc": "从字符串构造哈希表并按中文键取值" },
+        { "cmd": "$h = ConvertFrom-StringData -StringData (Get-Content -Raw C:\\Temp\\msg.txt); $h.Keys | Sort-Object", "desc": "列出所有键名" }
+      ],
+      "form": [
+        { "token": "", "label": "键值对文本", "type": "text", "value": "$text", "hint": "位置参数，每行一个键等于值" },
+        { "token": "-StringData", "label": "文本数据", "type": "text", "value": "$text", "hint": "完整的键值对字符串" }
+      ],
+      "nodes": [
+        { "token": "<键值对文本>", "kind": "value", "desc": "位置参数，每行一个键等于值", "valueHint": "文本" },
+        { "token": "-StringData", "kind": "option", "desc": "包含一个或多个键值对的字符串", "valueHint": "<文本>" },
+        { "token": "Get-Content -Raw msg.txt | ConvertFrom-StringData", "kind": "syntax", "desc": "必须用 -Raw 读成单个字符串" },
+        { "token": "键=值", "kind": "syntax", "desc": "每行格式，等号两侧不要加空格干扰" },
+        { "token": "# 注释", "kind": "syntax", "desc": "井号开头的行会被忽略" },
+        { "token": "$h.键名", "kind": "syntax", "desc": "用点号按键取值" },
+        { "token": "$h['键名']", "kind": "syntax", "desc": "用索引取值，键含特殊字符时更稳" },
+        { "token": "反斜杠转义", "kind": "syntax", "desc": "文本里的反斜杠需要写两次" },
+        { "token": "ConvertTo-Json", "kind": "syntax", "desc": "转成 JSON 后可跨进程传递" },
+        { "token": "Import-LocalizedData", "kind": "syntax", "desc": "脚本多语言场景可用它直接读 psd1" }
+      ]
+    },
+    {
+      "name": "ConvertTo-SecureString",
+      "aliases": [],
+      "title": "明文转安全字符串",
+      "desc": "把明文或加密文本转换成 SecureString，内存中加密保存，可安全地传给需要凭据的参数。用 -AsPlainText 时必须同时加 -Force。若用 -Key 加密过，读取时也必须提供同一密钥。",
+      "usage": "ConvertTo-SecureString [-String] <string> [[-SecureKey] <securestring>]\nConvertTo-SecureString [-String] <string> [-AsPlainText] [-Force]\nConvertTo-SecureString [-String] <string> [-Key <byte[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["密码", "安全字符串", "加密", "凭据"],
+      "examples": [
+        { "cmd": "$p = ConvertTo-SecureString -String 'P@ssw0rd' -AsPlainText -Force; $p.Length", "desc": "把明文转成安全字符串（仅限测试）" },
+        { "cmd": "Get-Content C:\\Temp\\pwd.txt | ConvertTo-SecureString", "desc": "读取用 ConvertFrom-SecureString 生成的加密文本" },
+        { "cmd": "$cred = New-Object System.Management.Automation.PSCredential('user', (ConvertTo-SecureString 'P@ssw0rd' -AsPlainText -Force))", "desc": "组装成凭据对象供远程连接使用" }
+      ],
+      "form": [
+        { "token": "", "label": "字符串", "type": "text", "value": "$plain", "hint": "位置参数，明文或加密文本" },
+        { "token": "-AsPlainText", "label": "按明文处理", "type": "flag", "value": "false", "hint": "需与 -Force 同用" },
+        { "token": "-Force", "label": "确认转换", "type": "flag", "value": "false", "hint": "使用明文时必须加" },
+        { "token": "-Key", "label": "加密密钥", "type": "text", "value": "", "hint": "字节数组形式的 AES 密钥" }
+      ],
+      "nodes": [
+        { "token": "<字符串>", "kind": "value", "desc": "位置参数，要转换的文本", "valueHint": "文本" },
+        { "token": "-String", "kind": "option", "desc": "要转换成安全字符串的文本", "valueHint": "<文本>" },
+        { "token": "-AsPlainText", "kind": "flag", "desc": "把输入当作明文，需加 -Force" },
+        { "token": "-Force", "kind": "flag", "desc": "确认使用明文输入，必须与上一项同用" },
+        { "token": "-Key", "kind": "option", "desc": "加密用的 AES 密钥字节数组", "valueHint": "<字节数组>" },
+        { "token": "-SecureKey", "kind": "option", "desc": "以安全字符串形式给出的密钥", "valueHint": "<安全字符串>" },
+        { "token": "ConvertFrom-SecureString", "kind": "syntax", "desc": "反向操作，导出为可保存的加密文本" },
+        { "token": "New-Object PSCredential", "kind": "syntax", "desc": "与用户名一起组装成凭据对象" },
+        { "token": "[Runtime.InteropServices.Marshal]::SecureStringToBSTR", "kind": "syntax", "desc": "需要还原明文时的官方做法" },
+        { "token": "$key = (1..32)", "kind": "syntax", "desc": "自建 32 字节密钥用于跨用户加解密" }
+      ]
+    },
+    {
+      "name": "ConvertFrom-SecureString",
+      "aliases": [],
+      "title": "安全字符串转加密文本",
+      "desc": "把 SecureString 导出成可以保存到文件的加密字符串，默认用 Windows 数据保护接口加密，只有同一台机器的同一个用户才能解回。指定 -Key 可改成 AES 密钥加密，便于跨机器使用。",
+      "usage": "ConvertFrom-SecureString [-SecureString] <securestring> [[-SecureKey] <securestring>]\nConvertFrom-SecureString [-SecureString] <securestring> [-Key <byte[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["密码", "导出", "加密", "保存"],
+      "examples": [
+        { "cmd": "$p = ConvertTo-SecureString 'P@ssw0rd' -AsPlainText -Force; $p | ConvertFrom-SecureString", "desc": "导出为当前用户可解密的加密文本" },
+        { "cmd": "$p = ConvertTo-SecureString 'P@ssw0rd' -AsPlainText -Force; $p | ConvertFrom-SecureString -Key (1..32) | Set-Content C:\\Temp\\pwd.txt", "desc": "用自定义密钥加密后保存到文件" },
+        { "cmd": "(Get-Content C:\\Temp\\pwd.txt | ConvertTo-SecureString).Length", "desc": "验证保存的加密文本还能解回来" }
+      ],
+      "form": [
+        { "token": "", "label": "安全字符串", "type": "text", "value": "$sec", "hint": "位置参数，要导出的 SecureString" },
+        { "token": "-Key", "label": "AES 密钥", "type": "text", "value": "", "hint": "字节数组，跨机器解密时使用" },
+        { "token": "-SecureKey", "label": "安全字符串密钥", "type": "text", "value": "", "hint": "以 SecureString 给出的密钥" }
+      ],
+      "nodes": [
+        { "token": "<安全字符串>", "kind": "value", "desc": "位置参数，要导出的安全字符串", "valueHint": "安全字符串" },
+        { "token": "-SecureString", "kind": "option", "desc": "要转换成加密文本的安全字符串", "valueHint": "<安全字符串>" },
+        { "token": "-Key", "kind": "option", "desc": "AES 加密密钥，字节数组形式", "valueHint": "<字节数组>" },
+        { "token": "-SecureKey", "kind": "option", "desc": "以安全字符串形式提供的密钥", "valueHint": "<安全字符串>" },
+        { "token": "Read-Host -AsSecureString", "kind": "syntax", "desc": "先安全地读取密码再导出" },
+        { "token": "ConvertTo-SecureString", "kind": "syntax", "desc": "反向操作，把加密文本解回安全字符串" },
+        { "token": "-Key (1..32)", "kind": "syntax", "desc": "使用 32 字节密钥，可跨机器跨用户解密" },
+        { "token": "默认 DPAPI", "kind": "syntax", "desc": "不加 -Key 时只能由同一用户在同一机器解密" },
+        { "token": "Set-Content -Encoding UTF8", "kind": "syntax", "desc": "导出文本可保存到文件长期使用" },
+        { "token": "Export-Clixml", "kind": "syntax", "desc": "连同凭据对象一起保存时更完整" }
+      ]
+    },
+    {
+      "name": "Export-Csv",
+      "aliases": ["epcsv"],
+      "title": "对象导出为 CSV",
+      "desc": "把管道对象保存成 CSV 文件，每个对象一行，属性作为列。默认首行会写入类型注释，通常加 -NoTypeInformation 去掉。默认编码在 5.1 下是 ASCII，含中文务必指定 UTF8。",
+      "usage": "Export-Csv [[-Path] <string>] [[-Delimiter] <char>] -InputObject <psobject> [-LiteralPath <string>] [-Force] [-NoClobber] [-Encoding <string>] [-Append] [-NoTypeInformation]\nExport-Csv [[-Path] <string>] -InputObject <psobject> [-LiteralPath <string>] [-Force] [-NoClobber] [-Encoding <string>] [-Append] [-UseCulture] [-NoTypeInformation]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["导出", "CSV", "文件", "表格"],
+      "examples": [
+        { "cmd": "Get-Process | Select-Object Name,Id,CPU | Export-Csv -Path C:\\Temp\\procs.csv -NoTypeInformation -Encoding UTF8", "desc": "导出进程清单为 UTF8 编码的 CSV" },
+        { "cmd": "Get-Service | Export-Csv -Path C:\\Temp\\svc.csv -Delimiter ';' -NoTypeInformation -Append", "desc": "用分号分隔并追加到已有文件" },
+        { "cmd": "Get-ChildItem -File | Export-Csv -Path C:\\Temp\\files.csv -NoTypeInformation -Force -Encoding UTF8", "desc": "覆盖写入文件清单" }
+      ],
+      "form": [
+        { "token": "-Path", "label": "保存路径", "type": "path", "value": "C:\\Temp\\out.csv", "hint": "目标 csv 文件路径" },
+        { "token": "-Encoding", "label": "编码", "type": "select", "value": "UTF8", "hint": "含中文请选 UTF8", "options": ["UTF8", "Default", "Unicode", "ASCII", "OEM", "BigEndianUnicode", "UTF32", "UTF7"] },
+        { "token": "-NoTypeInformation", "label": "去掉类型注释", "type": "flag", "value": "true", "hint": "推荐开启" },
+        { "token": "-Append", "label": "追加写入", "type": "flag", "value": "false", "hint": "不覆盖已有内容" }
+      ],
+      "nodes": [
+        { "token": "<路径>", "kind": "value", "desc": "位置参数，导出的 csv 文件路径", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "csv 文件的保存路径", "valueHint": "<文件路径>" },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用的路径，不支持通配符", "valueHint": "<文件路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "要导出的对象，通常来自管道", "valueHint": "<对象>" },
+        { "token": "-Delimiter", "kind": "option", "desc": "字段分隔符，默认逗号", "valueHint": "<字符>", "children": [
+          { "token": ",", "kind": "value", "desc": "逗号，标准 CSV", "valueHint": "字符" },
+          { "token": ";", "kind": "value", "desc": "分号，Excel 本地化常用", "valueHint": "字符" },
+          { "token": "|", "kind": "value", "desc": "竖线分隔", "valueHint": "字符" },
+          { "token": "\\t", "kind": "value", "desc": "制表符分隔", "valueHint": "字符" }
+        ]},
+        { "token": "-Encoding", "kind": "option", "desc": "输出文件编码，默认 ASCII", "valueHint": "<编码>", "enum": ["Unicode", "UTF7", "UTF8", "ASCII", "UTF32", "BigEndianUnicode", "Default", "OEM"], "children": [
+          { "token": "UTF8", "kind": "value", "desc": "含中文时首选，兼容性最好", "valueHint": "编码" },
+          { "token": "Default", "kind": "value", "desc": "系统本地编码，中文简体为 GBK", "valueHint": "编码" },
+          { "token": "Unicode", "kind": "value", "desc": "UTF-16 小端", "valueHint": "编码" },
+          { "token": "ASCII", "kind": "value", "desc": "默认值，中文会变成问号", "valueHint": "编码" }
+        ]},
+        { "token": "-Append", "kind": "flag", "desc": "追加到文件末尾而不是覆盖" },
+        { "token": "-Force", "kind": "flag", "desc": "允许覆盖只读文件" },
+        { "token": "-NoClobber", "kind": "flag", "desc": "文件已存在时报错而不覆盖" },
+        { "token": "-NoTypeInformation", "kind": "flag", "desc": "不写入首行类型注释" },
+        { "token": "-UseCulture", "kind": "flag", "desc": "使用当前区域设置的分隔符" }
+      ]
+    },
+    {
+      "name": "Import-Csv",
+      "aliases": ["ipcsv"],
+      "title": "读取 CSV 为对象",
+      "desc": "读取 CSV 文件并把每一行变成对象，列名来自首行。可用 -Header 自定义列名处理无表头文件。读出的对象能直接进管道筛选、排序、导出。",
+      "usage": "Import-Csv [[-Path] <string[]>] [[-Delimiter] <char>] [-LiteralPath <string[]>] [-Header <string[]>] [-Encoding <string>]\nImport-Csv [[-Path] <string[]>] -UseCulture [-LiteralPath <string[]>] [-Header <string[]>] [-Encoding <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["导入", "CSV", "读取", "数据"],
+      "examples": [
+        { "cmd": "Import-Csv -Path C:\\Temp\\procs.csv | Where-Object CPU -GT 100 | Sort-Object CPU -Descending", "desc": "读取 CSV 并筛选排序" },
+        { "cmd": "Import-Csv -Path C:\\Temp\\data.csv -Delimiter ';' -Encoding UTF8 | Select-Object -First 5", "desc": "读取分号分隔且为 UTF8 的文件" },
+        { "cmd": "Import-Csv -Path C:\\Temp\\noh.csv -Header 名称,数量,单位 | Format-Table", "desc": "为无表头的 CSV 指定列名" }
+      ],
+      "form": [
+        { "token": "-Path", "label": "CSV 路径", "type": "path", "value": "C:\\Temp\\data.csv", "hint": "要读取的文件路径" },
+        { "token": "-Delimiter", "label": "分隔符", "type": "select", "value": ",", "hint": "默认逗号", "options": [",", ";", "|", "\\t"] },
+        { "token": "-Encoding", "label": "编码", "type": "select", "value": "UTF8", "hint": "与导出时保持一致", "options": ["UTF8", "Default", "Unicode", "ASCII", "OEM", "BigEndianUnicode", "UTF32", "UTF7"] },
+        { "token": "-Header", "label": "自定义列名", "type": "text", "value": "", "hint": "逗号分隔，用于无表头文件" }
+      ],
+      "nodes": [
+        { "token": "<路径>", "kind": "value", "desc": "位置参数，要读取的 csv 文件路径", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "要导入的 csv 文件路径，支持通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用的路径，不支持通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-Delimiter", "kind": "option", "desc": "字段分隔符，默认逗号", "valueHint": "<字符>", "children": [
+          { "token": ",", "kind": "value", "desc": "逗号，标准 CSV", "valueHint": "字符" },
+          { "token": ";", "kind": "value", "desc": "分号，区域设置常见", "valueHint": "字符" },
+          { "token": "|", "kind": "value", "desc": "竖线分隔", "valueHint": "字符" },
+          { "token": "\\t", "kind": "value", "desc": "制表符分隔", "valueHint": "字符" }
+        ]},
+        { "token": "-Header", "kind": "option", "desc": "自定义列名，原首行会被当成数据", "valueHint": "<列名>", "repeatable": true },
+        { "token": "-Encoding", "kind": "option", "desc": "读取文件时使用的编码", "valueHint": "<编码>", "enum": ["Unicode", "UTF7", "UTF8", "ASCII", "UTF32", "BigEndianUnicode", "Default", "OEM"], "children": [
+          { "token": "UTF8", "kind": "value", "desc": "多数导出文件的编码", "valueHint": "编码" },
+          { "token": "Default", "kind": "value", "desc": "系统本地编码，中文简体为 GBK", "valueHint": "编码" }
+        ]},
+        { "token": "-UseCulture", "kind": "flag", "desc": "使用当前区域设置的分隔符" },
+        { "token": "Import-Csv data.csv | Where-Object 列 -EQ 值", "kind": "syntax", "desc": "导入后直接筛选行" },
+        { "token": "Import-Csv data.csv | Sort-Object 列", "kind": "syntax", "desc": "导入后按列排序" },
+        { "token": "(Import-Csv data.csv).Count", "kind": "syntax", "desc": "统计记录条数" },
+        { "token": "Import-Csv data.csv | Export-Csv out.csv -NoTypeInformation", "kind": "syntax", "desc": "转换列或分隔符后另存" }
+      ]
+    },
+    {
+      "name": "Export-Clixml",
+      "aliases": [],
+      "title": "对象序列化为 CLIXML",
+      "desc": "把对象按 CLIXML 格式保存到文件，能保留属性与部分类型信息，用 Import-Clixml 可以基本还原。默认深度为 2，深层属性会丢失。适合保存查询结果与凭据对象。",
+      "usage": "Export-Clixml [-Path] <string> -InputObject <psobject> [-Depth <int>] [-Force] [-NoClobber] [-Encoding <string>]\nExport-Clixml -LiteralPath <string> -InputObject <psobject> [-Depth <int>] [-Force] [-NoClobber] [-Encoding <string>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["导出", "CLIXML", "序列化", "快照"],
+      "examples": [
+        { "cmd": "Get-Process | Select-Object Name,Id,CPU | Export-Clixml -Path C:\\Temp\\procs.clixml -Depth 3", "desc": "保存进程信息快照" },
+        { "cmd": "$cred = Get-Credential; $cred | Export-Clixml -Path C:\\Temp\\cred.xml", "desc": "保存凭据对象供以后复用" },
+        { "cmd": "Get-ChildItem -File | Export-Clixml -Path C:\\Temp\\files.xml -Force", "desc": "覆盖保存文件清单快照" }
+      ],
+      "form": [
+        { "token": "-Path", "label": "保存路径", "type": "path", "value": "C:\\Temp\\data.clixml", "hint": "目标 xml 文件路径" },
+        { "token": "-Depth", "label": "序列化深度", "type": "number", "value": "3", "hint": "默认 2，超出的属性会丢失" },
+        { "token": "-Encoding", "label": "编码", "type": "select", "value": "UTF8", "hint": "输出文件编码", "options": ["UTF8", "Unicode", "Default", "ASCII", "BigEndianUnicode", "UTF32", "UTF7", "OEM"] },
+        { "token": "-Force", "label": "强制覆盖", "type": "flag", "value": "false", "hint": "允许覆盖只读文件" }
+      ],
+      "nodes": [
+        { "token": "<路径>", "kind": "value", "desc": "位置参数，保存的 xml 文件路径", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "保存文件的路径，支持通配符", "valueHint": "<文件路径>" },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用的路径，不支持通配符", "valueHint": "<文件路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "要序列化的对象，通常来自管道", "valueHint": "<对象>" },
+        { "token": "-Depth", "kind": "option", "desc": "序列化深度，默认 2 层", "valueHint": "<层数>", "children": [
+          { "token": "2", "kind": "value", "desc": "默认值，简单对象够用", "valueHint": "层数" },
+          { "token": "3", "kind": "value", "desc": "常用值", "valueHint": "层数" },
+          { "token": "5", "kind": "value", "desc": "嵌套较深的对象", "valueHint": "层数" },
+          { "token": "10", "kind": "value", "desc": "尽量完整地保存", "valueHint": "层数" }
+        ]},
+        { "token": "-Encoding", "kind": "option", "desc": "输出文件使用的编码", "valueHint": "<编码>", "enum": ["Unicode", "UTF7", "UTF8", "ASCII", "UTF32", "BigEndianUnicode", "Default", "OEM"], "children": [
+          { "token": "UTF8", "kind": "value", "desc": "兼容性最好，推荐", "valueHint": "编码" },
+          { "token": "Unicode", "kind": "value", "desc": "UTF-16，Windows 默认文本编码", "valueHint": "编码" }
+        ]},
+        { "token": "-Force", "kind": "flag", "desc": "允许覆盖只读文件" },
+        { "token": "-NoClobber", "kind": "flag", "desc": "文件已存在时报错而不覆盖" },
+        { "token": "Import-Clixml", "kind": "syntax", "desc": "配套命令，读取并还原对象" },
+        { "token": "Get-Process | Export-Clixml -Depth 3", "kind": "syntax", "desc": "保存完整对象供以后分析" },
+        { "token": "Export-Clixml 保留类型", "kind": "syntax", "desc": "比 CSV 保真，但文件更大且不通用" }
+      ]
+    },
+    {
+      "name": "Import-Clixml",
+      "aliases": [],
+      "title": "读取 CLIXML 还原对象",
+      "desc": "读取由 Export-Clixml 生成的文件并把对象还原出来，属性基本可用。还原的是数据快照，不是活的对象。可以配合 -First 与 -Skip 分页读取。",
+      "usage": "Import-Clixml [-Path] <string[]> [-IncludeTotalCount] [-Skip <uint64>] [-First <uint64>]\nImport-Clixml -LiteralPath <string[]> [-IncludeTotalCount] [-Skip <uint64>] [-First <uint64>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["导入", "CLIXML", "还原", "快照"],
+      "examples": [
+        { "cmd": "Import-Clixml -Path C:\\Temp\\procs.clixml | Sort-Object CPU -Descending | Select-Object -First 5", "desc": "读取快照并按 CPU 排序" },
+        { "cmd": "$cred = Import-Clixml -Path C:\\Temp\\cred.xml; $cred.UserName", "desc": "还原凭据对象并查看用户名" },
+        { "cmd": "Import-Clixml -Path C:\\Temp\\files.xml -First 20 -IncludeTotalCount", "desc": "分页读取前 20 条并显示总数" }
+      ],
+      "form": [
+        { "token": "-Path", "label": "文件路径", "type": "path", "value": "C:\\Temp\\data.clixml", "hint": "要读取的 xml 文件" },
+        { "token": "-First", "label": "取前 N 条", "type": "number", "value": "", "hint": "只读取开头若干条" },
+        { "token": "-Skip", "label": "跳过 N 条", "type": "number", "value": "", "hint": "从第 N+1 条开始读取" },
+        { "token": "-IncludeTotalCount", "label": "包含总数", "type": "flag", "value": "false", "hint": "先报告总记录数" }
+      ],
+      "nodes": [
+        { "token": "<路径>", "kind": "value", "desc": "位置参数，要读取的 clixml 文件路径", "valueHint": "文件路径" },
+        { "token": "-Path", "kind": "option", "desc": "要导入的文件路径，支持通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用的路径，不支持通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-First", "kind": "option", "desc": "只读取前 N 条记录", "valueHint": "<条数>" },
+        { "token": "-Skip", "kind": "option", "desc": "跳过前 N 条记录再读取", "valueHint": "<条数>" },
+        { "token": "-IncludeTotalCount", "kind": "flag", "desc": "输出总数信息，便于分页" },
+        { "token": "Import-Clixml data.clixml | Where-Object", "kind": "syntax", "desc": "还原后照常进管道筛选" },
+        { "token": "Import-Clixml cred.xml", "kind": "syntax", "desc": "还原凭据对象，仅同用户同机器可用" },
+        { "token": "Import-Clixml data.clixml | Get-Member", "kind": "syntax", "desc": "查看还原后的类型与属性" },
+        { "token": "Export-Clixml", "kind": "syntax", "desc": "配套命令，负责写文件" }
+      ]
+    },
+    {
+      "name": "Format-Table",
+      "aliases": ["ft"],
+      "title": "表格方式输出对象",
+      "desc": "把对象以表格形式显示在控制台，是最常用的默认视图之一。属性可以写成哈希表控制列宽与对齐。它只负责显示，输出对象不能再进管道做数据处理。",
+      "usage": "Format-Table [[-Property] <Object[]>] [-AutoSize] [-RepeatHeader] [-HideTableHeaders] [-Wrap] [-GroupBy <Object>] [-View <string>] [-ShowError] [-DisplayError] [-Force] [-Expand <string>] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["格式化", "表格", "显示", "列宽"],
+      "examples": [
+        { "cmd": "Get-Process | Format-Table -Property Name,Id,CPU -AutoSize", "desc": "自动调整列宽显示进程表" },
+        { "cmd": "Get-ChildItem -File | Format-Table -Property Name,@{Name='KB';Expression={[math]::Round($_.Length/1KB,1)};Align='Right'}", "desc": "自定义计算列并右对齐" },
+        { "cmd": "Get-Service | Format-Table -Property Name,Status -GroupBy Status", "desc": "按状态分组显示服务" }
+      ],
+      "form": [
+        { "token": "", "label": "属性列表", "type": "text", "value": "Name,Id,CPU", "hint": "位置参数，要显示的列" },
+        { "token": "-AutoSize", "label": "自动列宽", "type": "flag", "value": "true", "hint": "按内容计算列宽" },
+        { "token": "-Wrap", "label": "换行显示", "type": "flag", "value": "false", "hint": "超长内容折行而不是截断" },
+        { "token": "-GroupBy", "label": "分组依据", "type": "text", "value": "", "hint": "按属性值分组显示" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要显示的属性列", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "要显示的属性，支持哈希表定制", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "Name", "kind": "value", "desc": "名称列", "valueHint": "属性名" },
+          { "token": "Id", "kind": "value", "desc": "编号列", "valueHint": "属性名" },
+          { "token": "CPU", "kind": "value", "desc": "CPU 时间列", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "状态列", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "大小列", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "修改时间列", "valueHint": "属性名" },
+          { "token": "*", "kind": "value", "desc": "显示全部属性", "valueHint": "属性名" }
+        ]},
+        { "token": "-AutoSize", "kind": "flag", "desc": "根据内容自动计算列宽" },
+        { "token": "-Wrap", "kind": "flag", "desc": "内容过长时折行显示完整内容" },
+        { "token": "-GroupBy", "kind": "option", "desc": "按指定属性分组显示结果", "valueHint": "<属性名>" },
+        { "token": "-HideTableHeaders", "kind": "flag", "desc": "不显示表头行" },
+        { "token": "-RepeatHeader", "kind": "flag", "desc": "每一屏都重复输出表头" },
+        { "token": "-Expand", "kind": "option", "desc": "控制集合属性的展开方式", "valueHint": "<方式>", "enum": ["CoreOnly", "EnumOnly", "Both"], "children": [
+          { "token": "CoreOnly", "kind": "value", "desc": "只显示核心属性", "valueHint": "方式" },
+          { "token": "EnumOnly", "kind": "value", "desc": "只显示集合元素", "valueHint": "方式" },
+          { "token": "Both", "kind": "value", "desc": "两者都显示", "valueHint": "方式" }
+        ]},
+        { "token": "-View", "kind": "option", "desc": "使用预定义的视图名称", "valueHint": "<视图名>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制使用指定视图或展开集合" },
+        { "token": "-DisplayError", "kind": "flag", "desc": "显示格式化过程中的错误信息" },
+        { "token": "-ShowError", "kind": "flag", "desc": "把错误与输出一起显示" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "Format-List",
+      "aliases": ["fl"],
+      "title": "列表方式输出对象",
+      "desc": "把每个对象按「属性名 冒号 值」的纵向列表显示，适合属性多、表格放不下的场景。用通配符星号可以一次列出全部属性，排查问题时非常常用。输出同样不能继续做数据处理。",
+      "usage": "Format-List [[-Property] <Object[]>] [-GroupBy <Object>] [-View <string>] [-ShowError] [-DisplayError] [-Force] [-Expand <string>] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["格式化", "列表", "显示", "排查"],
+      "examples": [
+        { "cmd": "Get-Process -Id $PID | Format-List -Property *", "desc": "列出当前进程全部属性" },
+        { "cmd": "Get-Service | Where-Object Status -EQ 'Running' | Format-List -Property Name,Status,DisplayName", "desc": "逐个列出正在运行的服务" },
+        { "cmd": "Get-ChildItem | Select-Object -First 2 | Format-List -Property Name,Length,LastWriteTime -GroupBy Extension", "desc": "分组显示部分文件的详细信息" }
+      ],
+      "form": [
+        { "token": "", "label": "属性列表", "type": "text", "value": "*", "hint": "位置参数，星号表示全部属性" },
+        { "token": "-GroupBy", "label": "分组依据", "type": "text", "value": "", "hint": "按属性值分组显示" },
+        { "token": "-Expand", "label": "展开方式", "type": "select", "value": "Both", "hint": "集合属性的显示方式", "options": ["CoreOnly", "EnumOnly", "Both"] },
+        { "token": "-Force", "label": "强制展开", "type": "flag", "value": "false", "hint": "强制显示指定视图" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要显示的属性名", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "要列出的属性，支持通配符", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "*", "kind": "value", "desc": "列出全部属性，最常用", "valueHint": "属性名" },
+          { "token": "Name", "kind": "value", "desc": "名称属性", "valueHint": "属性名" },
+          { "token": "Status", "kind": "value", "desc": "状态属性", "valueHint": "属性名" },
+          { "token": "LastWriteTime", "kind": "value", "desc": "修改时间", "valueHint": "属性名" },
+          { "token": "VersionInfo", "kind": "value", "desc": "文件版本信息对象", "valueHint": "属性名" }
+        ]},
+        { "token": "-GroupBy", "kind": "option", "desc": "按指定属性分组显示", "valueHint": "<属性名>" },
+        { "token": "-Expand", "kind": "option", "desc": "控制集合属性的展开方式", "valueHint": "<方式>", "enum": ["CoreOnly", "EnumOnly", "Both"], "children": [
+          { "token": "CoreOnly", "kind": "value", "desc": "只显示核心属性", "valueHint": "方式" },
+          { "token": "EnumOnly", "kind": "value", "desc": "只显示集合元素", "valueHint": "方式" },
+          { "token": "Both", "kind": "value", "desc": "两者都显示", "valueHint": "方式" }
+        ]},
+        { "token": "-View", "kind": "option", "desc": "使用预定义的视图名称", "valueHint": "<视图名>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制使用指定视图或展开集合" },
+        { "token": "-DisplayError", "kind": "flag", "desc": "显示格式化过程中的错误信息" },
+        { "token": "-ShowError", "kind": "flag", "desc": "把错误与输出一起显示" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" },
+        { "token": "Get-Process | Format-List *", "kind": "syntax", "desc": "查看对象全部属性，排查首选" },
+        { "token": "Get-Member | Format-List", "kind": "syntax", "desc": "先看有哪些属性再决定列哪些" }
+      ]
+    },
+    {
+      "name": "Format-Wide",
+      "aliases": ["fw"],
+      "title": "多列宽格式输出",
+      "desc": "每个对象只显示一个属性值，并按多列排布，适合快速浏览大量同类对象的名字。用 -Column 指定列数，配合 -AutoSize 自动决定列数。输出为显示用，不参与后续计算。",
+      "usage": "Format-Wide [[-Property] <Object>] [-AutoSize] [-Column <int>] [-GroupBy <Object>] [-View <string>] [-ShowError] [-DisplayError] [-Force] [-Expand <string>] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["格式化", "多列", "显示", "浏览"],
+      "examples": [
+        { "cmd": "Get-Process | Format-Wide -Property ProcessName -Column 4", "desc": "四列显示所有进程名" },
+        { "cmd": "Get-ChildItem -File | Format-Wide -Property Name -AutoSize", "desc": "自动列宽多列显示文件名" },
+        { "cmd": "Get-Service | Format-Wide -Property Name -Column 3 -GroupBy Status", "desc": "按状态分组三列显示服务名" }
+      ],
+      "form": [
+        { "token": "", "label": "属性名", "type": "text", "value": "Name", "hint": "位置参数，只显示一个属性" },
+        { "token": "-Column", "label": "列数", "type": "number", "value": "4", "hint": "每行显示的列数" },
+        { "token": "-AutoSize", "label": "自动列宽", "type": "flag", "value": "true", "hint": "自动决定列宽" },
+        { "token": "-GroupBy", "label": "分组依据", "type": "text", "value": "", "hint": "按属性值分组显示" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要显示的那一个属性", "valueHint": "属性名" },
+        { "token": "-Property", "kind": "option", "desc": "要显示的属性，只能选一个", "valueHint": "<属性名>", "children": [
+          { "token": "Name", "kind": "value", "desc": "名称属性", "valueHint": "属性名" },
+          { "token": "ProcessName", "kind": "value", "desc": "进程名", "valueHint": "属性名" },
+          { "token": "DisplayName", "kind": "value", "desc": "显示名称", "valueHint": "属性名" },
+          { "token": "Extension", "kind": "value", "desc": "文件扩展名", "valueHint": "属性名" }
+        ]},
+        { "token": "-Column", "kind": "option", "desc": "每行显示的列数", "valueHint": "<列数>", "children": [
+          { "token": "2", "kind": "value", "desc": "两列，名称较长时使用", "valueHint": "列数" },
+          { "token": "3", "kind": "value", "desc": "三列", "valueHint": "列数" },
+          { "token": "4", "kind": "value", "desc": "四列，常用", "valueHint": "列数" },
+          { "token": "6", "kind": "value", "desc": "六列，名称较短时使用", "valueHint": "列数" }
+        ]},
+        { "token": "-AutoSize", "kind": "flag", "desc": "自动计算列宽与列数" },
+        { "token": "-GroupBy", "kind": "option", "desc": "按指定属性分组显示", "valueHint": "<属性名>" },
+        { "token": "-Expand", "kind": "option", "desc": "控制集合属性的展开方式", "valueHint": "<方式>", "enum": ["CoreOnly", "EnumOnly", "Both"], "children": [
+          { "token": "CoreOnly", "kind": "value", "desc": "只显示核心属性", "valueHint": "方式" },
+          { "token": "EnumOnly", "kind": "value", "desc": "只显示集合元素", "valueHint": "方式" },
+          { "token": "Both", "kind": "value", "desc": "两者都显示", "valueHint": "方式" }
+        ]},
+        { "token": "-View", "kind": "option", "desc": "使用预定义的视图名称", "valueHint": "<视图名>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制使用指定视图或展开集合" },
+        { "token": "-DisplayError", "kind": "flag", "desc": "显示格式化过程中的错误信息" },
+        { "token": "-ShowError", "kind": "flag", "desc": "把错误与输出一起显示" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "Format-Custom",
+      "aliases": ["fc"],
+      "title": "按自定义视图输出",
+      "desc": "使用自定义视图定义来显示对象，能展示普通表格看不到的嵌套结构。多数对象有内置的自定义视图，直接管道传入即可看到树状层次。可用 -Depth 控制显示层数。",
+      "usage": "Format-Custom [[-Property] <Object[]>] [-Depth <int>] [-GroupBy <Object>] [-View <string>] [-ShowError] [-DisplayError] [-Force] [-Expand <string>] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["格式化", "自定义视图", "嵌套", "显示"],
+      "examples": [
+        { "cmd": "Get-Process -Id $PID | Format-Custom -Depth 2", "desc": "用自定义视图查看进程嵌套结构" },
+        { "cmd": "Get-ChildItem -File | Select-Object -First 1 | Format-Custom -Property Name,Length,VersionInfo", "desc": "查看指定属性的层次化结构" },
+        { "cmd": "Get-Service | Select-Object -First 2 | Format-Custom -Depth 3 -GroupBy Status", "desc": "分组并按三层深度显示服务信息" }
+      ],
+      "form": [
+        { "token": "", "label": "属性列表", "type": "text", "value": "Name,Length", "hint": "位置参数，要显示的属性" },
+        { "token": "-Depth", "label": "显示深度", "type": "number", "value": "2", "hint": "嵌套对象的展开层数" },
+        { "token": "-GroupBy", "label": "分组依据", "type": "text", "value": "", "hint": "按属性值分组显示" },
+        { "token": "-Force", "label": "强制展开", "type": "flag", "value": "false", "hint": "强制使用指定视图" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "位置参数，要显示的属性", "valueHint": "属性名", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "要显示的属性，支持通配符与哈希表", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "*", "kind": "value", "desc": "全部属性", "valueHint": "属性名" },
+          { "token": "Name", "kind": "value", "desc": "名称属性", "valueHint": "属性名" },
+          { "token": "Length", "kind": "value", "desc": "大小属性", "valueHint": "属性名" },
+          { "token": "VersionInfo", "kind": "value", "desc": "文件版本信息，嵌套较深", "valueHint": "属性名" }
+        ]},
+        { "token": "-Depth", "kind": "option", "desc": "嵌套对象的展开层数", "valueHint": "<层数>", "children": [
+          { "token": "1", "kind": "value", "desc": "只看第一层", "valueHint": "层数" },
+          { "token": "2", "kind": "value", "desc": "常用深度", "valueHint": "层数" },
+          { "token": "3", "kind": "value", "desc": "结构较深的对象", "valueHint": "层数" }
+        ]},
+        { "token": "-GroupBy", "kind": "option", "desc": "按指定属性分组显示", "valueHint": "<属性名>" },
+        { "token": "-Expand", "kind": "option", "desc": "控制集合属性的展开方式", "valueHint": "<方式>", "enum": ["CoreOnly", "EnumOnly", "Both"], "children": [
+          { "token": "CoreOnly", "kind": "value", "desc": "只显示核心属性", "valueHint": "方式" },
+          { "token": "EnumOnly", "kind": "value", "desc": "只显示集合元素", "valueHint": "方式" },
+          { "token": "Both", "kind": "value", "desc": "两者都显示", "valueHint": "方式" }
+        ]},
+        { "token": "-View", "kind": "option", "desc": "使用预定义的视图名称", "valueHint": "<视图名>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制使用指定视图或展开集合" },
+        { "token": "-DisplayError", "kind": "flag", "desc": "显示格式化过程中的错误信息" },
+        { "token": "-ShowError", "kind": "flag", "desc": "把错误与输出一起显示" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "Out-GridView",
+      "aliases": ["ogv"],
+      "title": "结果送入图形表格窗口",
+      "desc": "把对象显示在可排序筛选的图形窗口里，方便人工浏览。加 -PassThru 可以把用户在窗口里选中的对象送回管道继续处理。只在 Windows PowerShell 与 ISE 中可用。",
+      "usage": "Out-GridView [-InputObject <psobject>] [-Title <string>] [-PassThru]\nOut-GridView [-InputObject <psobject>] [-Title <string>] [-Wait]\nOut-GridView [-InputObject <psobject>] [-Title <string>] [-OutputMode <OutputModeOption>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["图形界面", "表格窗口", "交互", "查看"],
+      "examples": [
+        { "cmd": "Get-Process | Sort-Object CPU -Descending | Select-Object Name,Id,CPU | Out-GridView -Title '进程列表'", "desc": "在表格窗口里查看进程" },
+        { "cmd": "Get-Service | Out-GridView -Title '选择要停止的服务' -PassThru | Stop-Service", "desc": "人工挑选服务后传递到后续命令" },
+        { "cmd": "Get-ChildItem -Recurse | Out-GridView -OutputMode Multiple | Remove-Item", "desc": "多选文件后批量删除（危险操作需谨慎）" }
+      ],
+      "form": [
+        { "token": "-Title", "label": "窗口标题", "type": "text", "value": "结果", "hint": "显示在窗口标题栏" },
+        { "token": "-PassThru", "label": "回传选中项", "type": "flag", "value": "false", "hint": "把选中的对象送回管道" },
+        { "token": "-OutputMode", "label": "输出模式", "type": "select", "value": "Multiple", "hint": "单选或多选", "options": ["None", "Single", "Multiple"] }
+      ],
+      "nodes": [
+        { "token": "-InputObject", "kind": "option", "desc": "要显示的对象，通常来自管道", "valueHint": "<对象>" },
+        { "token": "-Title", "kind": "option", "desc": "窗口标题栏显示的文字", "valueHint": "<标题>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "把用户选中的对象输出到管道" },
+        { "token": "-Wait", "kind": "flag", "desc": "等待窗口打开后再继续执行" },
+        { "token": "-OutputMode", "kind": "option", "desc": "指定窗口的选择方式", "valueHint": "<模式>", "enum": ["None", "Single", "Multiple"], "children": [
+          { "token": "None", "kind": "value", "desc": "只查看，不输出任何对象", "valueHint": "模式" },
+          { "token": "Single", "kind": "value", "desc": "只能选一条并输出", "valueHint": "模式" },
+          { "token": "Multiple", "kind": "value", "desc": "可以多选并全部输出", "valueHint": "模式" }
+        ]},
+        { "token": "-PassThru | Stop-Service", "kind": "syntax", "desc": "人工确认后把结果交给后续命令" },
+        { "token": "-OutputMode Single", "kind": "syntax", "desc": "单选模式，只回传一条记录" },
+        { "token": "-OutputMode Multiple", "kind": "syntax", "desc": "多选模式，可批量处理" },
+        { "token": "Out-GridView 可用范围", "kind": "syntax", "desc": "仅 Windows PowerShell 与 ISE 可用" },
+        { "token": "窗口内可排序筛选", "kind": "syntax", "desc": "无需改命令即可在界面里找数据" },
+        { "token": "Out-Host", "kind": "syntax", "desc": "只想在控制台看时用它更轻量" }
+      ]
+    },
+    {
+      "name": "Out-Host",
+      "aliases": ["oh"],
+      "title": "输出到控制台主机",
+      "desc": "把对象交给控制台主机显示，是命令行默认的输出终点。用 -Paging 可以分页查看长结果，按空格翻页、按 Q 退出。它不改变对象本身，只决定显示方式。",
+      "usage": "Out-Host [-Paging] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["输出", "控制台", "分页", "显示"],
+      "examples": [
+        { "cmd": "Get-Process | Out-Host -Paging", "desc": "分页浏览进程列表" },
+        { "cmd": "Get-ChildItem -Recurse | Out-Host", "desc": "把递归结果交给控制台显示" },
+        { "cmd": "Get-Content C:\\Temp\\app.log | Out-Host -Paging", "desc": "分页查看较长的日志文件" }
+      ],
+      "form": [
+        { "token": "-Paging", "label": "分页显示", "type": "flag", "value": "true", "hint": "每屏暂停，按空格翻页" },
+        { "token": "-InputObject", "label": "输入对象", "type": "text", "value": "", "hint": "通常由管道提供" }
+      ],
+      "nodes": [
+        { "token": "-InputObject", "kind": "option", "desc": "要发送到控制台的对象", "valueHint": "<对象>" },
+        { "token": "-Paging", "kind": "flag", "desc": "分页显示，每屏暂停等待按键" },
+        { "token": "Get-Process | Out-Host -Paging", "kind": "syntax", "desc": "长结果分页查看的常用写法" },
+        { "token": "空格键翻页", "kind": "syntax", "desc": "分页模式下按空格显示下一屏" },
+        { "token": "Q 键退出", "kind": "syntax", "desc": "分页模式下按 Q 结束浏览" },
+        { "token": "more.com", "kind": "syntax", "desc": "外部命令也可用于分页查看" },
+        { "token": "Out-Host 是默认去向", "kind": "syntax", "desc": "不写输出命令时结果也会送到主机" },
+        { "token": "Out-File", "kind": "syntax", "desc": "需要保存到文件时改用它" },
+        { "token": "Out-String", "kind": "syntax", "desc": "需要字符串而非显示时改用它" },
+        { "token": "Out-Null", "kind": "syntax", "desc": "需要丢弃输出时改用它" }
+      ]
+    },
+    {
+      "name": "Out-String",
+      "aliases": [],
+      "title": "输出转换为字符串",
+      "desc": "把对象按控制台格式转成字符串，便于做文本处理、写入文件或匹配关键字。默认把整个结果合成一个字符串，加 -Stream 则每行输出一个字符串。用 -Width 控制换行宽度。",
+      "usage": "Out-String [-Stream] [-Width <int>] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["字符串", "转换", "文本", "输出"],
+      "examples": [
+        { "cmd": "Get-Process | Out-String -Stream | Select-String 'powershell'", "desc": "转成字符串后按关键字搜索" },
+        { "cmd": "Get-Service | Out-String -Width 200 | Set-Content C:\\Temp\\svc.txt -Encoding UTF8", "desc": "加宽后保存为文本文件" },
+        { "cmd": "(Get-ChildItem | Out-String).Length", "desc": "获取格式化输出的字符总数" }
+      ],
+      "form": [
+        { "token": "-Stream", "label": "逐行输出", "type": "flag", "value": "true", "hint": "每行一个字符串，便于逐行处理" },
+        { "token": "-Width", "label": "行宽", "type": "number", "value": "200", "hint": "每行最大字符数" },
+        { "token": "-InputObject", "label": "输入对象", "type": "text", "value": "", "hint": "通常由管道提供" }
+      ],
+      "nodes": [
+        { "token": "-InputObject", "kind": "option", "desc": "要转换成字符串的对象", "valueHint": "<对象>" },
+        { "token": "-Stream", "kind": "flag", "desc": "每行输出一个字符串而不是整块" },
+        { "token": "-Width", "kind": "option", "desc": "每行的最大字符宽度", "valueHint": "<字符数>", "children": [
+          { "token": "80", "kind": "value", "desc": "传统控制台宽度", "valueHint": "字符数" },
+          { "token": "120", "kind": "value", "desc": "常用较宽设置", "valueHint": "字符数" },
+          { "token": "200", "kind": "value", "desc": "避免表格折行的宽设置", "valueHint": "字符数" },
+          { "token": "4096", "kind": "value", "desc": "几乎不折行，适合导出文本", "valueHint": "字符数" }
+        ]},
+        { "token": "Out-String -Stream | Select-String", "kind": "syntax", "desc": "逐行转字符串后搜索关键字" },
+        { "token": "Out-String | Set-Content", "kind": "syntax", "desc": "保存成保留表格样式的文本" },
+        { "token": "Out-String -Width 4096", "kind": "syntax", "desc": "导出时不折行，便于后续解析" },
+        { "token": "(... | Out-String).Trim()", "kind": "syntax", "desc": "去掉首尾空白后再使用" },
+        { "token": "Out-String 会改变对象", "kind": "syntax", "desc": "转换后不再是原对象，不能再取属性" },
+        { "token": "Compare-Object", "kind": "syntax", "desc": "与文本比较配合可做输出差异对比" },
+        { "token": "Out-File", "kind": "syntax", "desc": "直接写文件时比先转字符串更简单" }
+      ]
+    },
+    {
+      "name": "Out-Null",
+      "aliases": [],
+      "title": "丢弃管道输出",
+      "desc": "把管道里的对象全部丢弃，只执行命令而不产生输出，常用于让命令安静地运行。它比赋值给变量再不用更省内存，也比重定向到文件干净。注意它不抑制错误与警告信息。",
+      "usage": "Out-Null [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["丢弃", "静默", "输出", "管道"],
+      "examples": [
+        { "cmd": "New-Item -ItemType Directory -Path C:\\Temp\\demo -Force | Out-Null", "desc": "创建目录但不显示结果" },
+        { "cmd": "Get-ChildItem -Recurse | Out-Null", "desc": "只遍历不输出，用于预热缓存" },
+        { "cmd": "Stop-Process -Name notepad -ErrorAction SilentlyContinue | Out-Null", "desc": "静默执行且丢弃正常输出" }
+      ],
+      "form": [
+        { "token": "-InputObject", "label": "输入对象", "type": "text", "value": "", "hint": "通常由管道提供" }
+      ],
+      "nodes": [
+        { "token": "-InputObject", "kind": "option", "desc": "要丢弃的对象，通常来自管道", "valueHint": "<对象>" },
+        { "token": "New-Item ... | Out-Null", "kind": "syntax", "desc": "屏蔽创建类命令的输出" },
+        { "token": "$null = 命令", "kind": "syntax", "desc": "等效写法，速度略快" },
+        { "token": "[void]命令", "kind": "syntax", "desc": "强制丢弃输出的另一种写法" },
+        { "token": "> $null", "kind": "syntax", "desc": "重定向写法，适合丢弃单个流" },
+        { "token": "Out-Null 不抑制错误", "kind": "syntax", "desc": "错误信息仍会显示，需要加 -ErrorAction" },
+        { "token": "Out-Null 不抑制警告", "kind": "syntax", "desc": "警告流需单独处理" },
+        { "token": "可用于计时", "kind": "syntax", "desc": "让命令真正执行完但不刷屏" },
+        { "token": "Out-Host", "kind": "syntax", "desc": "想显示而想丢弃时用相反的命令" },
+        { "token": "Start-Sleep 配合", "kind": "syntax", "desc": "常与等待命令一起用于脚本静默运行" }
+      ]
+    },
+    {
+      "name": "Out-Printer",
+      "aliases": ["lp"],
+      "title": "输出发送到打印机",
+      "desc": "把管道里的文本发送到指定打印机打印，不指定名称则使用默认打印机。它只负责送文本，打印效果取决于打印机驱动与纸张设置。打印前建议先用 Out-String 整理内容。",
+      "usage": "Out-Printer [[-Name] <string>] [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["打印", "打印机", "输出", "文本"],
+      "examples": [
+        { "cmd": "Get-Service | Out-String -Width 120 | Out-Printer", "desc": "把服务清单发送到默认打印机" },
+        { "cmd": "Get-Content C:\\Temp\\report.txt | Out-Printer -Name 'Microsoft Print to PDF'", "desc": "用虚拟 PDF 打印机输出文件" },
+        { "cmd": "Get-Process | Select-Object -First 20 | Format-Table -AutoSize | Out-Printer", "desc": "打印前 20 个进程的表格" }
+      ],
+      "form": [
+        { "token": "", "label": "打印机名", "type": "text", "value": "Microsoft Print to PDF", "hint": "位置参数，留空用默认打印机" },
+        { "token": "-Name", "label": "打印机名称", "type": "text", "value": "Microsoft Print to PDF", "hint": "目标打印机名称" }
+      ],
+      "nodes": [
+        { "token": "<打印机名>", "kind": "value", "desc": "位置参数，目标打印机名称", "valueHint": "打印机名" },
+        { "token": "-Name", "kind": "option", "desc": "打印机名称，省略则用默认打印机", "valueHint": "<打印机名>", "children": [
+          { "token": "Microsoft Print to PDF", "kind": "value", "desc": "输出为 PDF 文件的虚拟打印机", "valueHint": "打印机名" },
+          { "token": "Microsoft XPS Document Writer", "kind": "value", "desc": "输出为 XPS 文档", "valueHint": "打印机名" }
+        ]},
+        { "token": "-InputObject", "kind": "option", "desc": "要打印的对象或文本", "valueHint": "<对象>" },
+        { "token": "Get-Printer", "kind": "syntax", "desc": "列出本机可用打印机名称" },
+        { "token": "Get-Printer | Where-Object Name -Like '*PDF*'", "kind": "syntax", "desc": "查找可用的 PDF 虚拟打印机" },
+        { "token": "Out-String -Width 120 | Out-Printer", "kind": "syntax", "desc": "先整理宽度再打印，效果更好" },
+        { "token": "Out-Printer -Name 打印机名", "kind": "syntax", "desc": "指定打印机而不是用默认打印机" },
+        { "token": "打印内容仅为文本", "kind": "syntax", "desc": "不支持彩色排版，只送纯文本" },
+        { "token": "Out-File 代替", "kind": "syntax", "desc": "只是留档时写文件比打印更稳妥" },
+        { "token": "Out-GridView", "kind": "syntax", "desc": "屏幕查看优先时改用它" }
+      ]
+    },
+    {
+      "name": "Get-Member",
+      "aliases": ["gm"],
+      "title": "查看对象成员信息",
+      "desc": "列出管道对象的属性、方法与事件，是了解对象结构的第一手段。默认隐藏基类成员，加 -Force 可看到全部。用 -MemberType 只看属性或只看方法，排查问题时非常高效。",
+      "usage": "Get-Member [[-Name] <string[]>] [-InputObject <psobject>] [-MemberType <PSMemberTypes>] [-View <PSMemberViewTypes>] [-Static] [-Force]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["成员", "属性", "方法", "排查"],
+      "examples": [
+        { "cmd": "Get-Process | Get-Member -MemberType Property | Select-Object -First 20", "desc": "查看进程对象有哪些属性" },
+        { "cmd": "Get-ChildItem -File | Select-Object -First 1 | Get-Member -Name Length,Name", "desc": "查看指定成员的详细信息" },
+        { "cmd": "Get-Date | Get-Member -MemberType Method -Name AddDays", "desc": "查看日期对象的方法签名" }
+      ],
+      "form": [
+        { "token": "", "label": "成员名", "type": "text", "value": "*", "hint": "位置参数，支持通配符" },
+        { "token": "-MemberType", "label": "成员类型", "type": "select", "value": "Property", "hint": "筛选属性或方法等", "options": ["Property", "NoteProperty", "Method", "ScriptProperty", "AliasProperty", "PropertySet", "All"] },
+        { "token": "-View", "label": "视图范围", "type": "select", "value": "Extended", "hint": "查看扩展成员或基类成员", "options": ["Extended", "Adapted", "Base", "All"] },
+        { "token": "-Static", "label": "静态成员", "type": "flag", "value": "false", "hint": "查看类型的静态成员" }
+      ],
+      "nodes": [
+        { "token": "<成员名>", "kind": "value", "desc": "位置参数，要查看的成员名，支持通配符", "valueHint": "成员名" },
+        { "token": "-Name", "kind": "option", "desc": "要查看的成员名，支持通配符", "valueHint": "<成员名>", "repeatable": true, "children": [
+          { "token": "*", "kind": "value", "desc": "全部成员", "valueHint": "成员名" },
+          { "token": "Name", "kind": "value", "desc": "名称成员", "valueHint": "成员名" },
+          { "token": "Length", "kind": "value", "desc": "大小成员", "valueHint": "成员名" },
+          { "token": "AddDays", "kind": "value", "desc": "日期对象的常用方法", "valueHint": "成员名" }
+        ]},
+        { "token": "-MemberType", "kind": "option", "desc": "按成员类型筛选", "valueHint": "<类型>", "enum": ["AliasProperty", "CodeProperty", "Property", "NoteProperty", "ScriptProperty", "Properties", "PropertySet", "Method", "CodeMethod", "ScriptMethod", "Methods", "ParameterizedProperty", "MemberSet", "Event", "Dynamic", "All"], "children": [
+          { "token": "Property", "kind": "value", "desc": "普通属性，最常用", "valueHint": "类型" },
+          { "token": "NoteProperty", "kind": "value", "desc": "附加的备注属性", "valueHint": "类型" },
+          { "token": "AliasProperty", "kind": "value", "desc": "别名属性", "valueHint": "类型" },
+          { "token": "ScriptProperty", "kind": "value", "desc": "脚本属性，取值时才计算", "valueHint": "类型" },
+          { "token": "Method", "kind": "value", "desc": "方法成员", "valueHint": "类型" },
+          { "token": "PropertySet", "kind": "value", "desc": "属性集合定义", "valueHint": "类型" },
+          { "token": "All", "kind": "value", "desc": "所有类型", "valueHint": "类型" }
+        ]},
+        { "token": "-View", "kind": "option", "desc": "指定要查看的成员视图范围", "valueHint": "<视图>", "enum": ["Extended", "Adapted", "Base", "All"], "children": [
+          { "token": "Extended", "kind": "value", "desc": "扩展成员，默认值", "valueHint": "视图" },
+          { "token": "Adapted", "kind": "value", "desc": "适配成员", "valueHint": "视图" },
+          { "token": "Base", "kind": "value", "desc": "基类成员", "valueHint": "视图" },
+          { "token": "All", "kind": "value", "desc": "全部成员", "valueHint": "视图" }
+        ]},
+        { "token": "-Static", "kind": "flag", "desc": "查看类型的静态成员" },
+        { "token": "-Force", "kind": "flag", "desc": "显示内置成员与不显示的成员" },
+        { "token": "-InputObject", "kind": "option", "desc": "要查看成员的对象", "valueHint": "<对象>" },
+        { "token": "Get-Member -MemberType Property", "kind": "syntax", "desc": "只看属性，输出更清爽" },
+        { "token": "(Get-Command).Parameters", "kind": "syntax", "desc": "查看命令参数时用它更直接" },
+        { "token": "-Static -MemberType Property", "kind": "syntax", "desc": "查看类型的静态属性" },
+        { "token": "Format-List *", "kind": "syntax", "desc": "查看对象当前值的常用搭配" }
+      ]
+    },
+    {
+      "name": "Add-Member",
+      "aliases": [],
+      "title": "给对象添加成员",
+      "desc": "往已有对象上添加属性或方法，最常用的是 NoteProperty 备注属性。要在管道里看到结果需要加 -PassThru。可以用 -NotePropertyMembers 一次添加多个属性，速度更快。",
+      "usage": "Add-Member -InputObject <psobject> -TypeName <string> [-PassThru]\nAdd-Member [-MemberType] <PSMemberTypes> [-Name] <string> [[-Value] <Object>] [[-SecondValue] <Object>] -InputObject <psobject> [-TypeName <string>] [-Force] [-PassThru]\nAdd-Member [-NotePropertyName] <string> [-NotePropertyValue] <Object> -InputObject <psobject> [-TypeName <string>] [-Force] [-PassThru]\nAdd-Member [-NotePropertyMembers] <IDictionary> -InputObject <psobject> [-TypeName <string>] [-Force] [-PassThru]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["成员", "属性", "扩展", "对象"],
+      "examples": [
+        { "cmd": "Get-Process -Id $PID | Add-Member -NotePropertyName 分组 -NotePropertyValue 关键进程 -PassThru", "desc": "给对象添加一个备注属性" },
+        { "cmd": "Get-ChildItem -File | Add-Member -NotePropertyMembers @{MB = 0} -PassThru | Select-Object Name,MB", "desc": "批量添加属性后再选择输出" },
+        { "cmd": "$o = [pscustomobject]@{Name='a'}; $o | Add-Member -MemberType ScriptProperty -Name 大写 -Value { $this.Name.ToUpper() } -PassThru", "desc": "添加脚本属性，取值时再计算" }
+      ],
+      "form": [
+        { "token": "-NotePropertyName", "label": "属性名", "type": "text", "value": "分组", "hint": "备注属性的名称" },
+        { "token": "-NotePropertyValue", "label": "属性值", "type": "text", "value": "关键进程", "hint": "备注属性的值" },
+        { "token": "-MemberType", "label": "成员类型", "type": "select", "value": "NoteProperty", "hint": "通用写法下的成员类型", "options": ["NoteProperty", "AliasProperty", "ScriptProperty", "ScriptMethod", "CodeProperty"] },
+        { "token": "-PassThru", "label": "输出对象", "type": "flag", "value": "true", "hint": "不加则管道里看不到结果" }
+      ],
+      "nodes": [
+        { "token": "<成员类型>", "kind": "value", "desc": "位置参数，要添加的成员类型", "valueHint": "成员类型" },
+        { "token": "<名称>", "kind": "value", "desc": "位置参数，新成员的名称", "valueHint": "成员名" },
+        { "token": "-MemberType", "kind": "option", "desc": "要添加的成员类型", "valueHint": "<类型>", "enum": ["AliasProperty", "CodeProperty", "Property", "NoteProperty", "ScriptProperty", "CodeMethod", "ScriptMethod", "ParameterizedProperty", "MemberSet", "Event", "All"], "children": [
+          { "token": "NoteProperty", "kind": "value", "desc": "备注属性，最常用", "valueHint": "类型" },
+          { "token": "AliasProperty", "kind": "value", "desc": "别名属性，指向已有属性", "valueHint": "类型" },
+          { "token": "ScriptProperty", "kind": "value", "desc": "脚本属性，取值时执行脚本块", "valueHint": "类型" },
+          { "token": "ScriptMethod", "kind": "value", "desc": "脚本方法，可被调用", "valueHint": "类型" },
+          { "token": "CodeProperty", "kind": "value", "desc": "代码属性，需引用类型成员", "valueHint": "类型" }
+        ]},
+        { "token": "-Name", "kind": "option", "desc": "新成员的名称", "valueHint": "<成员名>" },
+        { "token": "-Value", "kind": "option", "desc": "成员的初始值或脚本块", "valueHint": "<值>" },
+        { "token": "-SecondValue", "kind": "option", "desc": "别名属性指向的属性名，其它类型忽略", "valueHint": "<值>" },
+        { "token": "-NotePropertyName", "kind": "option", "desc": "备注属性名，专用简写写法", "valueHint": "<属性名>" },
+        { "token": "-NotePropertyValue", "kind": "option", "desc": "备注属性值，专用简写写法", "valueHint": "<值>" },
+        { "token": "-NotePropertyMembers", "kind": "option", "desc": "用哈希表一次添加多个备注属性", "valueHint": "<哈希表>" },
+        { "token": "-TypeName", "kind": "option", "desc": "为对象指定新的类型名称", "valueHint": "<类型名>" },
+        { "token": "-Force", "kind": "flag", "desc": "允许覆盖已存在的同名成员" },
+        { "token": "-PassThru", "kind": "flag", "desc": "把修改后的对象输出到管道" },
+        { "token": "-InputObject", "kind": "option", "desc": "要添加成员的对象", "valueHint": "<对象>" }
+      ]
+    },
+    {
+      "name": "New-Object",
+      "aliases": [],
+      "title": "创建对象实例",
+      "desc": "按类型名创建 .NET 对象或 COM 对象，可以传入构造参数或初始属性。创建哈希表与自定义对象时更常用 [pscustomobject] 这种简写。COM 对象仅在 Windows 上可用。",
+      "usage": "New-Object [-TypeName] <string> [[-ArgumentList] <Object[]>] [-Property <IDictionary>]\nNew-Object [-ComObject] <string> [-Strict] [-Property <IDictionary>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["创建", "对象", "实例", "COM"],
+      "examples": [
+        { "cmd": "$c = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList 'user', (ConvertTo-SecureString 'P@ssw0rd' -AsPlainText -Force)", "desc": "创建凭据对象" },
+        { "cmd": "New-Object -TypeName System.Text.StringBuilder -ArgumentList 100", "desc": "创建带初始容量的字符串构造器" },
+        { "cmd": "New-Object -ComObject WScript.Shell | Get-Member -MemberType Method", "desc": "创建 COM 对象并查看其方法" }
+      ],
+      "form": [
+        { "token": "", "label": "类型名", "type": "text", "value": "System.Text.StringBuilder", "hint": "位置参数，完整的类型名称" },
+        { "token": "-ArgumentList", "label": "构造参数", "type": "text", "value": "", "hint": "逗号分隔，对应构造函数参数" },
+        { "token": "-Property", "label": "属性初值", "type": "text", "value": "@{Key='Value'}", "hint": "创建后立即赋值的属性" },
+        { "token": "-ComObject", "label": "COM 对象", "type": "text", "value": "", "hint": "如 WScript.Shell" }
+      ],
+      "nodes": [
+        { "token": "<类型名>", "kind": "value", "desc": "位置参数，要创建的类型全名", "valueHint": "类型名" },
+        { "token": "-TypeName", "kind": "option", "desc": "要创建的 .NET 类型名称", "valueHint": "<类型名>", "children": [
+          { "token": "System.Text.StringBuilder", "kind": "value", "desc": "可变字符串构造器", "valueHint": "类型名" },
+          { "token": "System.Diagnostics.ProcessStartInfo", "kind": "value", "desc": "进程启动配置对象", "valueHint": "类型名" },
+          { "token": "System.Management.Automation.PSCredential", "kind": "value", "desc": "凭据对象", "valueHint": "类型名" },
+          { "token": "System.Collections.ArrayList", "kind": "value", "desc": "动态数组集合", "valueHint": "类型名" },
+          { "token": "System.Object", "kind": "value", "desc": "基础对象类型", "valueHint": "类型名" },
+          { "token": "System.IO.FileInfo", "kind": "value", "desc": "文件信息对象", "valueHint": "类型名" }
+        ]},
+        { "token": "-ArgumentList", "kind": "option", "desc": "传给构造函数的参数数组", "valueHint": "<参数>", "repeatable": true },
+        { "token": "-Property", "kind": "option", "desc": "创建对象后设置的属性哈希表", "valueHint": "<哈希表>" },
+        { "token": "-ComObject", "kind": "option", "desc": "要创建的 COM 对象的程序标识符", "valueHint": "<ProgID>", "children": [
+          { "token": "WScript.Shell", "kind": "value", "desc": "脚本外壳对象", "valueHint": "ProgID" },
+          { "token": "Scripting.FileSystemObject", "kind": "value", "desc": "文件系统操作对象", "valueHint": "ProgID" },
+          { "token": "Shell.Application", "kind": "value", "desc": "资源管理器外壳对象", "valueHint": "ProgID" },
+          { "token": "Excel.Application", "kind": "value", "desc": "Excel 应用对象", "valueHint": "ProgID" }
+        ]},
+        { "token": "-Strict", "kind": "flag", "desc": "COM 对象创建失败时直接报错" },
+        { "token": "[pscustomobject]@{ }", "kind": "syntax", "desc": "创建自定义对象的更简写法" },
+        { "token": "[类型名]::new()", "kind": "syntax", "desc": "PowerShell 5 起可用的构造写法" },
+        { "token": "@{ 键 = 值 }", "kind": "syntax", "desc": "创建哈希表，不属于对象实例" },
+        { "token": "New-Object -ComObject 后需释放", "kind": "syntax", "desc": "用完应调用 ReleaseComObject 释放" },
+        { "token": "ReleaseComObject", "kind": "syntax", "desc": "[Runtime.InteropServices.Marshal] 上的释放方法" },
+        { "token": "Get-Member 查看实例", "kind": "syntax", "desc": "创建后确认类型与方法是否正确" }
+      ]
+    },
+    {
+      "name": "Select-Xml",
+      "aliases": [],
+      "title": "用 XPath 查询 XML",
+      "desc": "对 XML 文件、字符串或节点对象执行 XPath 查询，返回匹配的节点与所在行。可传命名空间哈希表处理带前缀的文档。结果对象的 Node 属性才是真正的节点。",
+      "usage": "Select-Xml [-XPath] <string> [-Xml] <XmlNode[]> [-Namespace <hashtable>]\nSelect-Xml [-XPath] <string> [-Path] <string[]> [-Namespace <hashtable>]\nSelect-Xml [-XPath] <string> -LiteralPath <string[]> [-Namespace <hashtable>]\nSelect-Xml [-XPath] <string> -Content <string[]> [-Namespace <hashtable>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["XML", "XPath", "查询", "解析"],
+      "examples": [
+        { "cmd": "Select-Xml -Path C:\\Temp\\app.config -XPath '//add' | Select-Object -First 5", "desc": "查找配置文件里的所有 add 节点" },
+        { "cmd": "Select-Xml -Content '<root><item>值</item></root>' -XPath '//item' | ForEach-Object { $_.Node.InnerText }", "desc": "从 XML 字符串查询节点并取出文本内容" },
+        { "cmd": "$ns = @{d='http://schemas.microsoft.com/powershell/2004/04'}; Select-Xml -Path C:\\Temp\\data.xml -XPath '//d:S' -Namespace $ns", "desc": "带命名空间前缀查询节点" }
+      ],
+      "form": [
+        { "token": "", "label": "XPath 表达式", "type": "text", "value": "//add", "hint": "位置参数，XPath 查询语句" },
+        { "token": "-Path", "label": "XML 文件", "type": "path", "value": "C:\\Temp\\app.config", "hint": "要查询的 xml 文件路径" },
+        { "token": "-Content", "label": "XML 文本", "type": "text", "value": "", "hint": "直接给出 xml 字符串" },
+        { "token": "-Namespace", "label": "命名空间", "type": "text", "value": "@{d='http://www.w3.org/1999/xhtml'}", "hint": "前缀与命名空间的映射" }
+      ],
+      "nodes": [
+        { "token": "<XPath表达式>", "kind": "value", "desc": "位置参数，XPath 查询表达式", "valueHint": "XPath 表达式" },
+        { "token": "<XML节点>", "kind": "value", "desc": "位置参数，要查询的 XmlNode 数组", "valueHint": "XML 节点" },
+        { "token": "-XPath", "kind": "option", "desc": "XPath 查询表达式", "valueHint": "<表达式>", "children": [
+          { "token": "//节点名", "kind": "value", "desc": "查找任意层级下的同名节点", "valueHint": "表达式" },
+          { "token": "/根节点/子节点", "kind": "value", "desc": "按绝对路径定位", "valueHint": "表达式" },
+          { "token": "//节点[@属性='值']", "kind": "value", "desc": "按属性值筛选节点", "valueHint": "表达式" },
+          { "token": "//节点/@属性", "kind": "value", "desc": "直接取属性值", "valueHint": "表达式" },
+          { "token": "//*[text()='值']", "kind": "value", "desc": "按文本内容匹配节点", "valueHint": "表达式" }
+        ]},
+        { "token": "-Xml", "kind": "option", "desc": "要查询的 XML 节点对象", "valueHint": "<XML 节点>" },
+        { "token": "-Path", "kind": "option", "desc": "要查询的 xml 文件路径", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按原样使用的路径，不支持通配符", "valueHint": "<文件路径>", "repeatable": true },
+        { "token": "-Content", "kind": "option", "desc": "直接作为字符串提供的 XML 内容", "valueHint": "<XML 文本>", "repeatable": true },
+        { "token": "-Namespace", "kind": "option", "desc": "前缀与命名空间 URI 的哈希表", "valueHint": "<哈希表>" },
+        { "token": "Select-Object -ExpandProperty Node", "kind": "syntax", "desc": "取出真正的 XML 节点对象" },
+        { "token": "$_.Node.属性名", "kind": "syntax", "desc": "读取匹配节点的属性值" },
+        { "token": "[xml](Get-Content -Raw x.xml)", "kind": "syntax", "desc": "小文件可先转成 xml 对象再用点号访问" },
+        { "token": "//节点 | Measure-Object", "kind": "syntax", "desc": "统计匹配到的节点数量" }
+      ]
+    },
+    {
+      "name": "Measure-Command",
+      "aliases": [],
+      "title": "测量脚本执行耗时",
+      "desc": "执行一个脚本块并返回执行所花的时间，结果对象含总时间与各分量。计时包含命令执行全过程，适合比较两种写法的性能。它不会显示脚本块自身的输出。",
+      "usage": "Measure-Command [-Expression] <scriptblock> [-InputObject <psobject>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["计时", "性能", "测试", "耗时"],
+      "examples": [
+        { "cmd": "Measure-Command -Expression { Get-ChildItem -Recurse C:\\Windows | Out-Null }", "desc": "测量递归遍历目录的耗时" },
+        { "cmd": "(Measure-Command { 1..10000 | ForEach-Object { $_ * 2 } }).TotalMilliseconds", "desc": "取毫秒数用于比较写法优劣" },
+        { "cmd": "Measure-Command { Get-Process | Where-Object CPU -GT 10 }", "desc": "测量筛选命令的执行时间" }
+      ],
+      "form": [
+        { "token": "", "label": "脚本块", "type": "text", "value": "{ Get-Process }", "hint": "位置参数，要计时的代码" },
+        { "token": "-Expression", "label": "表达式", "type": "text", "value": "{ Get-Process }", "hint": "与位置参数等价" },
+        { "token": "-InputObject", "label": "输入对象", "type": "text", "value": "", "hint": "可选，来自管道" }
+      ],
+      "nodes": [
+        { "token": "<脚本块>", "kind": "value", "desc": "位置参数，要计时的脚本块", "valueHint": "脚本块" },
+        { "token": "-Expression", "kind": "option", "desc": "要测量执行时间的脚本块", "valueHint": "<脚本块>", "children": [
+          { "token": "{ Get-ChildItem -Recurse }", "kind": "value", "desc": "测量目录遍历耗时", "valueHint": "脚本块" },
+          { "token": "{ Get-Process }", "kind": "value", "desc": "测量取进程列表耗时", "valueHint": "脚本块" },
+          { "token": "{ 1..10000 | ForEach-Object { $_ } }", "kind": "value", "desc": "测量循环处理耗时", "valueHint": "脚本块" }
+        ]},
+        { "token": "-InputObject", "kind": "option", "desc": "可选的输入对象，一般不用", "valueHint": "<对象>" },
+        { "token": "(.TotalMilliseconds)", "kind": "syntax", "desc": "取总毫秒数，便于比较" },
+        { "token": "(.TotalSeconds)", "kind": "syntax", "desc": "取总秒数" },
+        { "token": "(.Ticks)", "kind": "syntax", "desc": "取最小计时单位，精度最高" },
+        { "token": "脚本块输出被丢弃", "kind": "syntax", "desc": "计时时不显示脚本块自身的输出" },
+        { "token": "多次运行取平均", "kind": "syntax", "desc": "首次执行受缓存影响，建议多测几次" },
+        { "token": "Measure-Object", "kind": "syntax", "desc": "统计数值用它，注意与本命令区分" },
+        { "token": "Get-Date 差值法", "kind": "syntax", "desc": "也可用两个时间点相减手工计时" },
+        { "token": "Stopwatch 计时", "kind": "syntax", "desc": "需要多次分段计时时可使用" }
+      ]
+    },
+    {
+      "name": "Get-Random",
+      "aliases": [],
+      "title": "生成随机数或随机取项",
+      "desc": "生成随机整数，或从集合里随机抽取若干项。用 -Count 指定抽取个数，配合 -SetSeed 可让结果可复现。默认在 0 到最大值之间取值，用 -Minimum 可以设下限。",
+      "usage": "Get-Random [[-Maximum] <Object>] [-SetSeed <int>] [-Minimum <Object>]\nGet-Random [-InputObject] <Object[]> [-SetSeed <int>] [-Count <int>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["随机", "抽签", "取样", "测试"],
+      "examples": [
+        { "cmd": "Get-Random -Minimum 1 -Maximum 101", "desc": "生成 1 到 100 之间的随机整数" },
+        { "cmd": "Get-ChildItem -File | Get-Random -Count 5", "desc": "随机抽取 5 个文件" },
+        { "cmd": "'石头','剪刀','布' | Get-Random -SetSeed 42", "desc": "用固定种子得到可复现结果" }
+      ],
+      "form": [
+        { "token": "", "label": "最大值", "type": "number", "value": "100", "hint": "位置参数，取不到该值本身" },
+        { "token": "-Minimum", "label": "最小值", "type": "number", "value": "1", "hint": "取值下限，含该值" },
+        { "token": "-Count", "label": "抽取个数", "type": "number", "value": "5", "hint": "从集合中随机取几项" },
+        { "token": "-SetSeed", "label": "随机种子", "type": "number", "value": "", "hint": "固定后结果可复现" }
+      ],
+      "nodes": [
+        { "token": "<最大值>", "kind": "value", "desc": "位置参数，随机数上限，不含该值", "valueHint": "数值" },
+        { "token": "<对象集合>", "kind": "value", "desc": "位置参数，要从其中随机取项的集合", "valueHint": "对象集合" },
+        { "token": "-Maximum", "kind": "option", "desc": "随机数上限，结果不含该值", "valueHint": "<数值>", "children": [
+          { "token": "10", "kind": "value", "desc": "生成 0 到 9", "valueHint": "数值" },
+          { "token": "100", "kind": "value", "desc": "生成 0 到 99", "valueHint": "数值" },
+          { "token": "1000", "kind": "value", "desc": "生成 0 到 999", "valueHint": "数值" }
+        ]},
+        { "token": "-Minimum", "kind": "option", "desc": "随机数下限，结果包含该值", "valueHint": "<数值>" },
+        { "token": "-Count", "kind": "option", "desc": "从集合里随机抽取的对象个数", "valueHint": "<个数>", "children": [
+          { "token": "1", "kind": "value", "desc": "只抽一个，默认行为", "valueHint": "个数" },
+          { "token": "5", "kind": "value", "desc": "抽五个做抽样检查", "valueHint": "个数" }
+        ]},
+        { "token": "-InputObject", "kind": "option", "desc": "要从中随机取项的集合", "valueHint": "<对象集合>" },
+        { "token": "-SetSeed", "kind": "option", "desc": "指定随机种子，使结果可复现", "valueHint": "<整数>" },
+        { "token": "Get-Random -Minimum 1 -Maximum 101", "kind": "syntax", "desc": "生成 1 到 100 的随机整数" },
+        { "token": "Get-Random -Count 5", "kind": "syntax", "desc": "从管道集合中随机抽取五项" },
+        { "token": "Get-Random 配合 Sort-Object", "kind": "syntax", "desc": "打乱顺序可先加随机属性再排序" },
+        { "token": "密码生成", "kind": "syntax", "desc": "从字符集随机取若干字符组合成密码" },
+        { "token": "不适用于加密", "kind": "syntax", "desc": "安全场景请使用加密随机数生成器" }
+      ]
+    }
+  ]
+}

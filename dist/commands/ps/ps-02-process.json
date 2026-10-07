@@ -1,0 +1,1078 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "进程、服务与作业",
+  "icon": "system",
+  "commands": [
+    {
+      "name": "Get-Process",
+      "aliases": ["gps", "ps"],
+      "title": "查看进程信息",
+      "desc": "获取本机或远程计算机上正在运行的进程对象，包含进程号、CPU 时间、内存占用、路径等属性。默认返回全部进程，常配合管道做排序与筛选，用来排查占用资源过高的程序。",
+      "usage": "Get-Process [[-Name] <string[]>] [-ComputerName <string[]>] [-Module] [-FileVersionInfo] ; Get-Process -Id <int[]> [-IncludeUserName] ; Get-Process -InputObject <Process[]> [-ComputerName <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["进程", "资源占用", "内存", "CPU"],
+      "examples": [
+        { "cmd": "Get-Process", "desc": "列出当前所有进程" },
+        { "cmd": "Get-Process -Name notepad", "desc": "查看记事本进程" },
+        { "cmd": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10", "desc": "按 CPU 占用排序取前十个进程" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "进程名", "type": "text", "value": "notepad", "hint": "支持通配符，如 chrome*" },
+        { "token": "-Id", "label": "进程号", "type": "number", "value": "", "hint": "填写后按 PID 查询，可留空" },
+        { "token": "-Module", "label": "显示模块", "type": "flag", "value": "false", "hint": "列出进程加载的模块" },
+        { "token": "-FileVersionInfo", "label": "显示版本信息", "type": "flag", "value": "false", "hint": "列出进程文件版本" }
+      ],
+      "nodes": [
+        { "token": "<进程名>", "kind": "value", "desc": "按名称筛选进程，支持通配符", "valueHint": "进程名或通配符" },
+        { "token": "-Name", "kind": "option", "desc": "按进程名称获取进程，可用通配符", "valueHint": "<进程名>", "repeatable": true },
+        { "token": "-Id", "kind": "option", "desc": "按进程号 PID 获取进程", "valueHint": "<PID>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传入的进程对象", "valueHint": "<进程对象>" },
+        { "token": "-IncludeUserName", "kind": "flag", "desc": "结果附带进程所属用户名，需管理员权限" },
+        { "token": "-ComputerName", "kind": "option", "desc": "查询远程计算机上的进程", "valueHint": "<计算机名>", "repeatable": true },
+        { "token": "-Module", "kind": "flag", "desc": "同时列出进程加载的模块，部分进程需管理员" },
+        { "token": "-FileVersionInfo", "kind": "flag", "desc": "同时列出进程文件的版本信息" },
+        { "token": "Get-Process | Sort-Object CPU -Descending", "kind": "syntax", "desc": "按 CPU 占用从高到低排序查看" },
+        { "token": "Get-Process -Id $PID", "kind": "syntax", "desc": "查看当前 PowerShell 会话自身的进程" },
+        { "token": "Get-Process | Where-Object WorkingSet -gt 100MB", "kind": "syntax", "desc": "筛选内存占用超过 100MB 的进程" },
+        { "token": "(Get-Process -Name <进程名>).Path", "kind": "syntax", "desc": "取出进程可执行文件的完整路径" }
+      ]
+    },
+    {
+      "name": "Start-Process",
+      "aliases": ["saps", "start"],
+      "title": "启动新进程",
+      "desc": "在本机启动一个程序、脚本或文档，相当于命令行版的「运行」。可以指定参数、工作目录、窗口样式，也能重定向标准输入输出，或用 -Verb 以管理员身份运行。默认不等待，程序后台启动后立即返回。",
+      "usage": "Start-Process [-FilePath] <string> [[-ArgumentList] <string[]>] [-Credential <pscredential>] [-WorkingDirectory <string>] [-LoadUserProfile] [-NoNewWindow] [-PassThru] [-RedirectStandardError <string>] [-RedirectStandardInput <string>] [-RedirectStandardOutput <string>] [-WindowStyle <ProcessWindowStyle>] [-Wait] [-UseNewEnvironment] ; Start-Process [-FilePath] <string> [[-ArgumentList] <string[]>] [-WorkingDirectory <string>] [-PassThru] [-Verb <string>] [-WindowStyle <ProcessWindowStyle>] [-Wait]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["启动", "进程", "运行程序"],
+      "examples": [
+        { "cmd": "Start-Process notepad", "desc": "打开记事本" },
+        { "cmd": "Start-Process -FilePath cmd.exe -ArgumentList '/c dir > out.txt' -WorkingDirectory C: -Wait", "desc": "以指定工作目录运行命令并等待结束" },
+        { "cmd": "Start-Process notepad -Verb RunAs", "desc": "以管理员身份打开记事本" }
+      ],
+      "form": [
+        { "token": "-FilePath", "label": "程序路径", "type": "text", "value": "notepad", "hint": "可执行文件、脚本或文档" },
+        { "token": "-ArgumentList", "label": "启动参数", "type": "text", "value": "", "hint": "多个参数用逗号分隔" },
+        { "token": "-WindowStyle", "label": "窗口样式", "type": "select", "value": "Normal", "hint": "窗口显示方式", "options": ["Normal", "Hidden", "Minimized", "Maximized"] },
+        { "token": "-Wait", "label": "等待结束", "type": "flag", "value": "false", "hint": "等程序退出后再返回" }
+      ],
+      "nodes": [
+        { "token": "<文件路径>", "kind": "value", "desc": "要启动的程序、脚本或文档路径", "valueHint": "可执行文件或文档路径" },
+        { "token": "-FilePath", "kind": "option", "desc": "指定要启动的程序路径", "valueHint": "<文件路径>" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "传递给该程序的参数列表", "valueHint": "<参数...>", "repeatable": true },
+        { "token": "-WorkingDirectory", "kind": "option", "desc": "指定程序启动后的工作目录", "valueHint": "<目录>" },
+        { "token": "-Credential", "kind": "option", "desc": "以其他用户账户身份启动程序", "valueHint": "<凭据对象>" },
+        { "token": "-Verb", "kind": "option", "desc": "指定对文件执行的动作，如管理员运行", "valueHint": "<动词>", "enum": ["Open", "Print", "Edit", "RunAs"] },
+        { "token": "-WindowStyle", "kind": "option", "desc": "指定程序窗口的显示方式", "valueHint": "<样式>", "enum": ["Normal", "Hidden", "Minimized", "Maximized"] },
+        { "token": "-LoadUserProfile", "kind": "flag", "desc": "加载用户配置文件，可读取 HKCU 注册表" },
+        { "token": "-NoNewWindow", "kind": "flag", "desc": "在当前控制台窗口内启动，不另开窗口" },
+        { "token": "-UseNewEnvironment", "kind": "flag", "desc": "使用全新环境变量而非继承当前环境" },
+        { "token": "-Wait", "kind": "flag", "desc": "等待启动的进程结束后再返回" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回进程对象，便于后续操作" },
+        { "token": "-RedirectStandardOutput", "kind": "option", "desc": "把标准输出重定向写入指定文件", "valueHint": "<文件路径>" },
+        { "token": "-RedirectStandardError", "kind": "option", "desc": "把标准错误重定向写入指定文件", "valueHint": "<文件路径>" },
+        { "token": "-RedirectStandardInput", "kind": "option", "desc": "从指定文件读取标准输入", "valueHint": "<文件路径>" },
+        { "token": "Start-Process notepad -PassThru", "kind": "syntax", "desc": "启动后用管道拿到进程对象" }
+      ]
+    },
+    {
+      "name": "Stop-Process",
+      "aliases": ["spps", "kill"],
+      "title": "结束进程",
+      "desc": "按进程名或进程号强制结束进程，效果类似任务管理器里的结束任务。默认不给确认提示，误杀可能丢失未保存的数据。结束其他用户或系统关键进程通常需要管理员权限。",
+      "usage": "Stop-Process [-Id] <int[]> [-Force] [-PassThru] ; Stop-Process -Name <string[]> [-Force] [-PassThru] ; Stop-Process [-InputObject] <Process[]> [-Force] [-PassThru]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["进程", "结束", "强制"],
+      "examples": [
+        { "cmd": "Stop-Process -Name notepad", "desc": "按名字结束记事本" },
+        { "cmd": "Get-Process chrome | Stop-Process -Force", "desc": "强制结束所有 chrome 进程" },
+        { "cmd": "Stop-Process -Id 1234 -PassThru", "desc": "按 PID 结束并返回被结束的进程对象" }
+      ],
+      "form": [
+        { "token": "", "label": "进程名或PID", "type": "text", "value": "notepad", "hint": "名字或进程号" },
+        { "token": "-Force", "label": "强制结束", "type": "flag", "value": "false", "hint": "不提示，直接杀" },
+        { "token": "-PassThru", "label": "返回进程对象", "type": "flag", "value": "false", "hint": "便于后续处理" }
+      ],
+      "nodes": [
+        { "token": "<进程>", "kind": "value", "desc": "进程名或进程号 PID", "valueHint": "名称或PID" },
+        { "token": "-Id", "kind": "option", "desc": "按进程号 PID 结束进程", "valueHint": "<PID>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按进程名称结束，支持通配符", "valueHint": "<进程名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的进程对象", "valueHint": "<进程对象>" },
+        { "token": "-Force", "kind": "flag", "desc": "不做确认提示，直接强制结束" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被结束的进程对象" },
+        { "token": "Get-Process -Name <进程名> | Stop-Process", "kind": "syntax", "desc": "先查进程再管道结束" },
+        { "token": "Get-Process | Where-Object CPU -gt 100 | Stop-Process", "kind": "syntax", "desc": "结束 CPU 占用超过 100 秒的进程" },
+        { "token": "Stop-Process -Name notepad -Force -PassThru", "kind": "syntax", "desc": "强制结束记事本并输出结果对象" },
+        { "token": "Stop-Process -Id $PID", "kind": "syntax", "desc": "结束当前会话进程，会立即关闭自己" }
+      ]
+    },
+    {
+      "name": "Wait-Process",
+      "aliases": [],
+      "title": "等待进程结束",
+      "desc": "等待一个或多个进程结束后再继续执行后面的命令，可设置超时秒数。常用于脚本里等安装程序或外部工具跑完再处理结果。超时后不会杀进程，只是返回并给出未结束提示。",
+      "usage": "Wait-Process [-Name] <string[]> [[-Timeout] <int>] ; Wait-Process [-Id] <int[]> [[-Timeout] <int>] ; Wait-Process [[-Timeout] <int>] -InputObject <Process[]>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["进程", "等待", "超时"],
+      "examples": [
+        { "cmd": "Wait-Process -Name notepad", "desc": "等记事本进程结束" },
+        { "cmd": "Wait-Process -Name setup -Timeout 60", "desc": "最多等 60 秒，超时返回" },
+        { "cmd": "Start-Process notepad -PassThru | Wait-Process", "desc": "启动记事本并等它关闭" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "进程名", "type": "text", "value": "notepad", "hint": "要等待的进程名" },
+        { "token": "-Timeout", "label": "超时秒数", "type": "number", "value": "60", "hint": "超时后不再等待" }
+      ],
+      "nodes": [
+        { "token": "<进程名>", "kind": "value", "desc": "要等待的进程名或进程号", "valueHint": "进程名" },
+        { "token": "-Name", "kind": "option", "desc": "等待指定名称的进程结束", "valueHint": "<进程名>", "repeatable": true },
+        { "token": "-Id", "kind": "option", "desc": "等待指定进程号的进程结束", "valueHint": "<PID>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的进程对象", "valueHint": "<进程对象>" },
+        { "token": "-Timeout", "kind": "option", "desc": "最长等待秒数，超时即返回", "valueHint": "<秒>" },
+        { "token": "Wait-Process -Name <进程名> -Timeout 30", "kind": "syntax", "desc": "最多等 30 秒后继续执行" },
+        { "token": "Start-Process notepad -PassThru | Wait-Process", "kind": "syntax", "desc": "启动程序并等它关闭" },
+        { "token": "Wait-Process -Id <PID> -Timeout 10", "kind": "syntax", "desc": "按进程号等待并设置超时" },
+        { "token": "Get-Process -Name <进程名> | Wait-Process", "kind": "syntax", "desc": "管道传入进程对象等待结束" },
+        { "token": "Wait-Process -Name <进程名>; '进程已结束'", "kind": "syntax", "desc": "等待结束后输出提示文字" }
+      ]
+    },
+    {
+      "name": "Debug-Process",
+      "aliases": [],
+      "title": "调试指定进程",
+      "desc": "把调试器附加到本机正在运行的进程上，便于排查崩溃或挂起问题。第一次附加会弹出选择调试器的对话框并可能暂停目标进程。调试其他用户的进程一般需要管理员权限。",
+      "usage": "Debug-Process [-Name] <string[]> ; Debug-Process [-Id] <int[]> ; Debug-Process -InputObject <Process[]>",
+      "admin": false,
+      "danger": 1,
+      "tags": ["进程", "调试", "排错"],
+      "examples": [
+        { "cmd": "Debug-Process -Name notepad", "desc": "把调试器附加到记事本" },
+        { "cmd": "Debug-Process -Id 1234", "desc": "按进程号附加调试器" },
+        { "cmd": "Get-Process -Name notepad | Debug-Process", "desc": "管道传入进程对象进行调试" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "进程名", "type": "text", "value": "notepad", "hint": "要调试的进程名" },
+        { "token": "-Id", "label": "进程号", "type": "number", "value": "", "hint": "按 PID 调试，可留空" }
+      ],
+      "nodes": [
+        { "token": "<进程名>", "kind": "value", "desc": "要调试的进程名或进程号", "valueHint": "进程名" },
+        { "token": "-Name", "kind": "option", "desc": "按名称指定要调试的进程", "valueHint": "<进程名>", "repeatable": true },
+        { "token": "-Id", "kind": "option", "desc": "按进程号指定要调试的进程", "valueHint": "<PID>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的进程对象", "valueHint": "<进程对象>" },
+        { "token": "Debug-Process -Name notepad", "kind": "syntax", "desc": "直接按名称附加调试器" },
+        { "token": "Debug-Process -Id <PID>", "kind": "syntax", "desc": "直接按进程号附加调试器" },
+        { "token": "Get-Process -Name <进程名> | Debug-Process", "kind": "syntax", "desc": "从管道传入进程对象调试" },
+        { "token": "$p = Get-Process -Name notepad; Debug-Process -InputObject $p", "kind": "syntax", "desc": "先用变量保存进程再调试" },
+        { "token": "Get-Process | Where-Object ProcessName -like 'note*' | Debug-Process", "kind": "syntax", "desc": "按通配符筛选进程后调试" },
+        { "token": "Debug-Process -Name <进程名>; Debug-Process -Id <PID>", "kind": "syntax", "desc": "连续调试多个目标进程" }
+      ]
+    },
+    {
+      "name": "Get-Service",
+      "aliases": ["gsv"],
+      "title": "查看系统服务",
+      "desc": "获取本机或远程计算机上的 Windows 服务对象，可看到服务名、显示名、状态和启动类型。支持按名称或显示名筛选，也能列出依赖服务与被依赖服务。只读命令，不改动服务状态。",
+      "usage": "Get-Service [[-Name] <string[]>] [-ComputerName <string[]>] [-DependentServices] [-RequiredServices] [-Include <string[]>] [-Exclude <string[]>] ; Get-Service -DisplayName <string[]> [-ComputerName <string[]>] [-DependentServices] [-RequiredServices]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["服务", "状态", "依赖"],
+      "examples": [
+        { "cmd": "Get-Service", "desc": "列出所有服务及状态" },
+        { "cmd": "Get-Service -Name Spooler", "desc": "查看打印后台服务" },
+        { "cmd": "Get-Service | Where-Object Status -eq 'Running'", "desc": "只列出正在运行的服务" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "支持通配符，如 Win*" },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "", "hint": "按显示名称查询" },
+        { "token": "-DependentServices", "label": "列出依赖服务", "type": "flag", "value": "false", "hint": "依赖本服务的服务" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要查询的服务名称，可用通配符", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "按服务名查询，支持通配符", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "-DisplayName", "kind": "option", "desc": "按服务显示名称查询", "valueHint": "<显示名>", "repeatable": true },
+        { "token": "-ComputerName", "kind": "option", "desc": "查询远程计算机上的服务", "valueHint": "<计算机名>", "repeatable": true },
+        { "token": "-DependentServices", "kind": "flag", "desc": "同时列出依赖该服务的服务" },
+        { "token": "-RequiredServices", "kind": "flag", "desc": "同时列出该服务所依赖的服务" },
+        { "token": "-Include", "kind": "option", "desc": "只包含匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-Exclude", "kind": "option", "desc": "排除匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "Get-Service | Where-Object Status -eq 'Running'", "kind": "syntax", "desc": "筛选出正在运行的服务" },
+        { "token": "(Get-Service -Name <服务名>).StartType", "kind": "syntax", "desc": "查看服务的启动类型" }
+      ]
+    },
+    {
+      "name": "Start-Service",
+      "aliases": ["sasv"],
+      "title": "启动服务",
+      "desc": "启动一个或多个已停止的 Windows 服务，默认不返回对象。若服务被禁用或依赖服务未启动会报错。启动系统服务通常需要管理员权限。",
+      "usage": "Start-Service [-InputObject] <ServiceController[]> [-PassThru] [-Include <string[]>] [-Exclude <string[]>] ; Start-Service [-Name] <string[]> [-PassThru] [-Include <string[]>] [-Exclude <string[]>] ; Start-Service -DisplayName <string[]> [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "启动", "管理员"],
+      "examples": [
+        { "cmd": "Start-Service -Name Spooler", "desc": "启动打印后台服务" },
+        { "cmd": "Get-Service -Name Spooler | Start-Service", "desc": "用管道启动服务" },
+        { "cmd": "Start-Service -Name Spooler -PassThru", "desc": "启动服务并返回服务对象" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "要启动的服务名" },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "", "hint": "按显示名启动" },
+        { "token": "-PassThru", "label": "返回服务对象", "type": "flag", "value": "false", "hint": "便于检查状态" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要启动的服务名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要启动的服务名称", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "-DisplayName", "kind": "option", "desc": "按服务显示名称启动服务", "valueHint": "<显示名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "启动后返回服务对象" },
+        { "token": "-Include", "kind": "option", "desc": "只包含匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-Exclude", "kind": "option", "desc": "排除匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "Get-Service -Name <服务名> | Start-Service", "kind": "syntax", "desc": "先查服务再管道启动" },
+        { "token": "Start-Service -Name <服务名> -PassThru", "kind": "syntax", "desc": "启动服务并输出服务对象" },
+        { "token": "Start-Service -DisplayName '<显示名>'", "kind": "syntax", "desc": "按显示名称启动服务" }
+      ]
+    },
+    {
+      "name": "Stop-Service",
+      "aliases": ["spsv"],
+      "title": "停止服务",
+      "desc": "停止一个或多个正在运行的 Windows 服务，可用于重启前的准备或临时释放占用。使用 -Force 会连同依赖它的服务一起停止。停止系统服务通常需要管理员权限。",
+      "usage": "Stop-Service [-InputObject] <ServiceController[]> [-Force] [-NoWait] [-PassThru] [-Include <string[]>] [-Exclude <string[]>] ; Stop-Service [-Name] <string[]> [-Force] [-NoWait] [-PassThru] ; Stop-Service -DisplayName <string[]> [-Force] [-NoWait] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "停止", "管理员"],
+      "examples": [
+        { "cmd": "Stop-Service -Name Spooler", "desc": "停止打印后台服务" },
+        { "cmd": "Stop-Service -Name Spooler -Force", "desc": "连同依赖服务一起强制停止" },
+        { "cmd": "Get-Service -Name Spooler | Stop-Service -PassThru", "desc": "管道停止并返回服务对象" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "要停止的服务名" },
+        { "token": "-Force", "label": "强制停止", "type": "flag", "value": "false", "hint": "连带依赖服务一起停" },
+        { "token": "-NoWait", "label": "不等待", "type": "flag", "value": "false", "hint": "发出停止请求立即返回" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要停止的服务名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要停止的服务名称", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "-DisplayName", "kind": "option", "desc": "按服务显示名称停止服务", "valueHint": "<显示名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "-Force", "kind": "flag", "desc": "同时停止依赖该服务的其他服务" },
+        { "token": "-NoWait", "kind": "flag", "desc": "发出停止请求后立即返回不等待" },
+        { "token": "-PassThru", "kind": "flag", "desc": "停止后返回服务对象" },
+        { "token": "-Include", "kind": "option", "desc": "只包含匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-Exclude", "kind": "option", "desc": "排除匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "Get-Service -Name <服务名> | Stop-Service", "kind": "syntax", "desc": "先查服务再管道停止" },
+        { "token": "Stop-Service -Name <服务名> -Force -NoWait", "kind": "syntax", "desc": "强制停止且不等待完成" }
+      ]
+    },
+    {
+      "name": "Restart-Service",
+      "aliases": [],
+      "title": "重启服务",
+      "desc": "先停止再启动指定的 Windows 服务，适合让服务重新读取配置。若服务处于停止状态则会直接启动。使用 -Force 会一并重启依赖它的服务，通常需要管理员权限。",
+      "usage": "Restart-Service [-InputObject] <ServiceController[]> [-Force] [-PassThru] [-Include <string[]>] [-Exclude <string[]>] ; Restart-Service [-Name] <string[]> [-Force] [-PassThru] ; Restart-Service -DisplayName <string[]> [-Force] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "重启", "管理员"],
+      "examples": [
+        { "cmd": "Restart-Service -Name Spooler", "desc": "重启打印后台服务" },
+        { "cmd": "Restart-Service -Name Spooler -Force", "desc": "连同依赖服务一起重启" },
+        { "cmd": "Get-Service -Name Spooler | Restart-Service -PassThru", "desc": "管道重启并返回服务对象" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "要重启的服务名" },
+        { "token": "-Force", "label": "强制重启", "type": "flag", "value": "false", "hint": "含依赖服务一起重启" },
+        { "token": "-PassThru", "label": "返回服务对象", "type": "flag", "value": "false", "hint": "便于确认状态" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要重启的服务名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要重启的服务名称", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "-DisplayName", "kind": "option", "desc": "按服务显示名称重启服务", "valueHint": "<显示名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "-Force", "kind": "flag", "desc": "同时重启依赖该服务的其他服务" },
+        { "token": "-PassThru", "kind": "flag", "desc": "重启后返回服务对象" },
+        { "token": "-Include", "kind": "option", "desc": "只包含匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-Exclude", "kind": "option", "desc": "排除匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "Restart-Service -Name <服务名> -Force -PassThru", "kind": "syntax", "desc": "强制重启并输出服务对象" },
+        { "token": "Get-Service -Name <服务名> | Restart-Service", "kind": "syntax", "desc": "先查服务再管道重启" }
+      ]
+    },
+    {
+      "name": "Suspend-Service",
+      "aliases": [],
+      "title": "挂起服务",
+      "desc": "把正在运行的服务置为暂停状态，服务进程仍在但暂停处理请求。只有支持暂停的服务才能被挂起，不支持时会报错。挂起后可用 Resume-Service 恢复。",
+      "usage": "Suspend-Service [-InputObject] <ServiceController[]> [-PassThru] [-Include <string[]>] [-Exclude <string[]>] ; Suspend-Service [-Name] <string[]> [-PassThru] ; Suspend-Service -DisplayName <string[]> [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "挂起", "暂停"],
+      "examples": [
+        { "cmd": "Suspend-Service -Name Spooler", "desc": "挂起打印后台服务" },
+        { "cmd": "Suspend-Service -Name Spooler -PassThru", "desc": "挂起并返回服务对象" },
+        { "cmd": "Get-Service -Name Spooler | Suspend-Service", "desc": "用管道挂起服务" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "要挂起的服务名" },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "", "hint": "按显示名挂起" },
+        { "token": "-PassThru", "label": "返回服务对象", "type": "flag", "value": "false", "hint": "便于确认状态" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要挂起的服务名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要挂起的服务名称", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "-DisplayName", "kind": "option", "desc": "按服务显示名称挂起服务", "valueHint": "<显示名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "挂起后返回服务对象" },
+        { "token": "-Include", "kind": "option", "desc": "只包含匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-Exclude", "kind": "option", "desc": "排除匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "Suspend-Service -Name <服务名> -PassThru", "kind": "syntax", "desc": "挂起服务并输出服务对象" },
+        { "token": "Get-Service -Name <服务名> | Suspend-Service", "kind": "syntax", "desc": "先查服务再管道挂起" },
+        { "token": "Suspend-Service -DisplayName '<显示名>'", "kind": "syntax", "desc": "按显示名称挂起服务" }
+      ]
+    },
+    {
+      "name": "Resume-Service",
+      "aliases": [],
+      "title": "恢复已挂起服务",
+      "desc": "把被挂起即暂停的服务恢复为运行状态，继续处理请求。对本来就正常运行的服务执行会报错。恢复后可以用 Get-Service 确认状态是否为 Running。",
+      "usage": "Resume-Service [-InputObject] <ServiceController[]> [-PassThru] [-Include <string[]>] [-Exclude <string[]>] ; Resume-Service [-Name] <string[]> [-PassThru] ; Resume-Service -DisplayName <string[]> [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "恢复", "继续"],
+      "examples": [
+        { "cmd": "Resume-Service -Name Spooler", "desc": "恢复被挂起的打印服务" },
+        { "cmd": "Resume-Service -Name Spooler -PassThru", "desc": "恢复并返回服务对象" },
+        { "cmd": "Get-Service -Name Spooler | Resume-Service", "desc": "用管道恢复服务" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "要恢复的服务名" },
+        { "token": "-PassThru", "label": "返回服务对象", "type": "flag", "value": "false", "hint": "便于确认状态" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要恢复的服务名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要恢复的服务名称", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "-DisplayName", "kind": "option", "desc": "按服务显示名称恢复服务", "valueHint": "<显示名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "恢复后返回服务对象" },
+        { "token": "-Include", "kind": "option", "desc": "只包含匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-Exclude", "kind": "option", "desc": "排除匹配名称的服务", "valueHint": "<名称>", "repeatable": true },
+        { "token": "Resume-Service -Name <服务名> -PassThru", "kind": "syntax", "desc": "恢复服务并输出服务对象" },
+        { "token": "Get-Service -Name <服务名> | Resume-Service", "kind": "syntax", "desc": "先查服务再管道恢复" },
+        { "token": "Suspend-Service -Name <服务名>; Resume-Service -Name <服务名>", "kind": "syntax", "desc": "先挂起再恢复，用于测试" }
+      ]
+    },
+    {
+      "name": "Set-Service",
+      "aliases": [],
+      "title": "修改服务配置",
+      "desc": "修改已有服务的启动类型、显示名、描述，或直接启动与停止服务。改启动类型为 Disabled 后服务将无法自动启动，修改系统服务需要管理员权限。改完可用 -PassThru 返回对象确认结果。",
+      "usage": "Set-Service [-Name] <string> [-ComputerName <string[]>] [-DisplayName <string>] [-Description <string>] [-StartupType <ServiceStartMode>] [-Status <string>] [-PassThru] ; Set-Service [-ComputerName <string[]>] [-DisplayName <string>] [-Description <string>] [-StartupType <ServiceStartMode>] [-Status <string>] [-InputObject <ServiceController>] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "启动类型", "配置"],
+      "examples": [
+        { "cmd": "Set-Service -Name Spooler -StartupType Manual", "desc": "把打印服务改为手动启动" },
+        { "cmd": "Set-Service -Name Spooler -Status Stopped", "desc": "把服务停止" },
+        { "cmd": "Set-Service -Name Spooler -Description '打印后台处理程序'", "desc": "修改服务描述文字" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "Spooler", "hint": "要修改的服务名" },
+        { "token": "-StartupType", "label": "启动类型", "type": "select", "value": "Manual", "hint": "服务的启动方式", "options": ["Boot", "System", "Automatic", "Manual", "Disabled"] },
+        { "token": "-Status", "label": "服务状态", "type": "select", "value": "Running", "hint": "直接改成该状态", "options": ["Running", "Stopped", "Paused"] },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "", "hint": "新的显示名称" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要修改的服务名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要修改的服务名称", "valueHint": "<服务名>" },
+        { "token": "-StartupType", "kind": "option", "desc": "设置服务启动类型", "valueHint": "<类型>", "enum": ["Boot", "System", "Automatic", "Manual", "Disabled"] },
+        { "token": "-Status", "kind": "option", "desc": "直接把服务改成指定状态", "valueHint": "<状态>", "enum": ["Running", "Stopped", "Paused"] },
+        { "token": "-DisplayName", "kind": "option", "desc": "修改服务的显示名称", "valueHint": "<显示名>" },
+        { "token": "-Description", "kind": "option", "desc": "修改服务的描述文字", "valueHint": "<描述>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "操作远程计算机上的服务", "valueHint": "<计算机名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回修改后的服务对象" },
+        { "token": "Set-Service -Name <服务名> -StartupType Automatic", "kind": "syntax", "desc": "把服务改为开机自动启动" },
+        { "token": "Set-Service -Name <服务名> -StartupType Disabled", "kind": "syntax", "desc": "禁用服务，禁止其启动" },
+        { "token": "Set-Service -Name <服务名> -Status Running -PassThru", "kind": "syntax", "desc": "启动服务并返回最新对象" }
+      ]
+    },
+    {
+      "name": "New-Service",
+      "aliases": [],
+      "title": "创建系统服务",
+      "desc": "在系统服务数据库里注册一个新的 Windows 服务，需要给出服务名和可执行文件路径。注册后服务默认不会自动运行，要用 Start-Service 启动。创建系统服务必须使用管理员权限。",
+      "usage": "New-Service [-Name] <string> [-BinaryPathName] <string> [-DisplayName <string>] [-Description <string>] [-StartupType <ServiceStartMode>] [-Credential <pscredential>] [-DependsOn <string[]>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["服务", "创建", "注册"],
+      "examples": [
+        { "cmd": "New-Service -Name MyService -BinaryPathName 'C:/tools/svc.exe'", "desc": "创建一个最简服务" },
+        { "cmd": "New-Service -Name MyService -BinaryPathName 'C:/tools/svc.exe' -StartupType Manual", "desc": "创建手动启动的服务" },
+        { "cmd": "New-Service -Name MyService -BinaryPathName 'C:/tools/svc.exe' -DisplayName '我的服务' -Description '测试服务'", "desc": "创建带显示名和描述的服务" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "MyService", "hint": "服务内部名称" },
+        { "token": "-BinaryPathName", "label": "程序路径", "type": "text", "value": "C:/tools/svc.exe", "hint": "服务可执行文件路径" },
+        { "token": "-StartupType", "label": "启动类型", "type": "select", "value": "Manual", "hint": "默认手动启动", "options": ["Boot", "System", "Automatic", "Manual", "Disabled"] },
+        { "token": "-DependsOn", "label": "依赖服务", "type": "text", "value": "", "hint": "多个服务用逗号分隔" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "新服务的名称", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定新服务的名称", "valueHint": "<服务名>" },
+        { "token": "-BinaryPathName", "kind": "option", "desc": "指定服务可执行文件的路径", "valueHint": "<可执行文件路径>" },
+        { "token": "-DisplayName", "kind": "option", "desc": "设置服务的显示名称", "valueHint": "<显示名>" },
+        { "token": "-Description", "kind": "option", "desc": "设置服务的描述文字", "valueHint": "<描述>" },
+        { "token": "-StartupType", "kind": "option", "desc": "设置服务启动类型", "valueHint": "<类型>", "enum": ["Boot", "System", "Automatic", "Manual", "Disabled"] },
+        { "token": "-Credential", "kind": "option", "desc": "指定服务运行时使用的账户", "valueHint": "<凭据对象>" },
+        { "token": "-DependsOn", "kind": "option", "desc": "指定该服务依赖的其他服务", "valueHint": "<服务名>", "repeatable": true },
+        { "token": "New-Service -Name <服务名> -BinaryPathName <路径> -StartupType Manual", "kind": "syntax", "desc": "创建手动启动的服务" },
+        { "token": "New-Service -Name <服务名> -BinaryPathName <路径> -DisplayName '<显示名>' -Description '<描述>'", "kind": "syntax", "desc": "创建带显示名与描述的服务" },
+        { "token": "New-Service -Name <服务名> -BinaryPathName <路径> -DependsOn <其他服务>", "kind": "syntax", "desc": "创建带依赖关系的服务" }
+      ]
+    },
+    {
+      "name": "Remove-Service",
+      "aliases": [],
+      "title": "删除系统服务",
+      "desc": "从服务数据库和注册表中彻底删除一个 Windows 服务，操作不可撤销，删错只能重新创建。该 cmdlet 由 PowerShell 6.0 引入，Windows PowerShell 5.1 中没有，5.1 可改用 sc.exe delete。删除服务必须使用管理员权限。",
+      "usage": "Remove-Service [-Name] <String> ; Remove-Service [-InputObject <ServiceController>]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["服务", "删除", "不可逆"],
+      "examples": [
+        { "cmd": "Remove-Service -Name TestService", "desc": "按名称删除服务" },
+        { "cmd": "Get-Service -DisplayName 'Test Service' | Remove-Service", "desc": "按显示名查到服务后删除" },
+        { "cmd": "Stop-Service -Name TestService; Remove-Service -Name TestService", "desc": "先停止运行中的服务再删除" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "服务名", "type": "text", "value": "TestService", "hint": "要删除的服务名，支持通配符" },
+        { "token": "-InputObject", "label": "服务对象", "type": "text", "value": "", "hint": "管道传入的服务对象" }
+      ],
+      "nodes": [
+        { "token": "<服务名>", "kind": "value", "desc": "要删除的服务名称，支持通配符", "valueHint": "服务名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要删除的服务名称，支持通配符", "valueHint": "<服务名>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的服务对象", "valueHint": "<服务对象>" },
+        { "token": "Remove-Service -Name <服务名>", "kind": "syntax", "desc": "按名字直接删除服务" },
+        { "token": "Get-Service -Name <服务名> | Remove-Service", "kind": "syntax", "desc": "管道传入服务对象删除" },
+        { "token": "Get-Service -DisplayName '<显示名>' | Remove-Service", "kind": "syntax", "desc": "按显示名查到服务再删除" },
+        { "token": "Stop-Service -Name <服务名>; Remove-Service -Name <服务名>", "kind": "syntax", "desc": "先停止服务再删除" },
+        { "token": "$svc = Get-Service -Name <服务名>; Remove-Service -InputObject $svc", "kind": "syntax", "desc": "用变量传服务对象删除" },
+        { "token": "sc.exe delete <服务名>", "kind": "syntax", "desc": "5.1 中可用系统自带 sc 删除服务" },
+        { "token": "Get-Service -Name <服务名>", "kind": "syntax", "desc": "删除前后确认服务是否还存在" }
+      ]
+    },
+    {
+      "name": "Get-Job",
+      "aliases": ["gjb"],
+      "title": "查看后台作业",
+      "desc": "获取当前会话中的后台作业对象，包含作业编号、名称、状态、命令和执行位置。可按时段、状态或是否还有输出筛选，是查看 Start-Job 结果的入口。只读命令，不会影响作业运行。",
+      "usage": "Get-Job [[-Id] <int[]>] [-IncludeChildJob] [-ChildJobState <JobState>] [-HasMoreData <bool>] [-Before <datetime>] [-After <datetime>] [-Newest <int>] ; Get-Job [-State] <JobState> ; Get-Job [-Filter] <hashtable>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["作业", "后台", "状态"],
+      "examples": [
+        { "cmd": "Get-Job", "desc": "列出当前会话所有作业" },
+        { "cmd": "Get-Job -State Running", "desc": "只看正在运行的作业" },
+        { "cmd": "Get-Job -Newest 3", "desc": "只看最新的三个作业" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "作业编号", "type": "number", "value": "", "hint": "可留空，填写后按编号查询" },
+        { "token": "-State", "label": "作业状态", "type": "select", "value": "Running", "hint": "按状态筛选作业", "options": ["NotStarted", "Running", "Completed", "Failed", "Stopped", "Blocked", "Suspended", "Disconnected"] },
+        { "token": "-HasMoreData", "label": "还有输出", "type": "select", "value": "true", "hint": "是否还有未接收的结果", "options": ["true", "false"] }
+      ],
+      "nodes": [
+        { "token": "<作业>", "kind": "value", "desc": "作业编号、名称或状态", "valueHint": "编号或名称" },
+        { "token": "-Id", "kind": "option", "desc": "按作业编号获取作业", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按作业名称获取作业", "valueHint": "<作业名>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按作业实例 GUID 获取作业", "valueHint": "<GUID>", "repeatable": true },
+        { "token": "-State", "kind": "option", "desc": "按作业状态筛选", "valueHint": "<状态>", "enum": ["NotStarted", "Running", "Completed", "Failed", "Stopped", "Blocked", "Suspended", "Disconnected"] },
+        { "token": "-Command", "kind": "option", "desc": "按作业中执行的命令文字筛选", "valueHint": "<命令文字>", "repeatable": true },
+        { "token": "-Filter", "kind": "option", "desc": "用哈希表按属性精确筛选作业", "valueHint": "<哈希表>" },
+        { "token": "-IncludeChildJob", "kind": "flag", "desc": "结果中包含子作业" },
+        { "token": "-ChildJobState", "kind": "option", "desc": "按子作业状态筛选", "valueHint": "<状态>", "enum": ["NotStarted", "Running", "Completed", "Failed", "Stopped", "Blocked", "Suspended", "Disconnected"] },
+        { "token": "-HasMoreData", "kind": "option", "desc": "按是否还有未接收结果筛选", "valueHint": "<true 或 false>" },
+        { "token": "-Before", "kind": "option", "desc": "只取该时间之前启动的作业", "valueHint": "<日期时间>" },
+        { "token": "-After", "kind": "option", "desc": "只取该时间之后启动的作业", "valueHint": "<日期时间>" },
+        { "token": "-Newest", "kind": "option", "desc": "只取最新的指定数量作业", "valueHint": "<数量>" },
+        { "token": "Get-Job | Format-Table Id,Name,State,HasMoreData", "kind": "syntax", "desc": "以表格方式查看作业概况" }
+      ]
+    },
+    {
+      "name": "Start-Job",
+      "aliases": ["sajb"],
+      "title": "启动后台作业",
+      "desc": "在后台启动一个 PowerShell 作业，让脚本块或脚本文件独立运行而不阻塞当前会话。作业在单独进程中执行，结果要用 Receive-Job 取回，作业只在当前会话有效。适合并行跑耗时任务。",
+      "usage": "Start-Job [-ScriptBlock] <scriptblock> [[-InitializationScript] <scriptblock>] [-Name <string>] [-Credential <pscredential>] [-Authentication <AuthenticationMechanism>] [-RunAs32] [-PSVersion <version>] [-InputObject <psobject>] [-ArgumentList <Object[]>] ; Start-Job [-FilePath] <string> ; Start-Job [-DefinitionName] <string> [[-DefinitionPath] <string>] [[-Type] <string>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["作业", "后台", "并行"],
+      "examples": [
+        { "cmd": "Start-Job -ScriptBlock { Get-Process }", "desc": "后台执行获取进程的脚本块" },
+        { "cmd": "Start-Job -Name 备份 -ScriptBlock { Get-Date }", "desc": "启动带名字的作业" },
+        { "cmd": "Start-Job -ScriptBlock { param($n) $n * 2 } -ArgumentList 21", "desc": "向作业传递参数" }
+      ],
+      "form": [
+        { "token": "-ScriptBlock", "label": "脚本块", "type": "text", "value": "{ Get-Date }", "hint": "花括号内写要后台执行的代码" },
+        { "token": "-Name", "label": "作业名", "type": "text", "value": "", "hint": "便于后续按名字取结果" },
+        { "token": "-ArgumentList", "label": "传给作业的参数", "type": "text", "value": "", "hint": "多个参数用逗号分隔" },
+        { "token": "-FilePath", "label": "脚本文件", "type": "path", "value": "", "hint": "改为执行脚本文件" }
+      ],
+      "nodes": [
+        { "token": "<脚本块>", "kind": "value", "desc": "要在后台执行的脚本块", "valueHint": "{ 代码 }" },
+        { "token": "-ScriptBlock", "kind": "option", "desc": "指定后台要执行的脚本块", "valueHint": "{ 代码 }" },
+        { "token": "-FilePath", "kind": "option", "desc": "指定要在后台执行的脚本文件", "valueHint": "<脚本路径>" },
+        { "token": "-LiteralPath", "kind": "option", "desc": "按字面路径执行脚本，不解析通配符", "valueHint": "<脚本路径>" },
+        { "token": "-Name", "kind": "option", "desc": "为作业指定一个友好名称", "valueHint": "<作业名>" },
+        { "token": "-InitializationScript", "kind": "option", "desc": "作业开始前先执行的初始化脚本块", "valueHint": "{ 代码 }" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "传给脚本块的参数列表", "valueHint": "<参数...>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "通过管道传入脚本块的输入对象", "valueHint": "<对象>" },
+        { "token": "-Credential", "kind": "option", "desc": "以其他用户身份运行作业", "valueHint": "<凭据对象>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定远程连接使用的身份验证方式", "valueHint": "<方式>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-PSVersion", "kind": "option", "desc": "指定运行作业的 PowerShell 版本", "valueHint": "<版本号>" },
+        { "token": "-RunAs32", "kind": "flag", "desc": "在 32 位进程中运行该作业" },
+        { "token": "-DefinitionName", "kind": "option", "desc": "按工作流定义名称启动作业", "valueHint": "<定义名>" },
+        { "token": "-DefinitionPath", "kind": "option", "desc": "指定工作流定义文件所在路径", "valueHint": "<路径>" },
+        { "token": "-Type", "kind": "option", "desc": "指定作业定义的类型", "valueHint": "<类型>" },
+        { "token": "$j = Start-Job -ScriptBlock { Get-Date }; Receive-Job -Job $j", "kind": "syntax", "desc": "启动作业后立刻取回结果" }
+      ]
+    },
+    {
+      "name": "Receive-Job",
+      "aliases": ["rcjb"],
+      "title": "获取作业结果",
+      "desc": "取回后台作业产生的输出，包括正常输出、错误和进度信息。默认取回后结果即被清除，想保留要加 -Keep。作业结果取完通常配合 Remove-Job 清理，避免占用内存。",
+      "usage": "Receive-Job [-Job] <Job[]> [[-Location] <string[]>] [-Keep] [-NoRecurse] [-Force] [-Wait] [-AutoRemoveJob] [-WriteEvents] [-WriteJobInResults] ; Receive-Job [-Name] <string[]> [-Keep] [-NoRecurse] [-Force] [-Wait] ; Receive-Job [-Id] <int[]> [-Keep] [-NoRecurse] [-Force] [-Wait]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["作业", "结果", "输出"],
+      "examples": [
+        { "cmd": "Receive-Job -Id 1", "desc": "取回编号 1 作业的结果" },
+        { "cmd": "Receive-Job -Name 备份 -Keep", "desc": "取回结果并保留在作业中" },
+        { "cmd": "Get-Job -State Completed | Receive-Job -Wait", "desc": "取回已完成作业并等待全部输出" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "作业编号", "type": "number", "value": "1", "hint": "要取结果的作业编号" },
+        { "token": "-Keep", "label": "保留结果", "type": "flag", "value": "false", "hint": "取回后不删除结果" },
+        { "token": "-Wait", "label": "等待完成", "type": "flag", "value": "false", "hint": "等作业跑完再返回结果" },
+        { "token": "-AutoRemoveJob", "label": "取完自动删作业", "type": "flag", "value": "false", "hint": "配合 -Wait 使用" }
+      ],
+      "nodes": [
+        { "token": "<作业>", "kind": "value", "desc": "要取结果的作业对象或编号", "valueHint": "作业对象" },
+        { "token": "-Job", "kind": "option", "desc": "指定要取回结果的作业对象", "valueHint": "<作业对象>", "repeatable": true },
+        { "token": "-Id", "kind": "option", "desc": "按作业编号取回结果", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按作业名称取回结果", "valueHint": "<作业名>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按作业实例 GUID 取回结果", "valueHint": "<GUID>", "repeatable": true },
+        { "token": "-Location", "kind": "option", "desc": "指定结果所在会话位置", "valueHint": "<位置>", "repeatable": true },
+        { "token": "-ComputerName", "kind": "option", "desc": "取回远程计算机上的作业结果", "valueHint": "<计算机名>", "repeatable": true },
+        { "token": "-Session", "kind": "option", "desc": "从指定 PSSession 取回作业结果", "valueHint": "<会话对象>", "repeatable": true },
+        { "token": "-Keep", "kind": "flag", "desc": "取回后保留结果，可再次取用" },
+        { "token": "-NoRecurse", "kind": "flag", "desc": "只取指定作业结果，不含子作业" },
+        { "token": "-Force", "kind": "flag", "desc": "即使作业未完成也强制取回结果" },
+        { "token": "-Wait", "kind": "flag", "desc": "等作业运行结束后再返回结果" },
+        { "token": "-AutoRemoveJob", "kind": "flag", "desc": "取完结果后自动删除该作业" },
+        { "token": "-WriteEvents", "kind": "flag", "desc": "把作业事件一并写入结果流" },
+        { "token": "-WriteJobInResults", "kind": "flag", "desc": "结果中先返回作业对象再返回输出" },
+        { "token": "Get-Job | Wait-Job | Receive-Job", "kind": "syntax", "desc": "等全部作业完成再统一取结果" }
+      ]
+    },
+    {
+      "name": "Stop-Job",
+      "aliases": ["spjb"],
+      "title": "停止后台作业",
+      "desc": "停止正在运行的后台作业，作业对象仍保留并可查看已有输出。停止是异步的，稍后可用 Get-Job 确认状态是否变为 Stopped。作业并未被删除，需要清理请用 Remove-Job。",
+      "usage": "Stop-Job [-Id] <int[]> [-PassThru] ; Stop-Job [-Job] <Job[]> [-PassThru] ; Stop-Job [-Name] <string[]> [-PassThru] ; Stop-Job [-State] <JobState> [-PassThru] ; Stop-Job [-Filter] <hashtable> [-PassThru]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["作业", "停止", "后台"],
+      "examples": [
+        { "cmd": "Stop-Job -Id 1", "desc": "停止编号 1 的作业" },
+        { "cmd": "Get-Job -State Running | Stop-Job", "desc": "停止所有正在运行的作业" },
+        { "cmd": "Stop-Job -Name 备份 -PassThru", "desc": "按名字停止并返回作业对象" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "作业编号", "type": "number", "value": "1", "hint": "要停止的作业编号" },
+        { "token": "-Name", "label": "作业名", "type": "text", "value": "", "hint": "按名称停止作业" },
+        { "token": "-PassThru", "label": "返回作业对象", "type": "flag", "value": "false", "hint": "便于确认状态" }
+      ],
+      "nodes": [
+        { "token": "<作业>", "kind": "value", "desc": "要停止的作业编号或对象", "valueHint": "编号或对象" },
+        { "token": "-Id", "kind": "option", "desc": "按作业编号停止作业", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Job", "kind": "option", "desc": "指定要停止的作业对象", "valueHint": "<作业对象>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按作业名称停止作业", "valueHint": "<作业名>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按作业实例 GUID 停止作业", "valueHint": "<GUID>", "repeatable": true },
+        { "token": "-State", "kind": "option", "desc": "停止处于指定状态的所有作业", "valueHint": "<状态>", "enum": ["NotStarted", "Running", "Completed", "Failed", "Stopped", "Blocked", "Suspended", "Disconnected"] },
+        { "token": "-Filter", "kind": "option", "desc": "用哈希表按属性筛选要停止的作业", "valueHint": "<哈希表>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被停止的作业对象" },
+        { "token": "Get-Job -State Running | Stop-Job", "kind": "syntax", "desc": "停止全部运行中的作业" },
+        { "token": "Stop-Job -Name <作业名> -PassThru", "kind": "syntax", "desc": "按名称停止并输出作业对象" }
+      ]
+    },
+    {
+      "name": "Remove-Job",
+      "aliases": ["rjb"],
+      "title": "删除作业记录",
+      "desc": "从当前会话中删除后台作业对象，同时丢弃其中尚未取回的结果。删除前应先用 Receive-Job 取走需要的数据，否则结果会一起丢失。删除运行中的作业需要加 -Force。",
+      "usage": "Remove-Job [-Id] <int[]> [-Force] ; Remove-Job [-Job] <Job[]> [-Force] ; Remove-Job [-Name] <string[]> [-Force] ; Remove-Job [-State] <JobState> ; Remove-Job [-Command <string[]>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["作业", "删除", "清理"],
+      "examples": [
+        { "cmd": "Remove-Job -Id 1", "desc": "删除编号 1 的作业" },
+        { "cmd": "Get-Job -State Completed | Remove-Job", "desc": "清理所有已完成的作业" },
+        { "cmd": "Remove-Job -Name 备份 -Force", "desc": "强制删除指定名称的作业" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "作业编号", "type": "number", "value": "1", "hint": "要删除的作业编号" },
+        { "token": "-Force", "label": "强制删除", "type": "flag", "value": "false", "hint": "删除仍在运行的作业" },
+        { "token": "-State", "label": "作业状态", "type": "select", "value": "Completed", "hint": "删除该状态的作业", "options": ["NotStarted", "Running", "Completed", "Failed", "Stopped"] }
+      ],
+      "nodes": [
+        { "token": "<作业>", "kind": "value", "desc": "要删除的作业编号或对象", "valueHint": "编号或对象" },
+        { "token": "-Id", "kind": "option", "desc": "按作业编号删除作业", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Job", "kind": "option", "desc": "指定要删除的作业对象", "valueHint": "<作业对象>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按作业名称删除作业", "valueHint": "<作业名>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按作业实例 GUID 删除作业", "valueHint": "<GUID>", "repeatable": true },
+        { "token": "-State", "kind": "option", "desc": "删除处于指定状态的所有作业", "valueHint": "<状态>", "enum": ["NotStarted", "Running", "Completed", "Failed", "Stopped", "Blocked", "Suspended", "Disconnected"] },
+        { "token": "-Command", "kind": "option", "desc": "按作业中执行的命令文字删除作业", "valueHint": "<命令文字>", "repeatable": true },
+        { "token": "-Filter", "kind": "option", "desc": "用哈希表按属性筛选要删除的作业", "valueHint": "<哈希表>" },
+        { "token": "-Force", "kind": "flag", "desc": "强制删除仍在运行的作业" },
+        { "token": "Get-Job -State Completed | Remove-Job -Force", "kind": "syntax", "desc": "清理全部已完成的作业" },
+        { "token": "Get-Job | Receive-Job; Get-Job | Remove-Job", "kind": "syntax", "desc": "先取完结果再统一清理作业" }
+      ]
+    },
+    {
+      "name": "Wait-Job",
+      "aliases": ["wjb"],
+      "title": "等待作业完成",
+      "desc": "阻塞当前会话，直到指定的后台作业进入完成、失败或停止状态才继续。可设置 -Timeout 秒数避免无限等待，用 -Any 表示任一作业完成即可返回。等待期间不接受其他输入。",
+      "usage": "Wait-Job [-Id] <int[]> [-Any] [-Timeout <int>] [-Force] ; Wait-Job [-Job] <Job[]> [-Any] [-Timeout <int>] [-Force] ; Wait-Job [-Name] <string[]> [-Any] [-Timeout <int>] ; Wait-Job [-State] <JobState> [-Any] [-Timeout <int>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["作业", "等待", "超时"],
+      "examples": [
+        { "cmd": "Wait-Job -Id 1", "desc": "等编号 1 的作业结束" },
+        { "cmd": "Wait-Job -Name 备份 -Timeout 120", "desc": "最多等 120 秒" },
+        { "cmd": "Get-Job | Wait-Job -Any", "desc": "任一作业完成即返回" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "作业名", "type": "text", "value": "", "hint": "要等待的作业名" },
+        { "token": "-Timeout", "label": "超时秒数", "type": "number", "value": "120", "hint": "超时后不再等待" },
+        { "token": "-Any", "label": "任一完成即返回", "type": "flag", "value": "false", "hint": "不必等全部作业" }
+      ],
+      "nodes": [
+        { "token": "<作业>", "kind": "value", "desc": "要等待的作业编号或对象", "valueHint": "编号或对象" },
+        { "token": "-Id", "kind": "option", "desc": "按作业编号等待作业结束", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Job", "kind": "option", "desc": "指定要等待的作业对象", "valueHint": "<作业对象>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按作业名称等待作业结束", "valueHint": "<作业名>", "repeatable": true },
+        { "token": "-InstanceId", "kind": "option", "desc": "按作业实例 GUID 等待作业", "valueHint": "<GUID>", "repeatable": true },
+        { "token": "-State", "kind": "option", "desc": "等待处于指定状态的作业", "valueHint": "<状态>", "enum": ["NotStarted", "Running", "Completed", "Failed", "Stopped", "Blocked", "Suspended", "Disconnected"] },
+        { "token": "-Filter", "kind": "option", "desc": "用哈希表筛选要等待的作业", "valueHint": "<哈希表>" },
+        { "token": "-Any", "kind": "flag", "desc": "任一作业完成即返回，不必等全部" },
+        { "token": "-Timeout", "kind": "option", "desc": "最长等待秒数，超时即返回", "valueHint": "<秒>" },
+        { "token": "-Force", "kind": "flag", "desc": "等待远程作业时跳过连接确认" },
+        { "token": "Get-Job | Wait-Job; Get-Job | Receive-Job", "kind": "syntax", "desc": "等全部作业结束后统一取结果" }
+      ]
+    },
+    {
+      "name": "Register-ObjectEvent",
+      "aliases": [],
+      "title": "订阅对象事件",
+      "desc": "订阅 .NET 对象或 WMI 对象产生的事件，事件触发时把事件记录加入当前会话的事件队列。可配合 -Action 指定事件发生时自动执行的脚本块。订阅只在当前会话有效，退出会话即失效。",
+      "usage": "Register-ObjectEvent [-InputObject] <psobject> [-EventName] <string> [[-SourceIdentifier] <string>] [[-Action] <scriptblock>] [-MessageData <psobject>] [-SupportEvent] [-Forward] [-MaxTriggerCount <int>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["事件", "订阅", "监视"],
+      "examples": [
+        { "cmd": "Register-ObjectEvent -InputObject $timer -EventName Elapsed -SourceIdentifier 计时", "desc": "订阅计时器到期事件" },
+        { "cmd": "Register-ObjectEvent -InputObject $p -EventName Exited -Action { '进程已退出' }", "desc": "进程退出时自动执行脚本块" },
+        { "cmd": "Get-EventSubscriber | Unregister-Event", "desc": "查看并注销全部订阅" }
+      ],
+      "form": [
+        { "token": "-InputObject", "label": "事件源对象", "type": "text", "value": "$timer", "hint": "要监视的 .NET 对象" },
+        { "token": "-EventName", "label": "事件名", "type": "text", "value": "Elapsed", "hint": "对象上的事件名称" },
+        { "token": "-SourceIdentifier", "label": "订阅标识", "type": "text", "value": "MyEvent", "hint": "自定义的订阅名字" },
+        { "token": "-Action", "label": "触发动作", "type": "text", "value": "", "hint": "事件发生时执行的脚本块" }
+      ],
+      "nodes": [
+        { "token": "<对象>", "kind": "value", "desc": "要监视其事件的对象", "valueHint": "对象变量" },
+        { "token": "<事件名>", "kind": "value", "desc": "对象上要订阅的事件名称", "valueHint": "事件名" },
+        { "token": "-InputObject", "kind": "option", "desc": "指定要监视的 .NET 或 WMI 对象", "valueHint": "<对象>" },
+        { "token": "-EventName", "kind": "option", "desc": "指定要订阅的事件名称", "valueHint": "<事件名>" },
+        { "token": "-SourceIdentifier", "kind": "option", "desc": "为订阅指定自定义标识名称", "valueHint": "<标识>" },
+        { "token": "-Action", "kind": "option", "desc": "事件触发时自动执行的脚本块", "valueHint": "{ 代码 }" },
+        { "token": "-MessageData", "kind": "option", "desc": "随事件附加传递的自定义数据", "valueHint": "<任意对象>" },
+        { "token": "-SupportEvent", "kind": "flag", "desc": "隐藏该订阅，不显示在订阅列表中" },
+        { "token": "-Forward", "kind": "flag", "desc": "把事件转发到远程会话的事件队列" },
+        { "token": "-MaxTriggerCount", "kind": "option", "desc": "限制事件最多触发多少次", "valueHint": "<次数>" },
+        { "token": "$timer = New-Object Timers.Timer 1000; Register-ObjectEvent -InputObject $timer -EventName Elapsed -SourceIdentifier 计时", "kind": "syntax", "desc": "创建计时器并订阅其到期事件" }
+      ]
+    },
+    {
+      "name": "Get-EventSubscriber",
+      "aliases": [],
+      "title": "查看事件订阅",
+      "desc": "列出当前会话中已注册的事件订阅，可看到订阅标识、订阅编号、事件名和动作脚本。默认不显示隐藏订阅，加 -Force 可一并显示。配合 Unregister-Event 可注销不需要的订阅。",
+      "usage": "Get-EventSubscriber [[-SourceIdentifier] <string>] [-Force] ; Get-EventSubscriber [-SubscriptionId] <int> [-Force]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["事件", "订阅", "列表"],
+      "examples": [
+        { "cmd": "Get-EventSubscriber", "desc": "列出当前所有事件订阅" },
+        { "cmd": "Get-EventSubscriber -SourceIdentifier 计时", "desc": "按标识查看某个订阅" },
+        { "cmd": "Get-EventSubscriber -Force", "desc": "连隐藏订阅一起显示" }
+      ],
+      "form": [
+        { "token": "-SourceIdentifier", "label": "订阅标识", "type": "text", "value": "", "hint": "订阅名称，可留空" },
+        { "token": "-SubscriptionId", "label": "订阅编号", "type": "number", "value": "", "hint": "按编号查询" },
+        { "token": "-Force", "label": "含隐藏订阅", "type": "flag", "value": "false", "hint": "显示 SupportEvent 订阅" }
+      ],
+      "nodes": [
+        { "token": "<订阅标识>", "kind": "value", "desc": "订阅的自定义标识名称", "valueHint": "标识名" },
+        { "token": "-SourceIdentifier", "kind": "option", "desc": "按订阅标识名称查询订阅", "valueHint": "<标识>" },
+        { "token": "-SubscriptionId", "kind": "option", "desc": "按订阅编号查询订阅", "valueHint": "<编号>" },
+        { "token": "-Force", "kind": "flag", "desc": "连隐藏的订阅一起显示" },
+        { "token": "Get-EventSubscriber -SourceIdentifier <标识>", "kind": "syntax", "desc": "按标识查看指定订阅" },
+        { "token": "Get-EventSubscriber -SubscriptionId <编号>", "kind": "syntax", "desc": "按编号查看指定订阅" },
+        { "token": "Get-EventSubscriber | Format-List *", "kind": "syntax", "desc": "查看订阅的全部属性" },
+        { "token": "Get-EventSubscriber | Unregister-Event", "kind": "syntax", "desc": "注销当前所有事件订阅" },
+        { "token": "Get-EventSubscriber -Force | Select-Object SourceIdentifier,EventName", "kind": "syntax", "desc": "只看标识与事件名，含隐藏订阅" },
+        { "token": "Get-EventSubscriber | Where-Object EventName -eq 'Elapsed'", "kind": "syntax", "desc": "按事件名筛选订阅" }
+      ]
+    },
+    {
+      "name": "Unregister-Event",
+      "aliases": [],
+      "title": "取消事件订阅",
+      "desc": "取消已经注册的事件订阅，取消后事件不再进入队列，关联的动作脚本也不再执行。可以按订阅标识或订阅编号取消，用 -Force 还能取消隐藏订阅。取消后可用 Get-EventSubscriber 确认。",
+      "usage": "Unregister-Event [-SourceIdentifier] <string> [-Force] ; Unregister-Event [-SubscriptionId] <int> [-Force]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["事件", "取消", "订阅"],
+      "examples": [
+        { "cmd": "Unregister-Event -SourceIdentifier 计时", "desc": "按标识取消订阅" },
+        { "cmd": "Unregister-Event -SubscriptionId 1", "desc": "按订阅编号取消" },
+        { "cmd": "Get-EventSubscriber | Unregister-Event", "desc": "一次性取消全部订阅" }
+      ],
+      "form": [
+        { "token": "-SourceIdentifier", "label": "订阅标识", "type": "text", "value": "计时", "hint": "要取消的订阅名称" },
+        { "token": "-SubscriptionId", "label": "订阅编号", "type": "number", "value": "", "hint": "按编号取消订阅" },
+        { "token": "-Force", "label": "含隐藏订阅", "type": "flag", "value": "false", "hint": "可取消隐藏的订阅" }
+      ],
+      "nodes": [
+        { "token": "<订阅标识>", "kind": "value", "desc": "要取消的订阅标识名称", "valueHint": "标识名" },
+        { "token": "-SourceIdentifier", "kind": "option", "desc": "按订阅标识名称取消订阅", "valueHint": "<标识>" },
+        { "token": "-SubscriptionId", "kind": "option", "desc": "按订阅编号取消订阅", "valueHint": "<编号>" },
+        { "token": "-Force", "kind": "flag", "desc": "取消隐藏的订阅，需配合 -SourceIdentifier" },
+        { "token": "Unregister-Event -SourceIdentifier <标识>", "kind": "syntax", "desc": "按标识取消单个订阅" },
+        { "token": "Unregister-Event -SubscriptionId <编号>", "kind": "syntax", "desc": "按编号取消单个订阅" },
+        { "token": "Get-EventSubscriber | Unregister-Event", "kind": "syntax", "desc": "按属性名批量取消全部订阅" },
+        { "token": "Unregister-Event -SourceIdentifier <标识> -Force", "kind": "syntax", "desc": "强制取消可能隐藏的订阅" },
+        { "token": "Get-EventSubscriber -Force | Unregister-Event", "kind": "syntax", "desc": "连隐藏订阅一起取消" },
+        { "token": "Unregister-Event -SourceIdentifier <标识>; Get-EventSubscriber", "kind": "syntax", "desc": "取消后确认剩余订阅列表" }
+      ]
+    },
+    {
+      "name": "Get-History",
+      "aliases": ["ghy", "h", "history"],
+      "title": "查看命令历史",
+      "desc": "获取当前会话中执行过的命令历史，含编号、命令文字、开始与结束时间。历史只记录本会话已完成的命令，可用编号配合 Invoke-History 重新执行。加 -Count 只看最近若干条。",
+      "usage": "Get-History [[-Id] <long[]>] [[-Count] <int>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["历史", "命令", "记录"],
+      "examples": [
+        { "cmd": "Get-History", "desc": "列出当前会话的全部历史" },
+        { "cmd": "Get-History -Count 10", "desc": "只看最近 10 条命令" },
+        { "cmd": "Get-History -Id 5", "desc": "查看编号为 5 的命令" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "历史编号", "type": "number", "value": "", "hint": "可留空，填写后看指定编号" },
+        { "token": "-Count", "label": "显示条数", "type": "number", "value": "10", "hint": "只显示最近若干条" }
+      ],
+      "nodes": [
+        { "token": "<编号>", "kind": "value", "desc": "要查看的历史命令编号", "valueHint": "编号" },
+        { "token": "-Id", "kind": "option", "desc": "按编号获取指定的历史记录", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Count", "kind": "option", "desc": "只显示最近的指定条数", "valueHint": "<条数>" },
+        { "token": "Get-History | Format-Table Id,CommandLine -AutoSize", "kind": "syntax", "desc": "以表格查看编号与命令" },
+        { "token": "Get-History | Where-Object CommandLine -like '*Get-*'", "kind": "syntax", "desc": "筛选含指定关键字的命令" },
+        { "token": "(Get-History -Count 1).CommandLine", "kind": "syntax", "desc": "只取上一条命令的文字" },
+        { "token": "Get-History | Select-Object -Last 5", "kind": "syntax", "desc": "取最后五条历史记录" },
+        { "token": "Invoke-History (Get-History -Count 1).Id", "kind": "syntax", "desc": "重跑最近一条历史命令" },
+        { "token": "Get-History -Count 20 | Sort-Object Duration -Descending", "kind": "syntax", "desc": "按耗时排序找最慢的命令" },
+        { "token": "(Get-History).Count", "kind": "syntax", "desc": "统计当前会话历史条数" }
+      ]
+    },
+    {
+      "name": "Invoke-History",
+      "aliases": ["ihy", "r"],
+      "title": "重跑历史命令",
+      "desc": "按编号重新执行当前会话历史中的某条命令，不带参数时重跑上一条。重跑会真实执行原命令，包括其中的删除或修改操作，执行前请先确认历史内容。历史编号可用 Get-History 查看。",
+      "usage": "Invoke-History [[-Id] <string>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["历史", "重跑", "复用"],
+      "examples": [
+        { "cmd": "Invoke-History", "desc": "重新执行上一条命令" },
+        { "cmd": "Invoke-History -Id 3", "desc": "重新执行编号为 3 的命令" },
+        { "cmd": "r 3", "desc": "用别名 r 快速重跑第 3 条命令" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "历史编号", "type": "text", "value": "3", "hint": "留空则重跑上一条" }
+      ],
+      "nodes": [
+        { "token": "<编号>", "kind": "value", "desc": "要重新执行的历史命令编号", "valueHint": "编号" },
+        { "token": "-Id", "kind": "option", "desc": "指定要重新执行的历史命令编号", "valueHint": "<编号>" },
+        { "token": "Invoke-History", "kind": "syntax", "desc": "不带参数时重跑上一条命令" },
+        { "token": "Invoke-History -Id 3", "kind": "syntax", "desc": "重新执行编号为 3 的命令" },
+        { "token": "Invoke-History 5", "kind": "syntax", "desc": "位置参数写法，等同 -Id 5" },
+        { "token": "r 3", "kind": "syntax", "desc": "用别名 r 快速重跑第 3 条命令" },
+        { "token": "Invoke-History (Get-History -Count 1).Id", "kind": "syntax", "desc": "用表达式取最近编号再执行" },
+        { "token": "$h = Get-History -Count 1; Invoke-History $h.Id", "kind": "syntax", "desc": "先用变量保存编号再重跑" },
+        { "token": "Get-History -Count 10 | Format-Table Id,CommandLine", "kind": "syntax", "desc": "先列出历史，找出要重跑的编号" },
+        { "token": "Invoke-History -Id 3; Get-History -Count 5", "kind": "syntax", "desc": "重跑后立刻查看最近历史" }
+      ]
+    },
+    {
+      "name": "Clear-History",
+      "aliases": ["clhy"],
+      "title": "清空命令历史",
+      "desc": "删除当前会话的 PowerShell 命令历史条目，可按编号、条数或命令文字关键字删除。清掉后无法再用 Invoke-History 找回归，且不影响 PSReadLine 单独保存的按键历史文件。",
+      "usage": "Clear-History [[-Id] <int[]>] [[-Count] <int>] [-Newest] ; Clear-History [[-Count] <int>] [-CommandLine <string[]>] [-Newest]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["历史", "清空", "清理"],
+      "examples": [
+        { "cmd": "Clear-History", "desc": "清空当前会话全部历史" },
+        { "cmd": "Clear-History -Id 3,5", "desc": "删除指定编号的历史条目" },
+        { "cmd": "Clear-History -CommandLine '*Get-Service*'", "desc": "删除含关键字的命令历史" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "历史编号", "type": "text", "value": "", "hint": "多个编号用逗号分隔" },
+        { "token": "-Count", "label": "条数", "type": "number", "value": "10", "hint": "删除最近若干条" },
+        { "token": "-Newest", "label": "从最新开始", "type": "flag", "value": "false", "hint": "配合 -Count 使用" }
+      ],
+      "nodes": [
+        { "token": "<编号>", "kind": "value", "desc": "要删除的历史记录编号", "valueHint": "编号" },
+        { "token": "-Id", "kind": "option", "desc": "按编号删除指定的历史条目", "valueHint": "<编号>", "repeatable": true },
+        { "token": "-Count", "kind": "option", "desc": "删除指定数量的历史条目", "valueHint": "<条数>" },
+        { "token": "-CommandLine", "kind": "option", "desc": "删除命令行中含指定文字的历史", "valueHint": "<文字或通配符>", "repeatable": true },
+        { "token": "-Newest", "kind": "flag", "desc": "从最新的记录开始删除" },
+        { "token": "Clear-History -Id <编号>", "kind": "syntax", "desc": "按编号删除指定历史条目" },
+        { "token": "Clear-History -Id 3,5", "kind": "syntax", "desc": "一次删除多个编号的历史" },
+        { "token": "Clear-History -Count 10", "kind": "syntax", "desc": "删除最旧的 10 条历史" },
+        { "token": "Clear-History -Count 5 -Newest", "kind": "syntax", "desc": "删除最新的 5 条历史" },
+        { "token": "Clear-History -CommandLine '*Get-Service*'", "kind": "syntax", "desc": "按命令关键字删除历史" },
+        { "token": "Clear-History", "kind": "syntax", "desc": "不带参数时清空全部历史" }
+      ]
+    },
+    {
+      "name": "Get-HotFix",
+      "aliases": [],
+      "title": "查看已装补丁",
+      "desc": "通过 WMI 查询本机或远程计算机已安装的更新补丁，显示补丁编号、说明、安装日期和安装者。可用来快速核对系统是否装上某个 KB 补丁。只读命令，不会安装或卸载补丁。",
+      "usage": "Get-HotFix [[-Id] <string[]>] [-ComputerName <string[]>] [-Credential <pscredential>] ; Get-HotFix [-Description <string[]>] [-ComputerName <string[]>] [-Credential <pscredential>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["补丁", "更新", "KB"],
+      "examples": [
+        { "cmd": "Get-HotFix", "desc": "列出本机已安装的全部补丁" },
+        { "cmd": "Get-HotFix -Id KB5126052", "desc": "按补丁编号查询单个补丁" },
+        { "cmd": "Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 10", "desc": "按安装日期倒序看最近补丁" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "补丁编号", "type": "text", "value": "KB5126052", "hint": "如 KB5126052" },
+        { "token": "-Description", "label": "补丁说明", "type": "text", "value": "Security Update", "hint": "按说明文字筛选" },
+        { "token": "-ComputerName", "label": "计算机名", "type": "text", "value": "", "hint": "查询远程计算机" }
+      ],
+      "nodes": [
+        { "token": "<更新编号>", "kind": "value", "desc": "补丁编号，如 KB5126052", "valueHint": "KB 编号" },
+        { "token": "-Id", "kind": "option", "desc": "按补丁编号查询指定补丁", "valueHint": "<KB 编号>", "repeatable": true },
+        { "token": "-Description", "kind": "option", "desc": "按补丁说明文字查询，如安全更新", "valueHint": "<说明文字>", "repeatable": true },
+        { "token": "-ComputerName", "kind": "option", "desc": "查询远程计算机上的补丁", "valueHint": "<计算机名>", "repeatable": true },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机时使用的凭据", "valueHint": "<凭据对象>" },
+        { "token": "Get-HotFix -Id KB5126052", "kind": "syntax", "desc": "查询指定编号的补丁" },
+        { "token": "Get-HotFix -Description 'Security Update'", "kind": "syntax", "desc": "按说明文字筛选补丁" },
+        { "token": "Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 10", "kind": "syntax", "desc": "按安装时间倒序看最近补丁" },
+        { "token": "Get-HotFix -ComputerName <计算机> -Credential <凭据>", "kind": "syntax", "desc": "带凭据查询远程计算机补丁" },
+        { "token": "Get-HotFix | Measure-Object", "kind": "syntax", "desc": "统计已安装补丁的数量" }
+      ]
+    },
+    {
+      "name": "Get-ComputerInfo",
+      "aliases": ["gin"],
+      "title": "查看电脑信息",
+      "desc": "汇总操作系统、主板 BIOS、处理器、内存、时区、Hyper-V 等硬件与系统信息，输出属性非常多。可用 -Property 只取需要的字段以加快速度，属性名支持通配符。数据来自 WMI，查询耗时略长。",
+      "usage": "Get-ComputerInfo [[-Property] <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["系统信息", "硬件", "WMI"],
+      "examples": [
+        { "cmd": "Get-ComputerInfo -Property OsName,OsVersion,CsName", "desc": "只看系统名、版本和计算机名" },
+        { "cmd": "Get-ComputerInfo -Property '*version'", "desc": "用通配符取所有版本类信息" },
+        { "cmd": "Get-ComputerInfo | Select-Object OsName,CsManufacturer,CsModel", "desc": "汇总后挑选品牌型号字段" }
+      ],
+      "form": [
+        { "token": "-Property", "label": "属性名", "type": "text", "value": "OsName,OsVersion,CsName", "hint": "多个属性用逗号分隔，支持通配符" }
+      ],
+      "nodes": [
+        { "token": "<属性名>", "kind": "value", "desc": "要获取的属性名，支持通配符", "valueHint": "属性名" },
+        { "token": "-Property", "kind": "option", "desc": "只获取指定的属性，可用通配符", "valueHint": "<属性名>", "repeatable": true, "children": [
+          { "token": "OsName", "kind": "value", "desc": "操作系统名称", "valueHint": "OsName" },
+          { "token": "OsVersion", "kind": "value", "desc": "操作系统版本号", "valueHint": "OsVersion" },
+          { "token": "CsName", "kind": "value", "desc": "计算机名称", "valueHint": "CsName" },
+          { "token": "CsManufacturer", "kind": "value", "desc": "计算机制造商", "valueHint": "CsManufacturer" },
+          { "token": "CsModel", "kind": "value", "desc": "计算机型号", "valueHint": "CsModel" },
+          { "token": "OsHardwareAbstractionLayer", "kind": "value", "desc": "硬件抽象层版本", "valueHint": "OsHardwareAbstractionLayer" },
+          { "token": "OsLastBootUpTime", "kind": "value", "desc": "上次开机时间", "valueHint": "OsLastBootUpTime" },
+          { "token": "OsUptime", "kind": "value", "desc": "系统已运行时长", "valueHint": "OsUptime" },
+          { "token": "CsTotalPhysicalMemory", "kind": "value", "desc": "物理内存总容量", "valueHint": "CsTotalPhysicalMemory" },
+          { "token": "WindowsProductName", "kind": "value", "desc": "Windows 产品名称", "valueHint": "WindowsProductName" }
+        ] },
+        { "token": "Get-ComputerInfo -Property OsName,OsVersion,CsName", "kind": "syntax", "desc": "取最常用的三项基本信息" },
+        { "token": "Get-ComputerInfo -Property '*version'", "kind": "syntax", "desc": "用通配符取所有版本信息" },
+        { "token": "Get-ComputerInfo -Property WindowsProductName,WindowsVersion,OsHardwareAbstractionLayer", "kind": "syntax", "desc": "查看系统产品名与内部版本" },
+        { "token": "Get-ComputerInfo -Property OsLastBootUpTime,OsUptime", "kind": "syntax", "desc": "查看开机时间与运行时长" },
+        { "token": "Get-ComputerInfo -Property CsTotalPhysicalMemory,OsFreePhysicalMemory", "kind": "syntax", "desc": "查看内存总量与可用内存" },
+        { "token": "Get-ComputerInfo -Property Bios*", "kind": "syntax", "desc": "查看主板 BIOS 相关信息" },
+        { "token": "Get-ComputerInfo -Property HyperV*", "kind": "syntax", "desc": "查看 Hyper-V 虚拟化相关要求" },
+        { "token": "Get-ComputerInfo | Select-Object OsName,CsName", "kind": "syntax", "desc": "全部取回后再挑选字段输出" },
+        { "token": "(Get-ComputerInfo).OsName", "kind": "syntax", "desc": "只取出操作系统名称这一个值" },
+        { "token": "Get-ComputerInfo -Property OsHotFixes", "kind": "syntax", "desc": "查看系统中已安装的补丁列表" }
+      ]
+    },
+    {
+      "name": "Get-TimeZone",
+      "aliases": ["gtz"],
+      "title": "查看时区设置",
+      "desc": "获取本机当前时区，或用 -ListAvailable 列出系统支持的所有时区。可按时区 ID 或名称查询指定时区，看到 UTC 偏移与显示名称。只读命令，修改时区请用 Set-TimeZone。",
+      "usage": "Get-TimeZone [[-Name] <string[]>] ; Get-TimeZone -Id <string[]> ; Get-TimeZone -ListAvailable",
+      "admin": false,
+      "danger": 0,
+      "tags": ["时区", "时间", "UTC"],
+      "examples": [
+        { "cmd": "Get-TimeZone", "desc": "查看当前时区" },
+        { "cmd": "Get-TimeZone -ListAvailable", "desc": "列出系统支持的全部时区" },
+        { "cmd": "Get-TimeZone -Id 'China Standard Time'", "desc": "按时区 ID 查询指定时区" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "时区名称", "type": "text", "value": "China Standard Time", "hint": "如 China Standard Time" },
+        { "token": "-ListAvailable", "label": "列出全部时区", "type": "flag", "value": "false", "hint": "显示系统支持的所有时区" }
+      ],
+      "nodes": [
+        { "token": "<时区名称>", "kind": "value", "desc": "时区 ID 或名称，如 China Standard Time", "valueHint": "时区 ID" },
+        { "token": "-Name", "kind": "option", "desc": "按时区名称查询指定时区", "valueHint": "<时区 ID>", "repeatable": true },
+        { "token": "-Id", "kind": "option", "desc": "按时区标识 ID 查询指定时区", "valueHint": "<时区 ID>", "repeatable": true },
+        { "token": "-ListAvailable", "kind": "flag", "desc": "列出系统支持的全部时区" },
+        { "token": "Get-TimeZone", "kind": "syntax", "desc": "查看当前系统时区" },
+        { "token": "Get-TimeZone -ListAvailable", "kind": "syntax", "desc": "列出全部可用时区" },
+        { "token": "Get-TimeZone -Id 'China Standard Time'", "kind": "syntax", "desc": "按 ID 查询中国标准时间" },
+        { "token": "Get-TimeZone -Name 'UTC'", "kind": "syntax", "desc": "按名称查询协调世界时" },
+        { "token": "Get-TimeZone -ListAvailable | Where-Object Id -like '*China*'", "kind": "syntax", "desc": "在时区列表中筛选含关键字的时区" },
+        { "token": "Get-TimeZone | Select-Object Id,DisplayName,BaseUtcOffset", "kind": "syntax", "desc": "输出当前时区的关键字段" }
+      ]
+    },
+    {
+      "name": "Set-TimeZone",
+      "aliases": ["stz"],
+      "title": "设置系统时区",
+      "desc": "把系统时区改成指定的时区，可用时区名称、ID 或时区对象指定。修改后系统时间显示会立即变化，会影响日志时间戳和计划任务触发时刻，需要管理员权限。设置前建议先用 Get-TimeZone -ListAvailable 查准 ID。",
+      "usage": "Set-TimeZone [-Name] <string> [-PassThru] ; Set-TimeZone -Id <string> [-PassThru] ; Set-TimeZone [-InputObject] <TimeZoneInfo> [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["时区", "修改", "管理员"],
+      "examples": [
+        { "cmd": "Set-TimeZone -Name 'China Standard Time'", "desc": "把时区设置为中国标准时间" },
+        { "cmd": "Set-TimeZone -Id 'UTC'", "desc": "把时区设置为协调世界时" },
+        { "cmd": "Set-TimeZone -Name 'China Standard Time' -PassThru", "desc": "设置后返回时区对象确认" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "时区名称", "type": "text", "value": "China Standard Time", "hint": "如 China Standard Time" },
+        { "token": "-Id", "label": "时区 ID", "type": "text", "value": "UTC", "hint": "与 -Name 二选一" },
+        { "token": "-PassThru", "label": "返回时区对象", "type": "flag", "value": "false", "hint": "便于确认结果" }
+      ],
+      "nodes": [
+        { "token": "<时区名称>", "kind": "value", "desc": "目标时区 ID，如 China Standard Time", "valueHint": "时区 ID" },
+        { "token": "-Name", "kind": "option", "desc": "按名称指定要设置的时区", "valueHint": "<时区 ID>" },
+        { "token": "-Id", "kind": "option", "desc": "按时区标识 ID 指定要设置的时区", "valueHint": "<时区 ID>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接收管道传来的时区对象", "valueHint": "<时区对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "设置完成后返回时区对象" },
+        { "token": "Set-TimeZone -Name 'China Standard Time'", "kind": "syntax", "desc": "设置为中国标准时间" },
+        { "token": "Set-TimeZone -Id 'UTC'", "kind": "syntax", "desc": "设置为协调世界时" },
+        { "token": "Get-TimeZone -ListAvailable | Where-Object Id -like '*Taipei*' | Set-TimeZone", "kind": "syntax", "desc": "先查时区再管道设置" },
+        { "token": "Set-TimeZone -Name 'Pacific Standard Time' -PassThru", "kind": "syntax", "desc": "设置太平洋时间并返回对象" },
+        { "token": "Set-TimeZone -InputObject (Get-TimeZone -ListAvailable | Where-Object Id -eq 'UTC')", "kind": "syntax", "desc": "用时区对象作为参数设置" }
+      ]
+    },
+    {
+      "name": "Get-Uptime",
+      "aliases": [],
+      "title": "查看开机时长",
+      "desc": "返回系统自上次开机以来经过的时间，默认是一个 TimeSpan 对象，加 -Since 则返回具体开机时间。该 cmdlet 由 PowerShell 6.0 引入，Windows PowerShell 5.1 中没有，5.1 可改用 CIM 的 LastBootUpTime。",
+      "usage": "Get-Uptime ; Get-Uptime [-Since]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["运行时长", "开机时间", "系统"],
+      "examples": [
+        { "cmd": "Get-Uptime", "desc": "查看系统已运行多长时间" },
+        { "cmd": "Get-Uptime -Since", "desc": "查看系统的具体开机时间" },
+        { "cmd": "(Get-Uptime).TotalHours", "desc": "以小时为单位显示运行时长" }
+      ],
+      "form": [
+        { "token": "-Since", "label": "返回开机时间", "type": "flag", "value": "false", "hint": "改为返回开机时刻" }
+      ],
+      "nodes": [
+        { "token": "-Since", "kind": "flag", "desc": "返回系统上次开机的具体时间" },
+        { "token": "Get-Uptime", "kind": "syntax", "desc": "返回已运行时长的时间段对象" },
+        { "token": "Get-Uptime -Since", "kind": "syntax", "desc": "返回系统上次开机的日期时间" },
+        { "token": "(Get-Uptime).TotalHours", "kind": "syntax", "desc": "以小时为单位显示运行时长" },
+        { "token": "Get-Uptime | Select-Object Days,Hours,Minutes,Seconds", "kind": "syntax", "desc": "拆开显示天时分秒" },
+        { "token": "Get-Uptime | Format-List", "kind": "syntax", "desc": "逐行列出时间段全部字段" },
+        { "token": "(Get-Uptime -Since).ToString('yyyy-MM-dd HH:mm')", "kind": "syntax", "desc": "把开机时间格式化为年月日时分" },
+        { "token": "(Get-Date) - (Get-Uptime -Since)", "kind": "syntax", "desc": "用当前时间减开机时间算运行时长" },
+        { "token": "Get-CimInstance Win32_OperatingSystem | Select-Object LastBootUpTime", "kind": "syntax", "desc": "5.1 中改用 CIM 查询开机时间" },
+        { "token": "(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime", "kind": "syntax", "desc": "5.1 中直接计算已运行时长" }
+      ]
+    },
+    {
+      "name": "Get-Culture",
+      "aliases": [],
+      "title": "查看区域格式",
+      "desc": "获取当前系统的区域设置对象，包含语言、日期时间格式、数字与货币格式等信息。Windows PowerShell 5.1 中该 cmdlet 没有参数，-Name 与 -ListAvailable 等参数由 PowerShell 6.2 引入。相关的界面语言可用 Get-UICulture 查看。",
+      "usage": "Get-Culture [-NoUserOverrides] ; Get-Culture [-Name <String[]>] [-NoUserOverrides] ; Get-Culture [-ListAvailable]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["区域", "格式", "语言"],
+      "examples": [
+        { "cmd": "Get-Culture", "desc": "查看当前区域设置" },
+        { "cmd": "Get-Culture | Format-List *", "desc": "列出区域对象的全部属性" },
+        { "cmd": "(Get-Culture).DateTimeFormat.ShortDatePattern", "desc": "查看当前的短日期格式" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "区域名称", "type": "text", "value": "zh-CN", "hint": "需要 PowerShell 6.2 及以上" },
+        { "token": "-ListAvailable", "label": "列出全部区域", "type": "flag", "value": "false", "hint": "需要 PowerShell 6.2 及以上" },
+        { "token": "-NoUserOverrides", "label": "忽略用户覆盖", "type": "flag", "value": "false", "hint": "忽略用户自定义设置" }
+      ],
+      "nodes": [
+        { "token": "-Name", "kind": "option", "desc": "按名称获取指定区域，需 PowerShell 6.2+", "valueHint": "<区域名称>", "repeatable": true, "children": [
+          { "token": "zh-CN", "kind": "value", "desc": "中文（简体，中国）", "valueHint": "zh-CN" },
+          { "token": "zh-TW", "kind": "value", "desc": "中文（繁体，台湾）", "valueHint": "zh-TW" },
+          { "token": "en-US", "kind": "value", "desc": "英语（美国）", "valueHint": "en-US" },
+          { "token": "ja-JP", "kind": "value", "desc": "日语（日本）", "valueHint": "ja-JP" }
+        ] },
+        { "token": "-NoUserOverrides", "kind": "flag", "desc": "忽略用户对区域设置的个性化覆盖" },
+        { "token": "-ListAvailable", "kind": "flag", "desc": "列出系统支持的全部区域，需 6.2+" },
+        { "token": "Get-Culture", "kind": "syntax", "desc": "查看当前区域设置对象" },
+        { "token": "Get-Culture | Format-List *", "kind": "syntax", "desc": "查看区域对象的全部属性" },
+        { "token": "(Get-Culture).DateTimeFormat.ShortDatePattern", "kind": "syntax", "desc": "查看短日期格式字符串" },
+        { "token": "(Get-Culture).NumberFormat.NumberDecimalSeparator", "kind": "syntax", "desc": "查看数字的小数分隔符" },
+        { "token": "$PSCulture", "kind": "syntax", "desc": "直接读取当前区域名称变量" },
+        { "token": "$PSUICulture", "kind": "syntax", "desc": "读取当前界面语言名称变量" },
+        { "token": "Get-Culture -Name en-US | Select-Object Name,DisplayName,LCID", "kind": "syntax", "desc": "查看指定区域的关键字段，需 6.2+" }
+      ]
+    }
+  ]
+}

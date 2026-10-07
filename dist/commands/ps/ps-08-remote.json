@@ -1,0 +1,1303 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "远程、用户与计划任务",
+  "icon": "network",
+  "commands": [
+    {
+      "name": "New-PSSession",
+      "aliases": ["nsn"],
+      "title": "建立持久远程会话",
+      "desc": "与本地或远程计算机建立可复用的持久会话（PSSession），会话状态在多次命令之间保持。默认走 WinRM 传输，也可用 -ConnectionUri 连接 SSH 端点。会话会占用远端资源，用完建议用 Remove-PSSession 关闭。",
+      "usage": "New-PSSession [[-ComputerName] <string[]>] [-Credential <pscredential>] [-Name <string[]>] [-EnableNetworkAccess] [-ConfigurationName <string>] [-Port <int>] [-UseSSL] [-ApplicationName <string>] [-ThrottleLimit <int>] [-SessionOption <PSSessionOption>] [-Authentication <AuthenticationMechanism>] [-CertificateThumbprint <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "会话", "PSSession", "WinRM"],
+      "examples": [
+        { "cmd": "New-PSSession -ComputerName Server01 -Credential (Get-Credential)", "desc": "用指定凭据连接 Server01 并建立持久会话" },
+        { "cmd": "New-PSSession -ComputerName Server01, Server02 -Name Lab -ThrottleLimit 8", "desc": "一次为多台计算机建立命名为 Lab 的会话" },
+        { "cmd": "$s = New-PSSession -ComputerName Server01 -Port 5986 -UseSSL", "desc": "通过 HTTPS 端口 5986 建立加密会话并存入变量" }
+      ],
+      "form": [
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "Server01", "hint": "多台用逗号分隔，如 Server01, Server02" },
+        { "token": "-Credential", "label": "登录凭据", "type": "text", "value": "", "hint": "留空使用当前登录用户，也可填 (Get-Credential)" },
+        { "token": "-Port", "label": "端口", "type": "number", "value": "5985", "hint": "HTTP 默认 5985，HTTPS 默认 5986" },
+        { "token": "-UseSSL", "label": "使用 SSL", "type": "flag", "value": "", "hint": "勾选后通过 HTTPS 连接" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，目标计算机名，可写多台", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定远程计算机，多台用逗号分隔", "valueHint": "<计算机名>" },
+        { "token": "-Credential", "kind": "option", "desc": "远程登录凭据", "valueHint": "<凭据>" },
+        { "token": "-Port", "kind": "option", "desc": "WinRM 端口，HTTP 默认 5985", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "改用 HTTPS 连接，默认端口 5986" },
+        { "token": "-ConfigurationName", "kind": "option", "desc": "指定远程会话配置即终结点名称", "valueHint": "<配置名>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-SessionOption", "kind": "option", "desc": "高级会话选项，由 New-PSSessionOption 生成", "valueHint": "<选项>" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "-Name", "kind": "option", "desc": "给会话起名，便于之后按名称引用", "valueHint": "<会话名>" },
+        { "token": "-EnableNetworkAccess", "kind": "flag", "desc": "允许在回环地址上建立会话，需配合凭据" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发建立会话的上限", "valueHint": "<数量>" },
+        { "token": "-ConnectionUri", "kind": "option", "desc": "直接指定连接 URI，可用于 SSH 端点", "valueHint": "<URI>" },
+        { "token": "-AllowRedirection", "kind": "flag", "desc": "允许连接被重定向到其他 URI" },
+        { "token": "-Session", "kind": "option", "desc": "以已有会话为模板建立新会话", "valueHint": "<会话>" },
+        { "token": "-VMName", "kind": "option", "desc": "通过 PowerShell Direct 连接虚拟机", "valueHint": "<VM 名>" },
+        { "token": "-VMId", "kind": "option", "desc": "按虚拟机 ID 连接虚拟机", "valueHint": "<VM GUID>" },
+        { "token": "-ContainerId", "kind": "option", "desc": "连接指定的 Windows 容器", "valueHint": "<容器 ID>" },
+        { "token": "-RunAsAdministrator", "kind": "flag", "desc": "在容器会话中以管理员身份运行" }
+      ]
+    },
+    {
+      "name": "Get-PSSession",
+      "aliases": ["gsn"],
+      "title": "查看当前远程会话",
+      "desc": "列出本机当前已建立的 PSSession，包括会话编号、状态、计算机名与可用性。排查远程连接占用、确认断开的会话时最常用。加 -ComputerName 会去远端查询该机器上的会话。",
+      "usage": "Get-PSSession [-Name <string[]>] ; Get-PSSession [-ComputerName] <string[]> [-ApplicationName <string>] [-ConfigurationName <string>] [-Name <string[]>] [-Credential <pscredential>] [-Authentication <AuthenticationMechanism>] [-CertificateThumbprint <string>] [-Port <int>] [-UseSSL] [-ThrottleLimit <int>] [-State <SessionFilterState>] [-SessionOption <PSSessionOption>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "会话", "状态"],
+      "examples": [
+        { "cmd": "Get-PSSession", "desc": "列出本机当前的全部会话" },
+        { "cmd": "Get-PSSession | Format-Table Id, Name, ComputerName, State, Availability", "desc": "以表格查看会话编号与状态" },
+        { "cmd": "Get-PSSession -ComputerName Server01 -State Disconnected", "desc": "查询 Server01 上已断开的会话" }
+      ],
+      "form": [
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "", "hint": "留空只查本机保存的会话" },
+        { "token": "-State", "label": "会话状态", "type": "select", "value": "All", "hint": "按状态筛选会话", "options": ["All", "Opened", "Disconnected", "Closed", "Broken"] },
+        { "token": "-Id", "label": "会话编号", "type": "number", "value": "", "hint": "按 Id 精确查找" },
+        { "token": "-Name", "label": "会话名称", "type": "text", "value": "", "hint": "按建立时指定的名称筛选" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，到该计算机上查询会话", "valueHint": "计算机名" },
+        { "token": "-Name", "kind": "option", "desc": "按会话名称筛选", "valueHint": "<会话名>" },
+        { "token": "-Id", "kind": "option", "desc": "按本机会话编号筛选", "valueHint": "<会话 ID>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话实例 GUID 筛选", "valueHint": "<GUID>" },
+        { "token": "-State", "kind": "option", "desc": "按会话状态筛选", "valueHint": "<状态>", "enum": ["All", "Opened", "Disconnected", "Closed", "Broken"] },
+        { "token": "-ComputerName", "kind": "option", "desc": "到指定远程计算机查询其会话", "valueHint": "<计算机名>" },
+        { "token": "-ConfigurationName", "kind": "option", "desc": "按会话配置即终结点名称筛选", "valueHint": "<配置名>" },
+        { "token": "-ConnectionUri", "kind": "option", "desc": "按连接 URI 查询会话", "valueHint": "<URI>" },
+        { "token": "-AllowRedirection", "kind": "flag", "desc": "允许连接被重定向到其他 URI" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机所用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-Port", "kind": "option", "desc": "远程查询所用的 WinRM 端口", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "远程查询时使用 HTTPS 连接" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发查询的上限", "valueHint": "<数量>" },
+        { "token": "-SessionOption", "kind": "option", "desc": "高级会话选项对象", "valueHint": "<选项>" },
+        { "token": "-ContainerId", "kind": "option", "desc": "查询指定容器中的会话", "valueHint": "<容器 ID>" },
+        { "token": "-VMName", "kind": "option", "desc": "查询指定虚拟机中的会话", "valueHint": "<VM 名>" },
+        { "token": "-VMId", "kind": "option", "desc": "按虚拟机 ID 查询会话", "valueHint": "<VM GUID>" }
+      ]
+    },
+    {
+      "name": "Remove-PSSession",
+      "aliases": ["rsn"],
+      "title": "关闭并删除会话",
+      "desc": "关闭指定的 PSSession 并释放远端资源，会话中未取回的作业结果会一并丢失。清理临时会话、释放断开的会话占用时必须用它。关闭后无法再 Connect-PSSession 找回。",
+      "usage": "Remove-PSSession [-Id] <int[]> ; Remove-PSSession [-Session] <PSSession[]> ; Remove-PSSession -Name <string[]> ; Remove-PSSession [-ComputerName] <string[]>",
+      "admin": false,
+      "danger": 2,
+      "tags": ["远程", "会话", "清理"],
+      "examples": [
+        { "cmd": "Get-PSSession | Remove-PSSession", "desc": "关闭当前所有会话，清理远程占用" },
+        { "cmd": "Remove-PSSession -Id 3", "desc": "按会话编号关闭单个会话" },
+        { "cmd": "Remove-PSSession -ComputerName Server01", "desc": "关闭指向 Server01 的全部会话" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "会话编号", "type": "text", "value": "", "hint": "多个编号用逗号分隔" },
+        { "token": "-Name", "label": "会话名称", "type": "text", "value": "", "hint": "按建立时的名称关闭" },
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "", "hint": "关闭指向该计算机的全部会话" }
+      ],
+      "nodes": [
+        { "token": "<会话 ID>", "kind": "value", "desc": "位置参数，按会话编号关闭", "valueHint": "会话 ID", "repeatable": true },
+        { "token": "<会话对象>", "kind": "value", "desc": "位置参数，传入会话对象关闭", "valueHint": "PSSession" },
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，关闭指向该机的全部会话", "valueHint": "计算机名" },
+        { "token": "-Id", "kind": "option", "desc": "按会话编号关闭，可写多个", "valueHint": "<会话 ID>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按会话名称关闭", "valueHint": "<会话名>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话实例 GUID 关闭", "valueHint": "<GUID>" },
+        { "token": "-Session", "kind": "option", "desc": "传入会话对象关闭", "valueHint": "<会话>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "关闭指向该计算机的全部会话", "valueHint": "<计算机名>" },
+        { "token": "-ContainerId", "kind": "option", "desc": "关闭指定容器中的会话", "valueHint": "<容器 ID>" },
+        { "token": "-VMName", "kind": "option", "desc": "关闭指定虚拟机中的会话", "valueHint": "<VM 名>" },
+        { "token": "-VMId", "kind": "option", "desc": "按虚拟机 ID 关闭会话", "valueHint": "<VM GUID>" }
+      ]
+    },
+    {
+      "name": "Enter-PSSession",
+      "aliases": ["etsn"],
+      "title": "进入交互式远程会话",
+      "desc": "进入单个远程计算机的交互式命令行，之后输入的命令都在远端执行，提示符会变成远端计算机名。仅支持单台目标，退出请用 Exit-PSSession。适合手动排查远端环境。",
+      "usage": "Enter-PSSession [-ComputerName] <string> [-EnableNetworkAccess] [-Credential <pscredential>] [-ConfigurationName <string>] [-Port <int>] [-UseSSL] [-ApplicationName <string>] [-SessionOption <PSSessionOption>] [-Authentication <AuthenticationMechanism>] [-CertificateThumbprint <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "交互", "会话"],
+      "examples": [
+        { "cmd": "Enter-PSSession -ComputerName Server01", "desc": "以当前用户身份进入 Server01 的交互式会话" },
+        { "cmd": "Enter-PSSession -ComputerName Server01 -Credential (Get-Credential)", "desc": "用指定凭据进入交互式会话" },
+        { "cmd": "Enter-PSSession -Session $s", "desc": "进入已建立的会话对象对应的交互式命令行" }
+      ],
+      "form": [
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "Server01", "hint": "只能指定一台计算机" },
+        { "token": "-Credential", "label": "登录凭据", "type": "text", "value": "", "hint": "留空使用当前登录用户" },
+        { "token": "-Port", "label": "端口", "type": "number", "value": "5985", "hint": "HTTP 默认 5985，HTTPS 默认 5986" },
+        { "token": "-UseSSL", "label": "使用 SSL", "type": "flag", "value": "", "hint": "勾选后走 HTTPS" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，要进入的远程计算机名", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，只能写一台", "valueHint": "<计算机名>" },
+        { "token": "-Session", "kind": "option", "desc": "进入指定会话对象对应的交互式会话", "valueHint": "<会话>" },
+        { "token": "-Id", "kind": "option", "desc": "按会话编号进入交互式会话", "valueHint": "<会话 ID>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话实例 GUID 进入", "valueHint": "<GUID>" },
+        { "token": "-Name", "kind": "option", "desc": "按会话名称进入", "valueHint": "<会话名>" },
+        { "token": "-ConnectionUri", "kind": "option", "desc": "按连接 URI 进入，可用于 SSH 端点", "valueHint": "<URI>" },
+        { "token": "-Credential", "kind": "option", "desc": "远程登录凭据", "valueHint": "<凭据>" },
+        { "token": "-Port", "kind": "option", "desc": "远程连接端口", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "使用 HTTPS 连接" },
+        { "token": "-ConfigurationName", "kind": "option", "desc": "指定远程会话配置即终结点名称", "valueHint": "<配置名>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-SessionOption", "kind": "option", "desc": "高级会话选项对象", "valueHint": "<选项>" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "-AllowRedirection", "kind": "flag", "desc": "允许连接被重定向到其他 URI" },
+        { "token": "-EnableNetworkAccess", "kind": "flag", "desc": "允许在回环地址上建立会话" },
+        { "token": "-VMName", "kind": "option", "desc": "进入指定虚拟机的交互式会话", "valueHint": "<VM 名>" },
+        { "token": "-VMId", "kind": "option", "desc": "按虚拟机 ID 进入交互式会话", "valueHint": "<VM GUID>" },
+        { "token": "-ContainerId", "kind": "option", "desc": "进入指定容器的交互式会话", "valueHint": "<容器 ID>" },
+        { "token": "-RunAsAdministrator", "kind": "flag", "desc": "在容器会话中以管理员身份运行" }
+      ]
+    },
+    {
+      "name": "Exit-PSSession",
+      "aliases": ["exsn"],
+      "title": "退出交互式远程会话",
+      "desc": "结束由 Enter-PSSession 打开的交互式远程会话，回到本地命令行。它不会关闭会话本身，会话仍保留可用，需要彻底释放请用 Remove-PSSession。该 cmdlet 不接受任何参数。",
+      "usage": "Exit-PSSession",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "交互", "退出"],
+      "examples": [
+        { "cmd": "Exit-PSSession", "desc": "退出当前交互式远程会话，返回本地" },
+        { "cmd": "exit", "desc": "在会话提示符下等效的简化写法" },
+        { "cmd": "Exit-PSSession; Get-PSSession", "desc": "退出后立即确认会话是否仍然存在" }
+      ],
+      "form": [
+        { "token": "", "label": "无参数", "type": "text", "value": "", "hint": "本命令无参数，直接执行即可退出" }
+      ],
+      "nodes": [
+        { "token": "Exit-PSSession", "kind": "syntax", "desc": "唯一用法：不接受任何参数，直接退出" },
+        { "token": "exit", "kind": "syntax", "desc": "等效写法：在会话提示符下输入 exit" },
+        { "token": "Get-PSSession", "kind": "syntax", "desc": "相关：查看退出后仍保留的会话列表" },
+        { "token": "Get-PSSession -State Opened", "kind": "syntax", "desc": "相关：只看仍处于打开状态的会话" },
+        { "token": "Get-PSSession -State Disconnected", "kind": "syntax", "desc": "相关：查看已断开但仍保留的会话" },
+        { "token": "Enter-PSSession -ComputerName <计算机名>", "kind": "syntax", "desc": "反向操作：重新进入交互式会话" },
+        { "token": "Enter-PSSession -Session <会话对象>", "kind": "syntax", "desc": "反向操作：从已有会话进入交互模式" },
+        { "token": "Disconnect-PSSession -Id <会话 ID>", "kind": "syntax", "desc": "相关：断开连接但保留会话继续运行" },
+        { "token": "Connect-PSSession -Name <会话名>", "kind": "syntax", "desc": "相关：重新连接已断开的会话" },
+        { "token": "Remove-PSSession -Id <会话 ID>", "kind": "syntax", "desc": "相关：彻底关闭并释放会话资源" }
+      ]
+    },
+    {
+      "name": "Connect-PSSession",
+      "aliases": ["cnsn"],
+      "title": "重连已断开的会话",
+      "desc": "把已断开的 PSSession 重新连接到当前会话，断线期间远端执行的任务结果可以继续取回。与 Enter-PSSession 不同，它恢复的是会话对象而不是交互式命令行。跨计算机重连需要目标机允许连接。",
+      "usage": "Connect-PSSession -Name <string[]> [-ThrottleLimit <int>] ; Connect-PSSession [-Session] <PSSession[]> [-ThrottleLimit <int>] ; Connect-PSSession [-ComputerName] <string[]> [-ApplicationName <string>] [-ConfigurationName <string>] [-Name <string[]>] [-Credential <pscredential>] [-Authentication <AuthenticationMechanism>] [-CertificateThumbprint <string>] [-Port <int>] [-UseSSL] [-SessionOption <PSSessionOption>] [-ThrottleLimit <int>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "会话", "重连"],
+      "examples": [
+        { "cmd": "Connect-PSSession -ComputerName Server01 -Name Lab", "desc": "从本机重连 Server01 上名为 Lab 的会话" },
+        { "cmd": "Connect-PSSession -Session $s", "desc": "重连变量中的会话对象" },
+        { "cmd": "Get-PSSession -ComputerName Server01 -State Disconnected | Connect-PSSession", "desc": "批量重连 Server01 上所有已断开的会话" }
+      ],
+      "form": [
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "Server01", "hint": "会话所在的计算机" },
+        { "token": "-Name", "label": "会话名称", "type": "text", "value": "", "hint": "要重连的会话名称" },
+        { "token": "-Credential", "label": "登录凭据", "type": "text", "value": "", "hint": "留空使用当前登录用户" },
+        { "token": "-ThrottleLimit", "label": "并发上限", "type": "number", "value": "32", "hint": "一次重连多个会话时的并发数" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，会话所在的计算机名", "valueHint": "计算机名" },
+        { "token": "<会话对象>", "kind": "value", "desc": "位置参数，要重连的会话对象", "valueHint": "PSSession" },
+        { "token": "<会话 ID>", "kind": "value", "desc": "位置参数，按编号重连本机会话", "valueHint": "会话 ID" },
+        { "token": "-Session", "kind": "option", "desc": "指定要重连的会话对象", "valueHint": "<会话>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定会话所在的计算机", "valueHint": "<计算机名>" },
+        { "token": "-Name", "kind": "option", "desc": "按会话名称重连", "valueHint": "<会话名>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话实例 GUID 重连", "valueHint": "<GUID>" },
+        { "token": "-Id", "kind": "option", "desc": "按本机会话编号重连", "valueHint": "<会话 ID>" },
+        { "token": "-ConnectionUri", "kind": "option", "desc": "按连接 URI 重连", "valueHint": "<URI>" },
+        { "token": "-AllowRedirection", "kind": "flag", "desc": "允许连接被重定向到其他 URI" },
+        { "token": "-ConfigurationName", "kind": "option", "desc": "指定会话配置即终结点名称", "valueHint": "<配置名>" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机所用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-Port", "kind": "option", "desc": "远程连接端口", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "使用 HTTPS 连接" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "-SessionOption", "kind": "option", "desc": "高级会话选项对象", "valueHint": "<选项>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发重连的上限", "valueHint": "<数量>" }
+      ]
+    },
+    {
+      "name": "Disconnect-PSSession",
+      "aliases": ["dnsn"],
+      "title": "断开会话但保留任务",
+      "desc": "断开当前连接，但让远端会话继续运行，正在执行的长任务不会中断，结果暂存在会话中。之后可用 Connect-PSSession 重连并取回输出。适合跑长任务时先断开本地连接。",
+      "usage": "Disconnect-PSSession [-Session] <PSSession[]> [-IdleTimeoutSec <int>] [-OutputBufferingMode <OutputBufferingMode>] [-ThrottleLimit <int>] ; Disconnect-PSSession [-Id] <int[]> [-IdleTimeoutSec <int>] [-OutputBufferingMode <OutputBufferingMode>] [-ThrottleLimit <int>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "会话", "断开"],
+      "examples": [
+        { "cmd": "Disconnect-PSSession -Id 3", "desc": "断开编号 3 的会话，远端任务继续运行" },
+        { "cmd": "Disconnect-PSSession -Session $s -IdleTimeoutSec 7200", "desc": "断开指定会话并把空闲超时设为 2 小时" },
+        { "cmd": "Get-PSSession -ComputerName Server01 | Disconnect-PSSession", "desc": "断开指向 Server01 的全部会话" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "会话编号", "type": "text", "value": "", "hint": "多个编号用逗号分隔" },
+        { "token": "-IdleTimeoutSec", "label": "空闲超时秒", "type": "number", "value": "3600", "hint": "超过该时长无交互则远端会话结束" },
+        { "token": "-OutputBufferingMode", "label": "输出缓冲模式", "type": "select", "value": "None", "hint": "断开期间结果的缓存策略", "options": ["None", "Drop", "Block"] }
+      ],
+      "nodes": [
+        { "token": "<会话对象>", "kind": "value", "desc": "位置参数，要断开的会话对象", "valueHint": "PSSession" },
+        { "token": "<会话 ID>", "kind": "value", "desc": "位置参数，按编号断开会话", "valueHint": "会话 ID" },
+        { "token": "-Session", "kind": "option", "desc": "指定要断开的会话对象", "valueHint": "<会话>" },
+        { "token": "-Id", "kind": "option", "desc": "按本机会话编号断开", "valueHint": "<会话 ID>", "repeatable": true },
+        { "token": "-Name", "kind": "option", "desc": "按会话名称断开", "valueHint": "<会话名>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话实例 GUID 断开", "valueHint": "<GUID>" },
+        { "token": "-IdleTimeoutSec", "kind": "option", "desc": "设置断开后的空闲超时秒数", "valueHint": "<秒>" },
+        { "token": "-OutputBufferingMode", "kind": "option", "desc": "断开期间远端输出的缓冲策略", "valueHint": "<模式>", "enum": ["None", "Drop", "Block"] },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发断开的上限", "valueHint": "<数量>" },
+        { "token": "Connect-PSSession -Id <会话 ID>", "kind": "syntax", "desc": "配套操作：重新连回已断开的会话" },
+        { "token": "Receive-PSSession -Id <会话 ID>", "kind": "syntax", "desc": "配套操作：取回断开期间产生的输出" }
+      ]
+    },
+    {
+      "name": "Receive-PSSession",
+      "aliases": ["rcsn"],
+      "title": "取回断开会话的结果",
+      "desc": "连接已断开的会话并取回断开期间远端命令产生的结果。结果可以显示在当前主机，也可以作为后台作业返回。跑完长任务后用它收集输出最方便。",
+      "usage": "Receive-PSSession [-Session] <PSSession> [-OutTarget <OutTarget>] [-JobName <string>] ; Receive-PSSession [-Id] <int> [-OutTarget <OutTarget>] [-JobName <string>] ; Receive-PSSession [-ComputerName] <string> -Name <string> [-ApplicationName <string>] [-ConfigurationName <string>] [-OutTarget <OutTarget>] [-JobName <string>] [-Credential <pscredential>] [-Authentication <AuthenticationMechanism>] [-CertificateThumbprint <string>] [-Port <int>] [-UseSSL] [-SessionOption <PSSessionOption>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "会话", "结果"],
+      "examples": [
+        { "cmd": "Receive-PSSession -Id 3", "desc": "重连编号 3 的会话并取回结果" },
+        { "cmd": "Receive-PSSession -ComputerName Server01 -Name Lab -OutTarget Job -JobName LabResult", "desc": "把结果作为后台作业取回" },
+        { "cmd": "Get-PSSession -ComputerName Server01 -State Disconnected | Receive-PSSession", "desc": "批量取回 Server01 上断开会话的结果" }
+      ],
+      "form": [
+        { "token": "-Id", "label": "会话编号", "type": "number", "value": "", "hint": "本机会话的编号" },
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "Server01", "hint": "会话所在的计算机" },
+        { "token": "-OutTarget", "label": "输出目标", "type": "select", "value": "Default", "hint": "结果显示在当前主机还是作为作业", "options": ["Default", "Host", "Job"] },
+        { "token": "-JobName", "label": "作业名称", "type": "text", "value": "", "hint": "仅 OutTarget 为 Job 时有效" }
+      ],
+      "nodes": [
+        { "token": "<会话对象>", "kind": "value", "desc": "位置参数，要取回结果的会话对象", "valueHint": "PSSession" },
+        { "token": "<会话 ID>", "kind": "value", "desc": "位置参数，按编号取回本机会话结果", "valueHint": "会话 ID" },
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，会话所在的计算机名", "valueHint": "计算机名" },
+        { "token": "-Session", "kind": "option", "desc": "指定要取回结果的会话对象", "valueHint": "<会话>" },
+        { "token": "-Id", "kind": "option", "desc": "按本机会话编号取回", "valueHint": "<会话 ID>" },
+        { "token": "-Name", "kind": "option", "desc": "按会话名称取回", "valueHint": "<会话名>" },
+        { "token": "-InstanceId", "kind": "option", "desc": "按会话实例 GUID 取回", "valueHint": "<GUID>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定会话所在的计算机", "valueHint": "<计算机名>" },
+        { "token": "-OutTarget", "kind": "option", "desc": "结果输出到当前主机还是作为作业", "valueHint": "<目标>", "enum": ["Default", "Host", "Job"] },
+        { "token": "-JobName", "kind": "option", "desc": "结果作业的名称，便于后续管理", "valueHint": "<作业名>" },
+        { "token": "-ConnectionUri", "kind": "option", "desc": "按连接 URI 重连并取回结果", "valueHint": "<URI>" },
+        { "token": "-AllowRedirection", "kind": "flag", "desc": "允许连接被重定向到其他 URI" },
+        { "token": "-ConfigurationName", "kind": "option", "desc": "指定会话配置即终结点名称", "valueHint": "<配置名>" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "-Credential", "kind": "option", "desc": "连接远程计算机所用的凭据", "valueHint": "<凭据>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-Port", "kind": "option", "desc": "远程连接端口", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "使用 HTTPS 连接" },
+        { "token": "-SessionOption", "kind": "option", "desc": "高级会话选项对象", "valueHint": "<选项>" }
+      ]
+    },
+    {
+      "name": "Invoke-Command",
+      "aliases": ["icm"],
+      "title": "远程执行命令或脚本",
+      "desc": "在一台或多台计算机上运行脚本块或脚本文件，是远程批量运维的核心命令。可通过 -ComputerName 临时连接，也可用 -Session 复用已有会话。加 -AsJob 或 -InDisconnectedSession 可实现后台与断开会话执行。",
+      "usage": "Invoke-Command [-ScriptBlock] <scriptblock> [-NoNewScope] [-InputObject <psobject>] [-ArgumentList <Object[]>] ; Invoke-Command [[-ComputerName] <string[]>] [-ScriptBlock] <scriptblock> [-Credential <pscredential>] [-Port <int>] [-UseSSL] [-ConfigurationName <string>] [-ApplicationName <string>] [-ThrottleLimit <int>] [-AsJob] [-InDisconnectedSession] [-SessionName <string[]>] [-HideComputerName] [-JobName <string>] [-SessionOption <PSSessionOption>] [-Authentication <AuthenticationMechanism>] [-EnableNetworkAccess] [-InputObject <psobject>] [-ArgumentList <Object[]>] [-CertificateThumbprint <string>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["远程", "批量", "脚本块", "作业"],
+      "examples": [
+        { "cmd": "Invoke-Command -ComputerName Server01 -ScriptBlock { Get-Service WinRM }", "desc": "在 Server01 上查询 WinRM 服务状态" },
+        { "cmd": "Invoke-Command -Session $s -ScriptBlock { Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 }", "desc": "在已有会话中找出占用 CPU 最高的 5 个进程" },
+        { "cmd": "Invoke-Command -ComputerName Server01, Server02 -FilePath .\\deploy.ps1 -AsJob", "desc": "在多台机器上以后台作业方式运行脚本文件" }
+      ],
+      "form": [
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "Server01", "hint": "多台用逗号分隔，与 -Session 互斥" },
+        { "token": "-ScriptBlock", "label": "脚本块", "type": "text", "value": "{ Get-Service }", "hint": "要远程执行的命令，写在花括号内" },
+        { "token": "-FilePath", "label": "脚本文件", "type": "path", "value": "", "hint": "本地脚本路径，会复制到远端执行" },
+        { "token": "-Credential", "label": "登录凭据", "type": "text", "value": "", "hint": "留空使用当前登录用户" },
+        { "token": "-AsJob", "label": "后台作业", "type": "flag", "value": "", "hint": "勾选后立即返回作业对象" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，目标计算机，可写多台", "valueHint": "计算机名" },
+        { "token": "<脚本块>", "kind": "value", "desc": "位置参数，要远程执行的脚本块", "valueHint": "{ 命令 }" },
+        { "token": "<脚本文件路径>", "kind": "value", "desc": "位置参数，要远程执行的本地脚本文件", "valueHint": "脚本路径" },
+        { "token": "<会话对象>", "kind": "value", "desc": "位置参数，在已有会话中执行", "valueHint": "PSSession" },
+        { "token": "-ScriptBlock", "kind": "option", "desc": "要远程执行的命令或脚本块", "valueHint": "{ 命令 }" },
+        { "token": "-FilePath", "kind": "option", "desc": "要远程执行的本地脚本文件路径", "valueHint": "<文件路径>" },
+        { "token": "-ComputerName", "kind": "option", "desc": "目标计算机，多台用逗号分隔", "valueHint": "<计算机名>", "repeatable": true },
+        { "token": "-Session", "kind": "option", "desc": "在指定的持久会话中执行", "valueHint": "<会话>", "repeatable": true },
+        { "token": "-Credential", "kind": "option", "desc": "远程登录凭据", "valueHint": "<凭据>" },
+        { "token": "-Port", "kind": "option", "desc": "远程连接端口", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "使用 HTTPS 连接" },
+        { "token": "-ConfigurationName", "kind": "option", "desc": "指定远程会话配置即终结点名称", "valueHint": "<配置名>" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发执行的计算机数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行，立即返回作业对象" },
+        { "token": "-InDisconnectedSession", "kind": "flag", "desc": "在断开连接的会话中启动命令" },
+        { "token": "-SessionName", "kind": "option", "desc": "为断开式会话命名，便于稍后重连", "valueHint": "<会话名>", "repeatable": true },
+        { "token": "-HideComputerName", "kind": "flag", "desc": "输出中隐藏 PSComputerName 列" },
+        { "token": "-JobName", "kind": "option", "desc": "后台作业的名称", "valueHint": "<作业名>" },
+        { "token": "-SessionOption", "kind": "option", "desc": "高级会话选项对象", "valueHint": "<选项>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["Default", "Basic", "Negotiate", "NegotiateWithImplicitCredential", "Credssp", "Digest", "Kerberos"] },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-EnableNetworkAccess", "kind": "flag", "desc": "允许在回环地址上建立会话" },
+        { "token": "-RunAsAdministrator", "kind": "flag", "desc": "在容器中以管理员身份运行" },
+        { "token": "-InputObject", "kind": "option", "desc": "作为管道输入传给脚本块的对象", "valueHint": "<对象>" },
+        { "token": "-ArgumentList", "kind": "option", "desc": "传给脚本块的位置参数数组", "valueHint": "<参数>" },
+        { "token": "-NoNewScope", "kind": "flag", "desc": "在当前作用域而非新作用域中运行" },
+        { "token": "-AllowRedirection", "kind": "flag", "desc": "允许连接被重定向到其他 URI" },
+        { "token": "-ConnectionUri", "kind": "option", "desc": "直接指定连接 URI", "valueHint": "<URI>", "repeatable": true },
+        { "token": "-VMName", "kind": "option", "desc": "在指定虚拟机中执行", "valueHint": "<VM 名>", "repeatable": true },
+        { "token": "-VMId", "kind": "option", "desc": "按虚拟机 ID 执行", "valueHint": "<VM GUID>", "repeatable": true },
+        { "token": "-ContainerId", "kind": "option", "desc": "在指定容器中执行", "valueHint": "<容器 ID>", "repeatable": true }
+      ]
+    },
+    {
+      "name": "Enable-PSRemoting",
+      "aliases": [],
+      "title": "启用本机远程管理",
+      "desc": "把本机配置成可接收 PowerShell 远程连接：启动并设置 WinRM 服务、注册默认会话配置、创建侦听器与防火墙规则。需要管理员权限，且只需对每台目标机执行一次。",
+      "usage": "Enable-PSRemoting [-Force] [-SkipNetworkProfileCheck]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["远程", "WinRM", "配置", "启用"],
+      "examples": [
+        { "cmd": "Enable-PSRemoting -Force", "desc": "不逐个确认，直接完成全部启用步骤" },
+        { "cmd": "Enable-PSRemoting -SkipNetworkProfileCheck -Force", "desc": "在公用网络配置下也启用远程处理" },
+        { "cmd": "Test-WSMan -ComputerName Server01", "desc": "从本机验证 Server01 的远程处理是否可用" }
+      ],
+      "form": [
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "true", "hint": "建议勾选，避免逐个提示" },
+        { "token": "-SkipNetworkProfileCheck", "label": "忽略网络位置", "type": "flag", "value": "", "hint": "勾选后网络为公用时也放行" }
+      ],
+      "nodes": [
+        { "token": "-Force", "kind": "flag", "desc": "跳过所有交互确认，直接执行" },
+        { "token": "-SkipNetworkProfileCheck", "kind": "flag", "desc": "网络位置为公用时仍启用远程处理" },
+        { "token": "Enable-PSRemoting -Force", "kind": "syntax", "desc": "最常用写法：一步启用本机远程管理" },
+        { "token": "Test-WSMan -ComputerName <计算机名>", "kind": "syntax", "desc": "验证：检查目标机远程处理是否可用" },
+        { "token": "Get-PSSessionConfiguration", "kind": "syntax", "desc": "验证：查看已注册的会话配置终结点" },
+        { "token": "winrm quickconfig", "kind": "syntax", "desc": "等价做法：传统的 WinRM 快速配置向导" },
+        { "token": "Get-Service WinRM | Select-Object Status, StartType", "kind": "syntax", "desc": "检查：确认 WinRM 服务已启动并自动运行" },
+        { "token": "Set-Service WinRM -StartupType Automatic", "kind": "syntax", "desc": "补救：把 WinRM 服务设为自动启动" },
+        { "token": "Start-Service WinRM", "kind": "syntax", "desc": "补救：手动启动 WinRM 服务" },
+        { "token": "Restart-Service WinRM", "kind": "syntax", "desc": "补救：修改配置后重启 WinRM 服务" },
+        { "token": "Disable-PSRemoting -Force", "kind": "syntax", "desc": "反向操作：关闭本机的远程管理" }
+      ]
+    },
+    {
+      "name": "Disable-PSRemoting",
+      "aliases": [],
+      "title": "关闭本机远程管理",
+      "desc": "禁止其他计算机连接本机的 PowerShell 远程终结点，会为所有会话配置加上拒绝远程访问的安全描述符。需要管理员权限。关闭后本机仍可用 WinRM 处理其他协议请求。",
+      "usage": "Disable-PSRemoting [-Force]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["远程", "WinRM", "禁用", "安全"],
+      "examples": [
+        { "cmd": "Disable-PSRemoting -Force", "desc": "不确认直接关闭本机的远程管理" },
+        { "cmd": "Disable-PSRemoting -Force; Get-PSSessionConfiguration", "desc": "关闭后查看各终结点的权限状态" },
+        { "cmd": "Test-WSMan -ComputerName localhost", "desc": "验证本机远程终结点是否已被拒绝" }
+      ],
+      "form": [
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "true", "hint": "建议勾选，避免交互提示" }
+      ],
+      "nodes": [
+        { "token": "-Force", "kind": "flag", "desc": "跳过确认提示，直接关闭远程访问" },
+        { "token": "Disable-PSRemoting -Force", "kind": "syntax", "desc": "常用写法：直接关闭本机远程管理" },
+        { "token": "Enable-PSRemoting -Force", "kind": "syntax", "desc": "反向操作：重新启用本机远程管理" },
+        { "token": "Get-PSSessionConfiguration", "kind": "syntax", "desc": "验证：查看终结点及其权限描述符" },
+        { "token": "Test-WSMan -ComputerName <计算机名>", "kind": "syntax", "desc": "验证：检查目标机远程处理是否仍响应" },
+        { "token": "Get-Service WinRM | Select-Object Status, StartType", "kind": "syntax", "desc": "检查：WinRM 服务本身是否仍在运行" },
+        { "token": "Stop-Service WinRM", "kind": "syntax", "desc": "加强：彻底停止 WinRM 服务" },
+        { "token": "Set-Service WinRM -StartupType Disabled", "kind": "syntax", "desc": "加强：禁止 WinRM 服务开机自启" },
+        { "token": "winrm enumerate winrm/config/listener", "kind": "syntax", "desc": "检查：列出当前存在的 WinRM 侦听器" },
+        { "token": "Remove-PSSession -Id <会话 ID>", "kind": "syntax", "desc": "配套：关闭本机残留的远程会话" }
+      ]
+    },
+    {
+      "name": "Get-PSSessionConfiguration",
+      "aliases": [],
+      "title": "查看会话配置终结点",
+      "desc": "列出本机已注册的 PowerShell 会话配置，也就是远程连接时可选用的终结点，含权限、启动脚本等信息。排查远程连接被拒绝、确认某个终结点是否存在时使用。部分配置需要管理员权限才能查看全部信息。",
+      "usage": "Get-PSSessionConfiguration [[-Name] <string[]>] [-Force]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["远程", "终结点", "配置"],
+      "examples": [
+        { "cmd": "Get-PSSessionConfiguration", "desc": "列出本机注册的全部会话配置终结点" },
+        { "cmd": "Get-PSSessionConfiguration -Name Microsoft.PowerShell | Format-List *", "desc": "查看默认终结点的完整属性" },
+        { "cmd": "Get-PSSessionConfiguration -Name Microsoft.PowerShell32", "desc": "查看 32 位 PowerShell 终结点是否存在" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "配置名称", "type": "text", "value": "Microsoft.PowerShell", "hint": "留空列出全部，支持通配符" },
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "", "hint": "勾选后不再出现确认提示" }
+      ],
+      "nodes": [
+        { "token": "<配置名>", "kind": "value", "desc": "位置参数，会话配置即终结点名称", "valueHint": "配置名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要查看的会话配置名称", "valueHint": "<配置名>", "repeatable": true },
+        { "token": "-Force", "kind": "flag", "desc": "跳过使用名称查询时的确认提示" },
+        { "token": "Get-PSSessionConfiguration -Name <配置名> | Format-List *", "kind": "syntax", "desc": "查看终结点的全部属性与权限" },
+        { "token": "Get-PSSessionConfiguration -Name Microsoft.PowerShell", "kind": "syntax", "desc": "查看默认的 64 位 PowerShell 终结点" },
+        { "token": "Get-PSSessionConfiguration -Name Microsoft.PowerShell32", "kind": "syntax", "desc": "查看 32 位 PowerShell 终结点" },
+        { "token": "Register-PSSessionConfiguration -Name <配置名> -Force", "kind": "syntax", "desc": "相关：注册新的会话配置终结点" },
+        { "token": "Unregister-PSSessionConfiguration -Name <配置名>", "kind": "syntax", "desc": "相关：删除不再使用的终结点" },
+        { "token": "Get-PSSession -ConfigurationName <配置名>", "kind": "syntax", "desc": "相关：查看使用该终结点的会话" },
+        { "token": "winrm enumerate winrm/config/plugin", "kind": "syntax", "desc": "交叉验证：从 WinRM 侧列出插件" }
+      ]
+    },
+    {
+      "name": "Register-PSSessionConfiguration",
+      "aliases": [],
+      "title": "注册远程会话终结点",
+      "desc": "在本机注册一个新的会话配置，为远程连接提供受限或定制的终结点，可指定启动脚本、可见模块、运行账户与权限。常用于给普通用户开放受限远程入口。需要管理员权限，注册过程会重启 WinRM 服务。",
+      "usage": "Register-PSSessionConfiguration [-Name] <string> [-ProcessorArchitecture <string>] [-SessionType <PSSessionType>] [-ApplicationBase <string>] [-RunAsCredential <pscredential>] [-ThreadApartmentState <ApartmentState>] [-ThreadOptions <PSThreadOptions>] [-AccessMode <PSSessionConfigurationAccessMode>] [-UseSharedProcess] [-StartupScript <string>] [-MaximumReceivedDataSizePerCommandMB <double>] [-MaximumReceivedObjectSizeMB <double>] [-SecurityDescriptorSddl <string>] [-ShowSecurityDescriptorUI] [-Force] [-NoServiceRestart] [-PSVersion <version>] [-SessionTypeOption <PSSessionTypeOption>] [-TransportOption <PSTransportOption>] [-ModulesToImport <Object[]>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["远程", "终结点", "配置", "权限"],
+      "examples": [
+        { "cmd": "Register-PSSessionConfiguration -Name Support -StartupScript C:\\Scripts\\init.ps1 -Force", "desc": "注册带启动脚本的终结点 Support" },
+        { "cmd": "Register-PSSessionConfiguration -Name Restrict -AccessMode Remote -RunAsCredential (Get-Credential)", "desc": "注册以指定账户运行的远程终结点" },
+        { "cmd": "Get-PSSessionConfiguration -Name Support", "desc": "注册后确认终结点已生效" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "配置名称", "type": "text", "value": "Support", "hint": "远程连接时用 -ConfigurationName 指定" },
+        { "token": "-StartupScript", "label": "启动脚本", "type": "path", "value": "", "hint": "每个会话启动时执行的脚本完整路径" },
+        { "token": "-AccessMode", "label": "访问模式", "type": "select", "value": "Remote", "hint": "控制谁能连接该终结点", "options": ["Disabled", "Local", "Remote"] },
+        { "token": "-RunAsCredential", "label": "运行账户", "type": "text", "value": "", "hint": "以该账户身份运行会话，可填 (Get-Credential)" },
+        { "token": "-Force", "label": "覆盖同名配置", "type": "flag", "value": "true", "hint": "已存在同名终结点时直接覆盖" }
+      ],
+      "nodes": [
+        { "token": "<配置名>", "kind": "value", "desc": "位置参数，新终结点的名称", "valueHint": "配置名" },
+        { "token": "-Name", "kind": "option", "desc": "会话配置即终结点的名称", "valueHint": "<配置名>" },
+        { "token": "-Path", "kind": "option", "desc": "用会话配置文件注册终结点", "valueHint": "<配置文件路径>" },
+        { "token": "-StartupScript", "kind": "option", "desc": "每个会话启动时运行的脚本路径", "valueHint": "<脚本路径>" },
+        { "token": "-ModulesToImport", "kind": "option", "desc": "会话中预先导入的模块", "valueHint": "<模块>" },
+        { "token": "-AccessMode", "kind": "option", "desc": "终结点的访问模式", "valueHint": "<模式>", "enum": ["Disabled", "Local", "Remote"] },
+        { "token": "-RunAsCredential", "kind": "option", "desc": "以指定凭据运行会话", "valueHint": "<凭据>" },
+        { "token": "-SecurityDescriptorSddl", "kind": "option", "desc": "用 SDDL 字符串指定终结点权限", "valueHint": "<SDDL>" },
+        { "token": "-ShowSecurityDescriptorUI", "kind": "flag", "desc": "注册时弹出权限设置界面" },
+        { "token": "-SessionType", "kind": "option", "desc": "会话类型，普通或工作流", "valueHint": "<类型>", "enum": ["DefaultRemoteShell", "Workflow"] },
+        { "token": "-AssemblyName", "kind": "option", "desc": "实现该配置的程序集名称", "valueHint": "<程序集>" },
+        { "token": "-ConfigurationTypeName", "kind": "option", "desc": "程序集中的会话配置类型名", "valueHint": "<类型名>" },
+        { "token": "-ApplicationBase", "kind": "option", "desc": "程序集所在的基础目录", "valueHint": "<目录>" },
+        { "token": "-ProcessorArchitecture", "kind": "option", "desc": "会话进程的架构，如 64 或 x86", "valueHint": "<架构>" },
+        { "token": "-PSVersion", "kind": "option", "desc": "会话使用的 PowerShell 版本", "valueHint": "<版本>" },
+        { "token": "-ThreadOptions", "kind": "option", "desc": "会话线程的创建与复用方式", "valueHint": "<选项>", "enum": ["Default", "UseNewThread", "ReuseThread", "UseCurrentThread"] },
+        { "token": "-ThreadApartmentState", "kind": "option", "desc": "会话线程的单元状态", "valueHint": "<状态>", "enum": ["STA", "MTA", "Unknown"] },
+        { "token": "-UseSharedProcess", "kind": "flag", "desc": "多个会话共用同一个进程" },
+        { "token": "-MaximumReceivedDataSizePerCommandMB", "kind": "option", "desc": "单条命令接收数据的兆字节上限", "valueHint": "<MB>" },
+        { "token": "-MaximumReceivedObjectSizeMB", "kind": "option", "desc": "单个接收对象的兆字节上限", "valueHint": "<MB>" },
+        { "token": "-SessionTypeOption", "kind": "option", "desc": "会话类型的高级选项对象", "valueHint": "<选项>" },
+        { "token": "-TransportOption", "kind": "option", "desc": "传输层的高级选项对象", "valueHint": "<选项>" },
+        { "token": "-Force", "kind": "flag", "desc": "覆盖已存在的同名配置且不提示" },
+        { "token": "-NoServiceRestart", "kind": "flag", "desc": "注册后不重启 WinRM 服务" }
+      ]
+    },
+    {
+      "name": "Unregister-PSSessionConfiguration",
+      "aliases": [],
+      "title": "删除会话配置终结点",
+      "desc": "从本机删除已注册的会话配置终结点，删除后远程连接该终结点会失败。需要管理员权限，操作前应确认没有会话或脚本仍在使用它。默认会重启 WinRM 服务。",
+      "usage": "Unregister-PSSessionConfiguration [-Name] <string> [-Force] [-NoServiceRestart]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["远程", "终结点", "删除"],
+      "examples": [
+        { "cmd": "Unregister-PSSessionConfiguration -Name Support -Force", "desc": "不确认直接删除 Support 终结点" },
+        { "cmd": "Unregister-PSSessionConfiguration -Name Support -NoServiceRestart", "desc": "删除终结点但不重启 WinRM 服务" },
+        { "cmd": "Get-PSSessionConfiguration", "desc": "删除后确认终结点列表中已不存在" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "配置名称", "type": "text", "value": "Support", "hint": "要删除的终结点名称" },
+        { "token": "-Force", "label": "跳过确认", "type": "flag", "value": "true", "hint": "建议勾选，避免交互提示" },
+        { "token": "-NoServiceRestart", "label": "不重启服务", "type": "flag", "value": "", "hint": "勾选后需手动重启 WinRM 才生效" }
+      ],
+      "nodes": [
+        { "token": "<配置名>", "kind": "value", "desc": "位置参数，要删除的会话配置名称", "valueHint": "配置名" },
+        { "token": "-Name", "kind": "option", "desc": "要删除的会话配置即终结点名称", "valueHint": "<配置名>" },
+        { "token": "-Force", "kind": "flag", "desc": "跳过确认提示，直接删除" },
+        { "token": "-NoServiceRestart", "kind": "flag", "desc": "删除后不自动重启 WinRM 服务" },
+        { "token": "Get-PSSessionConfiguration", "kind": "syntax", "desc": "删除前确认：列出全部终结点名称" },
+        { "token": "Get-PSSession -ConfigurationName <配置名>", "kind": "syntax", "desc": "删除前确认：检查是否仍有会话在用" },
+        { "token": "Unregister-PSSessionConfiguration -Name <配置名> -Force", "kind": "syntax", "desc": "常用写法：不确认直接删除终结点" },
+        { "token": "Register-PSSessionConfiguration -Name <配置名> -Force", "kind": "syntax", "desc": "反向操作：重新注册同名终结点" },
+        { "token": "Restart-Service WinRM", "kind": "syntax", "desc": "配套：加 -NoServiceRestart 后手动重启服务" },
+        { "token": "winrm enumerate winrm/config/plugin", "kind": "syntax", "desc": "验证：确认插件已从 WinRM 中移除" }
+      ]
+    },
+    {
+      "name": "Test-WSMan",
+      "aliases": [],
+      "title": "测试远程管理是否可用",
+      "desc": "向目标计算机发送 WS-Management 请求，返回产品版本与协议信息，用来判断 WinRM 服务和远程处理是否可用。远程连接失败时先用它区分是网络、服务还是配置问题。不指定计算机名则测试本机。",
+      "usage": "Test-WSMan [[-ComputerName] <string>] [-Authentication <AuthenticationMechanism>] [-Port <int>] [-UseSSL] [-ApplicationName <string>] [-Credential <pscredential>] [-CertificateThumbprint <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["远程", "WinRM", "诊断", "测试"],
+      "examples": [
+        { "cmd": "Test-WSMan", "desc": "测试本机 WinRM 是否已配置可用" },
+        { "cmd": "Test-WSMan -ComputerName Server01", "desc": "测试能否连上 Server01 的远程管理" },
+        { "cmd": "Test-WSMan -ComputerName Server01 -Port 5986 -UseSSL", "desc": "按 HTTPS 端口 5986 测试远程管理" }
+      ],
+      "form": [
+        { "token": "-ComputerName", "label": "目标计算机", "type": "text", "value": "Server01", "hint": "留空测试本机" },
+        { "token": "-Port", "label": "端口", "type": "number", "value": "5985", "hint": "HTTP 默认 5985，HTTPS 默认 5986" },
+        { "token": "-UseSSL", "label": "使用 SSL", "type": "flag", "value": "", "hint": "勾选后按 HTTPS 测试" },
+        { "token": "-Credential", "label": "登录凭据", "type": "text", "value": "", "hint": "需要身份验证时填写" }
+      ],
+      "nodes": [
+        { "token": "<计算机名>", "kind": "value", "desc": "位置参数，要测试的计算机名", "valueHint": "计算机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定要测试的计算机，留空测本机", "valueHint": "<计算机名>" },
+        { "token": "-Authentication", "kind": "option", "desc": "指定身份验证机制", "valueHint": "<机制>", "enum": ["None", "Default", "Digest", "Negotiate", "Basic", "Kerberos", "ClientCertificate", "Credssp"] },
+        { "token": "-Credential", "kind": "option", "desc": "连接所用的登录凭据", "valueHint": "<凭据>" },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "用于证书身份验证的证书指纹", "valueHint": "<指纹>" },
+        { "token": "-Port", "kind": "option", "desc": "WS-Management 端口，默认 5985", "valueHint": "<端口>" },
+        { "token": "-UseSSL", "kind": "flag", "desc": "使用 HTTPS 连接测试" },
+        { "token": "-ApplicationName", "kind": "option", "desc": "连接时使用的应用名，默认 wsman", "valueHint": "<应用名>" },
+        { "token": "Test-WSMan", "kind": "syntax", "desc": "最常用写法：先确认本机远程管理可用" },
+        { "token": "Test-WSMan -ComputerName <计算机名> -Port 5986 -UseSSL", "kind": "syntax", "desc": "按 HTTPS 加密通道测试远程管理" }
+      ]
+    },
+    {
+      "name": "Get-LocalUser",
+      "aliases": ["glu"],
+      "title": "查看本机用户账户",
+      "desc": "列出本机的本地用户账户，包括启用状态、上次登录时间、密码到期信息等。改密码、禁用账户、排查登录问题时会用到。它只查看本地账户，不涉及域账户。",
+      "usage": "Get-LocalUser [[-Name] <string[]>] ; Get-LocalUser [[-SID] <SecurityIdentifier[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["用户", "账户", "本地"],
+      "examples": [
+        { "cmd": "Get-LocalUser", "desc": "列出全部本地用户账户" },
+        { "cmd": "Get-LocalUser -Name Administrator | Select-Object Name, Enabled, LastLogon", "desc": "查看管理员账户是否启用及上次登录时间" },
+        { "cmd": "Get-LocalUser | Where-Object Enabled -eq $false", "desc": "找出所有被禁用的本地账户" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "用户名", "type": "text", "value": "Administrator", "hint": "支持通配符，留空则列出全部" },
+        { "token": "-SID", "label": "SID", "type": "text", "value": "", "hint": "按安全标识符查询，如 S-1-5-21-..." }
+      ],
+      "nodes": [
+        { "token": "<用户名>", "kind": "value", "desc": "位置参数，本地用户名，支持通配符", "valueHint": "用户名" },
+        { "token": "-Name", "kind": "option", "desc": "按用户名筛选，支持通配符", "valueHint": "<用户名>", "repeatable": true },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符 SID 筛选", "valueHint": "<SID>", "repeatable": true },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 查询账户", "valueHint": "S-1-5-21-..." },
+        { "token": "| Select-Object Name, Enabled, LastLogon", "kind": "syntax", "desc": "常看字段：名称、是否启用、上次登录" },
+        { "token": "| Where-Object Enabled -eq $false", "kind": "syntax", "desc": "筛选出所有已禁用的账户" },
+        { "token": "| Disable-LocalUser", "kind": "syntax", "desc": "管道后续：禁用查到的账户" },
+        { "token": "| Enable-LocalUser", "kind": "syntax", "desc": "管道后续：重新启用查到的账户" },
+        { "token": "| Set-LocalUser", "kind": "syntax", "desc": "管道后续：修改查到的账户属性" },
+        { "token": "| Remove-LocalUser", "kind": "syntax", "desc": "管道后续：删除查到的账户" }
+      ]
+    },
+    {
+      "name": "New-LocalUser",
+      "aliases": ["nlu"],
+      "title": "创建本地用户账户",
+      "desc": "在本机新建一个本地用户账户，可同时设置密码、全名、描述、账户是否禁用与密码是否永不过期。属于系统账户变更操作，需要管理员权限。创建后可再用 Add-LocalGroupMember 加入用户组。",
+      "usage": "New-LocalUser [-Name] <string> -Password <securestring> [-AccountExpires <datetime>] [-AccountNeverExpires] [-Description <string>] [-Disabled] [-FullName <string>] [-PasswordNeverExpires] [-UserMayNotChangePassword]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户", "账户", "新建"],
+      "examples": [
+        { "cmd": "New-LocalUser -Name Audit -Password (Read-Host -AsSecureString) -FullName 'Audit Account'", "desc": "交互输入密码新建本地账户 Audit" },
+        { "cmd": "New-LocalUser -Name Temp01 -NoPassword -Disabled", "desc": "创建无密码且默认禁用的临时账户" },
+        { "cmd": "New-LocalUser -Name Svc01 -Password $pwd -PasswordNeverExpires -Description 'Service Account'", "desc": "创建密码永不过期的服务账户" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "用户名", "type": "text", "value": "Audit", "hint": "本地账户名，不能与已有账户重复" },
+        { "token": "-Password", "label": "密码", "type": "text", "value": "(Read-Host -AsSecureString)", "hint": "必须为安全字符串，与 -NoPassword 互斥" },
+        { "token": "-FullName", "label": "全名", "type": "text", "value": "", "hint": "账户显示的全名" },
+        { "token": "-Description", "label": "描述", "type": "text", "value": "", "hint": "账户说明文字" },
+        { "token": "-Disabled", "label": "创建后禁用", "type": "flag", "value": "", "hint": "勾选后账户建立时即为禁用状态" },
+        { "token": "-PasswordNeverExpires", "label": "密码永不过期", "type": "flag", "value": "", "hint": "勾选后密码不会到期" }
+      ],
+      "nodes": [
+        { "token": "<用户名>", "kind": "value", "desc": "位置参数，新账户的名称", "valueHint": "用户名" },
+        { "token": "-Name", "kind": "option", "desc": "新本地用户的账户名", "valueHint": "<用户名>" },
+        { "token": "-Password", "kind": "option", "desc": "账户密码，需为安全字符串", "valueHint": "<安全字符串>" },
+        { "token": "-NoPassword", "kind": "flag", "desc": "创建无密码账户，与 -Password 互斥" },
+        { "token": "-FullName", "kind": "option", "desc": "账户的全名", "valueHint": "<全名>" },
+        { "token": "-Description", "kind": "option", "desc": "账户的描述文字", "valueHint": "<描述>" },
+        { "token": "-AccountExpires", "kind": "option", "desc": "账户到期时间，如 2026-12-31", "valueHint": "<日期时间>" },
+        { "token": "-AccountNeverExpires", "kind": "flag", "desc": "账户永不到期" },
+        { "token": "-Disabled", "kind": "flag", "desc": "创建后立即禁用该账户" },
+        { "token": "-PasswordNeverExpires", "kind": "flag", "desc": "密码永不过期" },
+        { "token": "-UserMayNotChangePassword", "kind": "flag", "desc": "用户自己不能修改密码" }
+      ]
+    },
+    {
+      "name": "Set-LocalUser",
+      "aliases": ["slu"],
+      "title": "修改本地用户账户",
+      "desc": "修改既有本地用户的密码、全名、描述、账户到期时间与密码策略，也可重置忘记的密码。可按名称、SID 或用管道传入用户对象定位账户。需要管理员权限。",
+      "usage": "Set-LocalUser [-Name] <string> [-AccountExpires <datetime>] [-AccountNeverExpires] [-Description <string>] [-FullName <string>] [-Password <securestring>] [-PasswordNeverExpires <bool>] [-UserMayChangePassword <bool>] ; Set-LocalUser [-InputObject] <LocalUser> [-AccountExpires <datetime>] [-AccountNeverExpires] [-Description <string>] [-FullName <string>] [-Password <securestring>] [-PasswordNeverExpires <bool>] [-UserMayChangePassword <bool>] ; Set-LocalUser [-SID] <SecurityIdentifier> [-AccountExpires <datetime>] [-AccountNeverExpires] [-Description <string>] [-FullName <string>] [-Password <securestring>] [-PasswordNeverExpires <bool>] [-UserMayChangePassword <bool>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户", "账户", "改密码"],
+      "examples": [
+        { "cmd": "Set-LocalUser -Name Audit -Password (Read-Host -AsSecureString)", "desc": "重置账户 Audit 的密码" },
+        { "cmd": "Set-LocalUser -Name Audit -Description 'Audit Account 2026' -FullName 'Audit'", "desc": "更新账户的描述与全名" },
+        { "cmd": "Get-LocalUser -Name Audit | Set-LocalUser -PasswordNeverExpires $true", "desc": "把该账户设为密码永不过期" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "用户名", "type": "text", "value": "Audit", "hint": "要修改的账户名" },
+        { "token": "-Password", "label": "新密码", "type": "text", "value": "(Read-Host -AsSecureString)", "hint": "留空则不改密码" },
+        { "token": "-Description", "label": "描述", "type": "text", "value": "", "hint": "新的描述文字" },
+        { "token": "-FullName", "label": "全名", "type": "text", "value": "", "hint": "新的全名" },
+        { "token": "-PasswordNeverExpires", "label": "密码永不过期", "type": "select", "value": "$true", "hint": "布尔参数，需显式写 $true 或 $false", "options": ["$true", "$false"] }
+      ],
+      "nodes": [
+        { "token": "<用户名>", "kind": "value", "desc": "位置参数，要修改的账户名", "valueHint": "用户名" },
+        { "token": "<用户对象>", "kind": "value", "desc": "位置参数，从管道或变量传入的用户对象", "valueHint": "LocalUser" },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 指定账户", "valueHint": "S-1-5-21-..." },
+        { "token": "-Name", "kind": "option", "desc": "按账户名指定要修改的用户", "valueHint": "<用户名>" },
+        { "token": "-InputObject", "kind": "option", "desc": "传入用户对象进行修改", "valueHint": "<用户对象>" },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符指定账户", "valueHint": "<SID>" },
+        { "token": "-Password", "kind": "option", "desc": "设置新密码，需为安全字符串", "valueHint": "<安全字符串>" },
+        { "token": "-FullName", "kind": "option", "desc": "修改账户的全名", "valueHint": "<全名>" },
+        { "token": "-Description", "kind": "option", "desc": "修改账户的描述文字", "valueHint": "<描述>" },
+        { "token": "-AccountExpires", "kind": "option", "desc": "设置账户到期时间", "valueHint": "<日期时间>" },
+        { "token": "-AccountNeverExpires", "kind": "flag", "desc": "设置账户永不到期" },
+        { "token": "-PasswordNeverExpires", "kind": "option", "desc": "密码是否永不过期，写 $true 或 $false", "valueHint": "<布尔>", "enum": ["$true", "$false"] },
+        { "token": "-UserMayChangePassword", "kind": "option", "desc": "用户能否自行改密码，写 $true 或 $false", "valueHint": "<布尔>", "enum": ["$true", "$false"] }
+      ]
+    },
+    {
+      "name": "Remove-LocalUser",
+      "aliases": ["rlu"],
+      "title": "删除本地用户账户",
+      "desc": "从本机彻底删除一个或多个本地用户账户，操作不可撤销。可用名称、SID 或管道传入用户对象定位账户。需要管理员权限，注意删除账户不会一并删除该用户的配置文件目录。",
+      "usage": "Remove-LocalUser [-InputObject] <LocalUser[]> ; Remove-LocalUser [-Name] <string[]> ; Remove-LocalUser [-SID] <SecurityIdentifier[]>",
+      "admin": true,
+      "danger": 2,
+      "tags": ["用户", "账户", "删除"],
+      "examples": [
+        { "cmd": "Remove-LocalUser -Name Audit", "desc": "删除本地账户 Audit，不可恢复" },
+        { "cmd": "Get-LocalUser -Name Temp01 | Remove-LocalUser", "desc": "通过管道删除指定账户" },
+        { "cmd": "Remove-LocalUser -Name Temp01, Temp02", "desc": "一次删除多个本地账户" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "用户名", "type": "text", "value": "Audit", "hint": "要删除的账户名，多个用逗号分隔" },
+        { "token": "-SID", "label": "SID", "type": "text", "value": "", "hint": "按安全标识符删除，账户已改名时更可靠" }
+      ],
+      "nodes": [
+        { "token": "<用户名>", "kind": "value", "desc": "位置参数，要删除的本地用户名", "valueHint": "用户名" },
+        { "token": "<用户对象>", "kind": "value", "desc": "位置参数，管道或变量传入的用户对象", "valueHint": "LocalUser" },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 删除账户", "valueHint": "S-1-5-21-..." },
+        { "token": "-Name", "kind": "option", "desc": "按名称删除本地账户，可写多个", "valueHint": "<用户名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "按用户对象删除账户", "valueHint": "<用户对象>", "repeatable": true },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符删除账户", "valueHint": "<SID>", "repeatable": true },
+        { "token": "Get-LocalUser -Name <用户名>", "kind": "syntax", "desc": "删除前确认：核对该账户是否存在" },
+        { "token": "Get-LocalUser -Name <用户名> | Remove-LocalUser", "kind": "syntax", "desc": "管道写法：先查到再删除" },
+        { "token": "Remove-LocalUser -Name <用户名1>, <用户名2>", "kind": "syntax", "desc": "批量写法：一次删除多个账户" },
+        { "token": "Remove-LocalUser -SID <SID>", "kind": "syntax", "desc": "按 SID 删除：账户改名后仍能定位" }
+      ]
+    },
+    {
+      "name": "Enable-LocalUser",
+      "aliases": ["elu"],
+      "title": "启用本地用户账户",
+      "desc": "启用被禁用的本地用户账户，使该账户可以登录。可用名称、SID 或管道传入用户对象定位账户。属于账户状态变更操作，需要管理员权限。",
+      "usage": "Enable-LocalUser [-InputObject] <LocalUser[]> ; Enable-LocalUser [-Name] <string[]> ; Enable-LocalUser [-SID] <SecurityIdentifier[]>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户", "账户", "启用"],
+      "examples": [
+        { "cmd": "Enable-LocalUser -Name Audit", "desc": "启用本地账户 Audit" },
+        { "cmd": "Get-LocalUser -Name Audit | Enable-LocalUser", "desc": "通过管道启用指定账户" },
+        { "cmd": "Enable-LocalUser -Name Temp01, Temp02", "desc": "一次启用多个本地账户" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "用户名", "type": "text", "value": "Audit", "hint": "要启用的账户名，多个用逗号分隔" },
+        { "token": "-SID", "label": "SID", "type": "text", "value": "", "hint": "按安全标识符启用账户" }
+      ],
+      "nodes": [
+        { "token": "<用户名>", "kind": "value", "desc": "位置参数，要启用的本地用户名", "valueHint": "用户名" },
+        { "token": "<用户对象>", "kind": "value", "desc": "位置参数，管道或变量传入的用户对象", "valueHint": "LocalUser" },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 启用账户", "valueHint": "S-1-5-21-..." },
+        { "token": "-Name", "kind": "option", "desc": "按名称启用本地账户，可写多个", "valueHint": "<用户名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "按用户对象启用账户", "valueHint": "<用户对象>", "repeatable": true },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符启用账户", "valueHint": "<SID>", "repeatable": true },
+        { "token": "Get-LocalUser -Name <用户名>", "kind": "syntax", "desc": "启用前确认：查看账户当前启用状态" },
+        { "token": "Get-LocalUser -Name <用户名> | Enable-LocalUser", "kind": "syntax", "desc": "管道写法：先查到再启用" },
+        { "token": "Enable-LocalUser -Name <用户名1>, <用户名2>", "kind": "syntax", "desc": "批量写法：一次启用多个账户" },
+        { "token": "Enable-LocalUser -SID <SID>", "kind": "syntax", "desc": "按 SID 启用：账户改名后仍能定位" },
+        { "token": "Disable-LocalUser -Name <用户名>", "kind": "syntax", "desc": "反向操作：重新禁用该账户" }
+      ]
+    },
+    {
+      "name": "Disable-LocalUser",
+      "aliases": ["dlu"],
+      "title": "禁用本地用户账户",
+      "desc": "禁用本地用户账户，阻止其登录但保留账户数据与配置文件，之后可随时重新启用。可用名称、SID 或管道传入用户对象定位账户。停用离职人员账户时最常用。",
+      "usage": "Disable-LocalUser [-InputObject] <LocalUser[]> ; Disable-LocalUser [-Name] <string[]> ; Disable-LocalUser [-SID] <SecurityIdentifier[]>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户", "账户", "禁用"],
+      "examples": [
+        { "cmd": "Disable-LocalUser -Name Audit", "desc": "禁用本地账户 Audit" },
+        { "cmd": "Get-LocalUser | Where-Object Enabled -eq $true | Disable-LocalUser", "desc": "批量禁用所有仍启用的本地账户" },
+        { "cmd": "Disable-LocalUser -SID S-1-5-21-1111111111-2222222222-3333333333-1001", "desc": "按 SID 禁用指定账户" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "用户名", "type": "text", "value": "Audit", "hint": "要禁用的账户名，多个用逗号分隔" },
+        { "token": "-SID", "label": "SID", "type": "text", "value": "", "hint": "按安全标识符禁用账户" }
+      ],
+      "nodes": [
+        { "token": "<用户名>", "kind": "value", "desc": "位置参数，要禁用的本地用户名", "valueHint": "用户名" },
+        { "token": "<用户对象>", "kind": "value", "desc": "位置参数，管道或变量传入的用户对象", "valueHint": "LocalUser" },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 禁用账户", "valueHint": "S-1-5-21-..." },
+        { "token": "-Name", "kind": "option", "desc": "按名称禁用本地账户，可写多个", "valueHint": "<用户名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "按用户对象禁用账户", "valueHint": "<用户对象>", "repeatable": true },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符禁用账户", "valueHint": "<SID>", "repeatable": true },
+        { "token": "Get-LocalUser -Name <用户名>", "kind": "syntax", "desc": "禁用前确认：查看账户当前启用状态" },
+        { "token": "Get-LocalUser -Name <用户名> | Disable-LocalUser", "kind": "syntax", "desc": "管道写法：先查到再禁用" },
+        { "token": "Disable-LocalUser -Name <用户名1>, <用户名2>", "kind": "syntax", "desc": "批量写法：一次禁用多个账户" },
+        { "token": "Disable-LocalUser -SID <SID>", "kind": "syntax", "desc": "按 SID 禁用：账户改名后仍能定位" },
+        { "token": "Enable-LocalUser -Name <用户名>", "kind": "syntax", "desc": "反向操作：重新启用该账户" }
+      ]
+    },
+    {
+      "name": "Get-LocalGroup",
+      "aliases": ["glg"],
+      "title": "查看本机用户组",
+      "desc": "列出本机的本地用户组及其描述、SID 等信息，例如 Administrators、Users、Remote Desktop Users。查看某个用户属于哪些组时，通常与 Get-LocalGroupMember 配合使用。",
+      "usage": "Get-LocalGroup [[-Name] <string[]>] ; Get-LocalGroup [[-SID] <SecurityIdentifier[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["用户组", "本地", "权限"],
+      "examples": [
+        { "cmd": "Get-LocalGroup", "desc": "列出本机全部本地用户组" },
+        { "cmd": "Get-LocalGroup -Name Administrators | Get-LocalGroupMember", "desc": "查看本机管理员组的所有成员" },
+        { "cmd": "Get-LocalGroup | Select-Object Name, Description", "desc": "只看组的名称与描述" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "组名", "type": "text", "value": "Administrators", "hint": "支持通配符，留空则列出全部" },
+        { "token": "-SID", "label": "SID", "type": "text", "value": "", "hint": "按安全标识符查询用户组" }
+      ],
+      "nodes": [
+        { "token": "<组名>", "kind": "value", "desc": "位置参数，本地用户组名，支持通配符", "valueHint": "组名" },
+        { "token": "-Name", "kind": "option", "desc": "按组名筛选，支持通配符", "valueHint": "<组名>", "repeatable": true },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符 SID 筛选用户组", "valueHint": "<SID>", "repeatable": true },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 查询用户组", "valueHint": "S-1-5-32-544" },
+        { "token": "| Select-Object Name, Description, SID", "kind": "syntax", "desc": "常看字段：组名、描述、安全标识符" },
+        { "token": "| Get-LocalGroupMember", "kind": "syntax", "desc": "管道后续：查看该组的全部成员" },
+        { "token": "| Add-LocalGroupMember -Member <用户名>", "kind": "syntax", "desc": "管道后续：把用户加入该组" },
+        { "token": "| Remove-LocalGroupMember -Member <用户名>", "kind": "syntax", "desc": "管道后续：把成员移出该组" },
+        { "token": "| Set-LocalGroup -Description <描述>", "kind": "syntax", "desc": "管道后续：修改组的描述" },
+        { "token": "| Remove-LocalGroup", "kind": "syntax", "desc": "管道后续：删除该本地用户组" }
+      ]
+    },
+    {
+      "name": "New-LocalGroup",
+      "aliases": ["nlg"],
+      "title": "创建本地用户组",
+      "desc": "在本机创建一个新的本地用户组，可同时写描述。创建后可用 Add-LocalGroupMember 把用户加入该组以批量分配权限。需要管理员权限。",
+      "usage": "New-LocalGroup [-Name] <string> [-Description <string>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户组", "新建", "权限"],
+      "examples": [
+        { "cmd": "New-LocalGroup -Name Support -Description 'Support Team'", "desc": "创建带描述的本地用户组 Support" },
+        { "cmd": "New-LocalGroup -Name Audit", "desc": "仅按名称创建本地用户组" },
+        { "cmd": "Get-LocalGroup -Name Support", "desc": "创建后确认用户组已存在" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "组名", "type": "text", "value": "Support", "hint": "新用户组的名称，不能与已有组重名" },
+        { "token": "-Description", "label": "描述", "type": "text", "value": "Support Team", "hint": "用户组的说明文字" }
+      ],
+      "nodes": [
+        { "token": "<组名>", "kind": "value", "desc": "位置参数，新用户组的名称", "valueHint": "组名" },
+        { "token": "-Name", "kind": "option", "desc": "新本地用户组的名称", "valueHint": "<组名>" },
+        { "token": "-Description", "kind": "option", "desc": "用户组的描述文字", "valueHint": "<描述>" },
+        { "token": "New-LocalGroup -Name <组名> -Description <描述>", "kind": "syntax", "desc": "常用写法：创建带描述的用户组" },
+        { "token": "Get-LocalGroup -Name <组名>", "kind": "syntax", "desc": "创建后确认：核对用户组已存在" },
+        { "token": "Add-LocalGroupMember -Group <组名> -Member <用户名>", "kind": "syntax", "desc": "配套：把用户加入新建的用户组" },
+        { "token": "Get-LocalGroupMember -Name <组名>", "kind": "syntax", "desc": "配套：查看新建用户组的成员" },
+        { "token": "Set-LocalGroup -Name <组名> -Description <描述>", "kind": "syntax", "desc": "相关：修改用户组的描述" },
+        { "token": "Rename-LocalGroup -Name <组名> -NewName <新组名>", "kind": "syntax", "desc": "相关：重命名该本地用户组" },
+        { "token": "Remove-LocalGroup -Name <组名>", "kind": "syntax", "desc": "反向操作：删除该本地用户组" }
+      ]
+    },
+    {
+      "name": "Remove-LocalGroup",
+      "aliases": ["rlg"],
+      "title": "删除本地用户组",
+      "desc": "从本机删除本地用户组，操作不可撤销，但不会删除组内成员的账户本身。可用组名、SID 或管道传入组对象定位。系统内置组不建议删除。需要管理员权限。",
+      "usage": "Remove-LocalGroup [-InputObject] <LocalGroup[]> ; Remove-LocalGroup [-Name] <string[]> ; Remove-LocalGroup [-SID] <SecurityIdentifier[]>",
+      "admin": true,
+      "danger": 2,
+      "tags": ["用户组", "删除", "权限"],
+      "examples": [
+        { "cmd": "Remove-LocalGroup -Name Support", "desc": "删除本地用户组 Support，不可恢复" },
+        { "cmd": "Get-LocalGroup -Name Support | Remove-LocalGroup", "desc": "通过管道删除指定用户组" },
+        { "cmd": "Get-LocalGroupMember -Name Support", "desc": "删除前先查看组内还有哪些成员" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "组名", "type": "text", "value": "Support", "hint": "要删除的组名，多个用逗号分隔" },
+        { "token": "-SID", "label": "SID", "type": "text", "value": "", "hint": "按安全标识符删除用户组" }
+      ],
+      "nodes": [
+        { "token": "<组名>", "kind": "value", "desc": "位置参数，要删除的本地用户组名", "valueHint": "组名" },
+        { "token": "<组对象>", "kind": "value", "desc": "位置参数，管道或变量传入的组对象", "valueHint": "LocalGroup" },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 删除用户组", "valueHint": "S-1-5-32-..." },
+        { "token": "-Name", "kind": "option", "desc": "按名称删除用户组，可写多个", "valueHint": "<组名>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "按组对象删除用户组", "valueHint": "<组对象>", "repeatable": true },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符删除用户组", "valueHint": "<SID>", "repeatable": true },
+        { "token": "Get-LocalGroupMember -Name <组名>", "kind": "syntax", "desc": "删除前确认：查看组内成员有哪些" },
+        { "token": "Get-LocalGroup -Name <组名> | Remove-LocalGroup", "kind": "syntax", "desc": "管道写法：先查到再删除用户组" },
+        { "token": "Remove-LocalGroup -Name <组名1>, <组名2>", "kind": "syntax", "desc": "批量写法：一次删除多个用户组" },
+        { "token": "New-LocalGroup -Name <组名>", "kind": "syntax", "desc": "反向操作：重新创建同名用户组" }
+      ]
+    },
+    {
+      "name": "Add-LocalGroupMember",
+      "aliases": ["algm"],
+      "title": "把账户加入本地组",
+      "desc": "把一个或多个用户、组加入本机的本地用户组，从而批量赋予权限，例如加入 Administrators 或 Remote Desktop Users。成员可以是本地账户，也可以是域账户或 AzureAD 账户。需要管理员权限。",
+      "usage": "Add-LocalGroupMember [-Group] <LocalGroup> [-Member] <LocalPrincipal[]> ; Add-LocalGroupMember [-Name] <string> [-Member] <LocalPrincipal[]> ; Add-LocalGroupMember [-SID] <SecurityIdentifier> [-Member] <LocalPrincipal[]>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户组", "成员", "权限"],
+      "examples": [
+        { "cmd": "Add-LocalGroupMember -Group Administrators -Member Audit", "desc": "把本地账户 Audit 加入管理员组" },
+        { "cmd": "Add-LocalGroupMember -Name 'Remote Desktop Users' -Member CONTOSO\\zhangsan", "desc": "把域账户加入远程桌面用户组" },
+        { "cmd": "Get-LocalGroupMember -Name Administrators", "desc": "添加后确认管理员组的成员列表" }
+      ],
+      "form": [
+        { "token": "-Group", "label": "目标组", "type": "text", "value": "Administrators", "hint": "本地用户组名称，如 Administrators" },
+        { "token": "-Member", "label": "成员", "type": "text", "value": "Audit", "hint": "账户名，域账户写作 域\\用户名，多个用逗号分隔" },
+        { "token": "-Name", "label": "组名", "type": "text", "value": "", "hint": "与 -Group 二选一，按名称指定组" }
+      ],
+      "nodes": [
+        { "token": "<组名>", "kind": "value", "desc": "位置参数，目标本地用户组名", "valueHint": "组名" },
+        { "token": "<组对象>", "kind": "value", "desc": "位置参数，管道或变量传入的组对象", "valueHint": "LocalGroup" },
+        { "token": "<成员>", "kind": "value", "desc": "位置参数，要加入的账户，可写多个", "valueHint": "用户名", "repeatable": true },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 指定目标组", "valueHint": "S-1-5-32-544" },
+        { "token": "-Group", "kind": "option", "desc": "按组对象指定要加入的目标组", "valueHint": "<组对象>" },
+        { "token": "-Name", "kind": "option", "desc": "按名称指定目标组", "valueHint": "<组名>" },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符指定目标组", "valueHint": "<SID>" },
+        { "token": "-Member", "kind": "option", "desc": "要加入的成员，可以是用户或组", "valueHint": "<用户名>", "repeatable": true },
+        { "token": "Get-LocalGroupMember -Name <组名>", "kind": "syntax", "desc": "添加前确认：查看该组现有成员" },
+        { "token": "Get-LocalUser -Name <用户名>", "kind": "syntax", "desc": "添加前确认：核对要加入的账户存在" },
+        { "token": "Remove-LocalGroupMember -Group <组名> -Member <用户名>", "kind": "syntax", "desc": "反向操作：把该成员移出用户组" }
+      ]
+    },
+    {
+      "name": "Remove-LocalGroupMember",
+      "aliases": ["rlgm"],
+      "title": "把账户移出本地组",
+      "desc": "把用户或组从本机某个本地用户组中移除，只取消其组权限，不会删除账户本身。可用组名、SID 或管道传入组对象定位。回收权限、撤销管理员身份时使用。需要管理员权限。",
+      "usage": "Remove-LocalGroupMember [-Group] <LocalGroup> [-Member] <LocalPrincipal[]> ; Remove-LocalGroupMember [-Name] <string> [-Member] <LocalPrincipal[]> ; Remove-LocalGroupMember [-SID] <SecurityIdentifier> [-Member] <LocalPrincipal[]>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["用户组", "成员", "移除"],
+      "examples": [
+        { "cmd": "Remove-LocalGroupMember -Group Administrators -Member Audit", "desc": "把 Audit 从管理员组中移除" },
+        { "cmd": "Remove-LocalGroupMember -Name 'Remote Desktop Users' -Member CONTOSO\\zhangsan", "desc": "把域账户移出远程桌面用户组" },
+        { "cmd": "Get-LocalGroupMember -Name Administrators", "desc": "移除后确认管理员组剩余成员" }
+      ],
+      "form": [
+        { "token": "-Group", "label": "目标组", "type": "text", "value": "Administrators", "hint": "本地用户组名称" },
+        { "token": "-Member", "label": "成员", "type": "text", "value": "Audit", "hint": "要移除的账户，域账户写作 域\\用户名" },
+        { "token": "-Name", "label": "组名", "type": "text", "value": "", "hint": "与 -Group 二选一，按名称指定组" }
+      ],
+      "nodes": [
+        { "token": "<组名>", "kind": "value", "desc": "位置参数，目标本地用户组名", "valueHint": "组名" },
+        { "token": "<组对象>", "kind": "value", "desc": "位置参数，管道或变量传入的组对象", "valueHint": "LocalGroup" },
+        { "token": "<成员>", "kind": "value", "desc": "位置参数，要移除的账户，可写多个", "valueHint": "用户名", "repeatable": true },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 指定目标组", "valueHint": "S-1-5-32-544" },
+        { "token": "-Group", "kind": "option", "desc": "按组对象指定要操作的组", "valueHint": "<组对象>" },
+        { "token": "-Name", "kind": "option", "desc": "按名称指定目标组", "valueHint": "<组名>" },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符指定目标组", "valueHint": "<SID>" },
+        { "token": "-Member", "kind": "option", "desc": "要移出组的成员，可以是用户或组", "valueHint": "<用户名>", "repeatable": true },
+        { "token": "Get-LocalGroupMember -Name <组名>", "kind": "syntax", "desc": "移除前确认：查看该组当前成员" },
+        { "token": "Get-LocalGroup -Name <组名> | Remove-LocalGroupMember -Member <用户名>", "kind": "syntax", "desc": "管道写法：先取到组对象再移除成员" },
+        { "token": "Add-LocalGroupMember -Group <组名> -Member <用户名>", "kind": "syntax", "desc": "反向操作：把该成员重新加回用户组" }
+      ]
+    },
+    {
+      "name": "Get-LocalGroupMember",
+      "aliases": ["glgm"],
+      "title": "查看本地组成员",
+      "desc": "列出本机某个本地用户组的成员，包括本地账户、域账户与嵌套的组，并给出来源与账户类型。排查权限归属、确认谁能登录时使用。只指定 -Member 可判断某账户是否在组中。",
+      "usage": "Get-LocalGroupMember [-Name] <string> [[-Member] <string>] ; Get-LocalGroupMember [-Group] <LocalGroup> [[-Member] <string>] ; Get-LocalGroupMember [-SID] <SecurityIdentifier> [[-Member] <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["用户组", "成员", "查询"],
+      "examples": [
+        { "cmd": "Get-LocalGroupMember -Name Administrators", "desc": "列出本机管理员组的全部成员" },
+        { "cmd": "Get-LocalGroupMember -Name Administrators | Select-Object Name, ObjectClass, PrincipalSource", "desc": "查看成员名称、类型与来源" },
+        { "cmd": "Get-LocalGroup -Name 'Remote Desktop Users' | Get-LocalGroupMember", "desc": "用管道查看远程桌面用户组成员" }
+      ],
+      "form": [
+        { "token": "-Name", "label": "组名", "type": "text", "value": "Administrators", "hint": "要查询成员的本地用户组" },
+        { "token": "-Member", "label": "成员筛选", "type": "text", "value": "", "hint": "只看指定账户是否在该组，留空列出全部" }
+      ],
+      "nodes": [
+        { "token": "<组名>", "kind": "value", "desc": "位置参数，要查询的本地用户组名", "valueHint": "组名" },
+        { "token": "<组对象>", "kind": "value", "desc": "位置参数，管道或变量传入的组对象", "valueHint": "LocalGroup" },
+        { "token": "<SID>", "kind": "value", "desc": "位置参数，按 SID 指定用户组", "valueHint": "S-1-5-32-544" },
+        { "token": "-Name", "kind": "option", "desc": "按名称指定要查询的用户组", "valueHint": "<组名>" },
+        { "token": "-Group", "kind": "option", "desc": "按组对象指定要查询的用户组", "valueHint": "<组对象>" },
+        { "token": "-SID", "kind": "option", "desc": "按安全标识符指定用户组", "valueHint": "<SID>" },
+        { "token": "-Member", "kind": "option", "desc": "只查询指定账户是否属于该组", "valueHint": "<用户名>" },
+        { "token": "| Select-Object Name, ObjectClass, PrincipalSource", "kind": "syntax", "desc": "常看字段：名称、对象类型、账户来源" },
+        { "token": "Get-LocalGroup -Name <组名> | Get-LocalGroupMember", "kind": "syntax", "desc": "管道写法：先取组对象再列成员" },
+        { "token": "Get-LocalGroup", "kind": "syntax", "desc": "相关：先列出本机全部用户组" },
+        { "token": "Add-LocalGroupMember -Group <组名> -Member <用户名>", "kind": "syntax", "desc": "后续操作：把新成员加入该组" }
+      ]
+    },
+    {
+      "name": "Get-ScheduledTask",
+      "aliases": [],
+      "title": "查看计划任务",
+      "desc": "列出本机计划任务及其路径、状态、作者等信息，可按任务名或任务路径筛选。任务路径以反斜杠开头，例如 \\Microsoft\\Windows\\。排查任务为何不执行、批量检查任务状态时最常用。",
+      "usage": "Get-ScheduledTask [[-TaskName] <string[]>] [[-TaskPath] <string[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["计划任务", "任务", "查询"],
+      "examples": [
+        { "cmd": "Get-ScheduledTask", "desc": "列出本机根路径下的全部计划任务" },
+        { "cmd": "Get-ScheduledTask -TaskName 'DailyBackup' -TaskPath '\\'", "desc": "按名称与路径定位具体任务" },
+        { "cmd": "Get-ScheduledTask | Where-Object State -eq 'Disabled'", "desc": "找出所有被禁用的计划任务" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "", "hint": "支持通配符，留空列出全部任务" },
+        { "token": "-TaskPath", "label": "任务路径", "type": "text", "value": "\\", "hint": "任务所在文件夹，如 \\Microsoft\\Windows\\" },
+        { "token": "-CimSession", "label": "CIM 会话", "type": "text", "value": "", "hint": "留空操作本机，别名 -Session" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，计划任务名称，支持通配符", "valueHint": "任务名", "repeatable": true },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务所在路径，以反斜杠开头", "valueHint": "\\Microsoft\\Windows\\" },
+        { "token": "-TaskName", "kind": "option", "desc": "按任务名筛选，支持通配符", "valueHint": "<任务名>", "repeatable": true },
+        { "token": "-TaskPath", "kind": "option", "desc": "按任务所在路径筛选", "valueHint": "<任务路径>", "repeatable": true },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上查询，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行查询" },
+        { "token": "Get-ScheduledTask -TaskPath '\\Microsoft\\Windows\\*'", "kind": "syntax", "desc": "按路径查看系统自带的计划任务" },
+        { "token": "Get-ScheduledTask | Get-ScheduledTaskInfo", "kind": "syntax", "desc": "管道后续：查看任务的运行结果信息" },
+        { "token": "Get-ScheduledTask | Where-Object State -eq 'Ready'", "kind": "syntax", "desc": "只看处于就绪状态的任务" },
+        { "token": "Get-ScheduledTask -TaskName <任务名> | Start-ScheduledTask", "kind": "syntax", "desc": "管道后续：立即手动运行该任务" }
+      ]
+    },
+    {
+      "name": "Register-ScheduledTask",
+      "aliases": [],
+      "title": "注册新的计划任务",
+      "desc": "创建一个新的计划任务，可同时指定操作、触发器、运行账户、运行级别与设置，也支持用导出的 XML 定义导入。操作由 New-ScheduledTaskAction 构造，触发器由 New-ScheduledTaskTrigger 构造。注册任务通常需要管理员权限。",
+      "usage": "Register-ScheduledTask [-TaskName] <string> [[-TaskPath] <string>] [-Action] <CimInstance[]> [[-Trigger] <CimInstance[]>] [[-Settings] <CimInstance>] [[-User] <string>] [[-Password] <string>] [[-RunLevel] <RunLevelEnum>] [[-Description] <string>] [-Force] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["计划任务", "定时", "注册"],
+      "examples": [
+        { "cmd": "Register-ScheduledTask -TaskName DailyBackup -Action (New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-File C:\\Scripts\\backup.ps1' -WorkingDirectory 'C:\\Scripts') -Trigger (New-ScheduledTaskTrigger -Daily -At 03:00) -RunLevel Highest", "desc": "每天凌晨 3 点以最高权限运行备份脚本" },
+        { "cmd": "Register-ScheduledTask -TaskName StartupCheck -Action (New-ScheduledTaskAction -Execute 'cmd.exe' -Argument '/c whoami') -Trigger (New-ScheduledTaskTrigger -AtStartup) -User 'SYSTEM' -RunLevel Highest", "desc": "开机时以 SYSTEM 账户运行检查命令" },
+        { "cmd": "Register-ScheduledTask -TaskName Imported -Xml (Get-Content -Raw C:\\Temp\\task.xml) -Force", "desc": "用导出的 XML 定义注册任务并覆盖同名任务" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "DailyBackup", "hint": "新计划任务的名称" },
+        { "token": "-Action", "label": "执行操作", "type": "text", "value": "(New-ScheduledTaskAction -Execute 'powershell.exe')", "hint": "由 New-ScheduledTaskAction 构造" },
+        { "token": "-Trigger", "label": "触发器", "type": "text", "value": "(New-ScheduledTaskTrigger -Daily -At 03:00)", "hint": "由 New-ScheduledTaskTrigger 构造" },
+        { "token": "-User", "label": "运行账户", "type": "text", "value": "SYSTEM", "hint": "任务运行所用账户，如 SYSTEM 或 域\\用户" },
+        { "token": "-RunLevel", "label": "运行级别", "type": "select", "value": "Highest", "hint": "最高权限可绕过 UAC", "options": ["Limited", "Highest"] },
+        { "token": "-Force", "label": "覆盖同名任务", "type": "flag", "value": "true", "hint": "勾选后同名任务会被直接覆盖" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，新计划任务的名称", "valueHint": "任务名" },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务存放的文件夹路径", "valueHint": "\\MyTasks\\" },
+        { "token": "<任务对象>", "kind": "value", "desc": "位置参数，按已有任务对象注册", "valueHint": "MSFT_ScheduledTask" },
+        { "token": "-TaskName", "kind": "option", "desc": "计划任务的名称", "valueHint": "<任务名>" },
+        { "token": "-TaskPath", "kind": "option", "desc": "任务所在的文件夹路径", "valueHint": "<任务路径>" },
+        {
+          "token": "-Action", "kind": "option", "desc": "任务执行的操作，由 New-ScheduledTaskAction 构造", "valueHint": "<操作对象>", "repeatable": true,
+          "children": [
+            { "token": "-Execute", "kind": "option", "desc": "要运行的程序或脚本，如 powershell.exe", "valueHint": "<程序路径>" },
+            { "token": "-Argument", "kind": "option", "desc": "传给程序的命令行参数", "valueHint": "<参数>" },
+            { "token": "-WorkingDirectory", "kind": "option", "desc": "程序启动时的工作目录", "valueHint": "<目录>" },
+            { "token": "-Id", "kind": "option", "desc": "操作的标识，多个操作时用于区分", "valueHint": "<标识>" }
+          ]
+        },
+        {
+          "token": "-Trigger", "kind": "option", "desc": "任务触发器，由 New-ScheduledTaskTrigger 构造", "valueHint": "<触发器>", "repeatable": true,
+          "children": [
+            { "token": "-Once", "kind": "subcommand", "desc": "只触发一次，需配合 -At", "valueHint": "-At <时间>" },
+            { "token": "-Daily", "kind": "subcommand", "desc": "每天触发，需配合 -At", "valueHint": "-At <时间>" },
+            { "token": "-Weekly", "kind": "subcommand", "desc": "每周触发，需配合 -At 与 -DaysOfWeek", "valueHint": "-At <时间> -DaysOfWeek Monday" },
+            { "token": "-AtStartup", "kind": "subcommand", "desc": "系统启动时触发" },
+            { "token": "-AtLogOn", "kind": "subcommand", "desc": "用户登录时触发，可用 -User 限定", "valueHint": "-User <用户名>" },
+            { "token": "-At", "kind": "option", "desc": "触发时刻，如 03:00", "valueHint": "<日期时间>" },
+            { "token": "-DaysInterval", "kind": "option", "desc": "按天触发时的间隔天数", "valueHint": "<天数>" },
+            { "token": "-DaysOfWeek", "kind": "option", "desc": "按周触发时的星期几", "valueHint": "<星期>", "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] },
+            { "token": "-WeeksInterval", "kind": "option", "desc": "按周触发时的间隔周数", "valueHint": "<周数>" },
+            { "token": "-RandomDelay", "kind": "option", "desc": "随机延迟时长，避免集中触发", "valueHint": "<时间跨度>" },
+            { "token": "-RepetitionInterval", "kind": "option", "desc": "重复触发的间隔", "valueHint": "<时间跨度>" },
+            { "token": "-RepetitionDuration", "kind": "option", "desc": "重复触发的持续时长", "valueHint": "<时间跨度>" },
+            { "token": "-User", "kind": "option", "desc": "登录触发时限定哪个用户", "valueHint": "<用户名>" }
+          ]
+        },
+        {
+          "token": "-Settings", "kind": "option", "desc": "任务设置，由 New-ScheduledTaskSettingsSet 构造", "valueHint": "<设置对象>",
+          "children": [
+            { "token": "-StartWhenAvailable", "kind": "flag", "desc": "错过计划时间后尽快补跑" },
+            { "token": "-WakeToRun", "kind": "flag", "desc": "到点时唤醒计算机运行任务" },
+            { "token": "-AllowStartIfOnBatteries", "kind": "flag", "desc": "使用电池时也允许启动任务" },
+            { "token": "-DontStopIfGoingOnBatteries", "kind": "flag", "desc": "切换到电池时不要停止任务" },
+            { "token": "-ExecutionTimeLimit", "kind": "option", "desc": "任务最长运行时长，超时即结束", "valueHint": "<时间跨度>" },
+            { "token": "-MultipleInstances", "kind": "option", "desc": "同一任务多实例的并行策略", "valueHint": "<策略>", "enum": ["Parallel", "Queue", "IgnoreNew"] },
+            { "token": "-RestartCount", "kind": "option", "desc": "失败后重试的次数", "valueHint": "<次数>" },
+            { "token": "-RestartInterval", "kind": "option", "desc": "失败重试的间隔时长", "valueHint": "<时间跨度>" },
+            { "token": "-DisallowDemandStart", "kind": "flag", "desc": "禁止手动启动该任务" },
+            { "token": "-Hidden", "kind": "flag", "desc": "在任务计划程序中隐藏该任务" }
+          ]
+        },
+        {
+          "token": "-Principal", "kind": "option", "desc": "任务主体，由 New-ScheduledTaskPrincipal 构造", "valueHint": "<主体对象>",
+          "children": [
+            { "token": "-UserId", "kind": "option", "desc": "运行任务的用户账户", "valueHint": "<用户>" },
+            { "token": "-LogonType", "kind": "option", "desc": "登录方式，决定凭据如何保存", "valueHint": "<方式>", "enum": ["Password", "S4U", "Interactive", "ServiceAccount", "InteractiveOrPassword", "Group", "None"] },
+            { "token": "-RunLevel", "kind": "option", "desc": "运行级别，最高可绕过 UAC", "valueHint": "<级别>", "enum": ["Limited", "Highest"] },
+            { "token": "-GroupId", "kind": "option", "desc": "以某个组的身份运行任务", "valueHint": "<组>" }
+          ]
+        },
+        { "token": "-RunLevel", "kind": "option", "desc": "任务运行的权限级别", "valueHint": "<级别>", "enum": ["Limited", "Highest"] },
+        { "token": "-User", "kind": "option", "desc": "运行任务的账户，如 SYSTEM", "valueHint": "<用户名>" },
+        { "token": "-Password", "kind": "option", "desc": "运行账户的密码，供计划服务保存", "valueHint": "<密码>" },
+        { "token": "-Description", "kind": "option", "desc": "计划任务的描述文字", "valueHint": "<描述>" },
+        { "token": "-Xml", "kind": "option", "desc": "用任务定义的 XML 字符串注册任务", "valueHint": "<XML>" },
+        { "token": "-InputObject", "kind": "option", "desc": "传入已有的计划任务对象进行注册", "valueHint": "<任务对象>" },
+        { "token": "-Force", "kind": "flag", "desc": "同名任务已存在时直接覆盖" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上操作，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行注册操作" }
+      ]
+    },
+    {
+      "name": "Unregister-ScheduledTask",
+      "aliases": [],
+      "title": "删除计划任务",
+      "desc": "从本机删除指定的计划任务及其全部设置，操作不可撤销。可按任务名与路径定位，也可传入任务对象。删除前建议先用 Export-ScheduledTask 备份定义。需要管理员权限。",
+      "usage": "Unregister-ScheduledTask [[-TaskName] <string[]>] [[-TaskPath] <string[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru] ; Unregister-ScheduledTask -InputObject <CimInstance[]> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["计划任务", "删除", "清理"],
+      "examples": [
+        { "cmd": "Unregister-ScheduledTask -TaskName DailyBackup", "desc": "直接删除名为 DailyBackup 的计划任务" },
+        { "cmd": "Get-ScheduledTask -TaskName DailyBackup | Unregister-ScheduledTask", "desc": "通过管道删除指定任务" },
+        { "cmd": "Export-ScheduledTask -TaskName DailyBackup | Out-File C:\\Temp\\DailyBackup.xml", "desc": "删除前先导出任务定义做备份" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "DailyBackup", "hint": "要删除的任务名，可写多个" },
+        { "token": "-TaskPath", "label": "任务路径", "type": "text", "value": "\\", "hint": "任务所在文件夹路径" },
+        { "token": "-PassThru", "label": "返回任务对象", "type": "flag", "value": "", "hint": "勾选后输出被删除的任务对象" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，要删除的计划任务名", "valueHint": "任务名", "repeatable": true },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务所在的文件夹路径", "valueHint": "\\MyTasks\\" },
+        { "token": "<任务对象>", "kind": "value", "desc": "位置参数，管道或变量传入的任务对象", "valueHint": "MSFT_ScheduledTask" },
+        { "token": "-TaskName", "kind": "option", "desc": "按名称指定要删除的任务", "valueHint": "<任务名>", "repeatable": true },
+        { "token": "-TaskPath", "kind": "option", "desc": "按路径指定要删除的任务", "valueHint": "<任务路径>", "repeatable": true },
+        { "token": "-InputObject", "kind": "option", "desc": "按任务对象删除任务", "valueHint": "<任务对象>", "repeatable": true },
+        { "token": "-PassThru", "kind": "flag", "desc": "输出被删除的任务对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上操作，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行删除操作" },
+        { "token": "Get-ScheduledTask -TaskName <任务名> | Unregister-ScheduledTask", "kind": "syntax", "desc": "管道写法：先查到任务再删除" }
+      ]
+    },
+    {
+      "name": "Start-ScheduledTask",
+      "aliases": [],
+      "title": "手动运行计划任务",
+      "desc": "立即启动一个已注册的计划任务，不必等到触发器时间，效果等同于在任务计划程序里点运行。同时只允许按一个任务对象或一个任务名启动。验证任务配置是否正确时非常实用。",
+      "usage": "Start-ScheduledTask [-TaskName] <string> [[-TaskPath] <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] ; Start-ScheduledTask [-InputObject] <CimInstance> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["计划任务", "启动", "手动运行"],
+      "examples": [
+        { "cmd": "Start-ScheduledTask -TaskName DailyBackup", "desc": "立即运行名为 DailyBackup 的任务" },
+        { "cmd": "Start-ScheduledTask -TaskName DailyBackup -TaskPath '\\MyTasks\\'", "desc": "运行指定路径下的计划任务" },
+        { "cmd": "Get-ScheduledTask -TaskName DailyBackup | Start-ScheduledTask", "desc": "通过管道立即启动该任务" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "DailyBackup", "hint": "要启动的任务名，一次一个" },
+        { "token": "-TaskPath", "label": "任务路径", "type": "text", "value": "\\", "hint": "任务所在文件夹路径，默认根目录" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，要启动的计划任务名", "valueHint": "任务名" },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务所在的文件夹路径", "valueHint": "\\MyTasks\\" },
+        { "token": "<任务对象>", "kind": "value", "desc": "位置参数，管道或变量传入的任务对象", "valueHint": "MSFT_ScheduledTask" },
+        { "token": "-TaskName", "kind": "option", "desc": "按名称指定要启动的任务", "valueHint": "<任务名>" },
+        { "token": "-TaskPath", "kind": "option", "desc": "按路径指定任务所在文件夹", "valueHint": "<任务路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "按任务对象启动任务", "valueHint": "<任务对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上操作，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行启动操作" },
+        { "token": "Get-ScheduledTask -TaskName <任务名> | Start-ScheduledTask", "kind": "syntax", "desc": "管道写法：先查到任务再立即运行" },
+        { "token": "Get-ScheduledTaskInfo -TaskName <任务名>", "kind": "syntax", "desc": "启动后确认：查看运行结果与上次运行时间" }
+      ]
+    },
+    {
+      "name": "Stop-ScheduledTask",
+      "aliases": [],
+      "title": "停止正在运行的任务",
+      "desc": "停止当前正在执行的计划任务，仅中断这一次运行，不会禁用任务或修改触发器设置。任务卡死、需要临时释放资源时使用。若任务设置为忽略停止请求则可能无效。",
+      "usage": "Stop-ScheduledTask [-TaskName] <string> [[-TaskPath] <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] ; Stop-ScheduledTask [-InputObject] <CimInstance> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["计划任务", "停止", "中断"],
+      "examples": [
+        { "cmd": "Stop-ScheduledTask -TaskName DailyBackup", "desc": "停止正在运行的 DailyBackup 任务" },
+        { "cmd": "Get-ScheduledTask -TaskName DailyBackup | Stop-ScheduledTask", "desc": "通过管道停止该任务的当前运行" },
+        { "cmd": "Get-ScheduledTask -TaskName DailyBackup | Select-Object TaskName, State", "desc": "停止后确认任务状态是否已就绪" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "DailyBackup", "hint": "要停止的任务名，一次一个" },
+        { "token": "-TaskPath", "label": "任务路径", "type": "text", "value": "\\", "hint": "任务所在文件夹路径，默认根目录" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，要停止的计划任务名", "valueHint": "任务名" },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务所在的文件夹路径", "valueHint": "\\MyTasks\\" },
+        { "token": "<任务对象>", "kind": "value", "desc": "位置参数，管道或变量传入的任务对象", "valueHint": "MSFT_ScheduledTask" },
+        { "token": "-TaskName", "kind": "option", "desc": "按名称指定要停止的任务", "valueHint": "<任务名>" },
+        { "token": "-TaskPath", "kind": "option", "desc": "按路径指定任务所在文件夹", "valueHint": "<任务路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "按任务对象停止任务", "valueHint": "<任务对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上操作，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行停止操作" },
+        { "token": "Get-ScheduledTask -TaskName <任务名> | Stop-ScheduledTask", "kind": "syntax", "desc": "管道写法：先查到任务再停止运行" },
+        { "token": "Get-ScheduledTask -TaskName <任务名> | Select-Object State", "kind": "syntax", "desc": "停止后确认：查看任务当前状态" }
+      ]
+    },
+    {
+      "name": "Get-ScheduledTaskInfo",
+      "aliases": [],
+      "title": "查看任务运行结果",
+      "desc": "获取计划任务最近一次运行的时间、返回代码、下次运行时间与错过运行的次数。任务执行失败却看不到原因时，先用它确认 LastTaskResult 返回码。只读取运行记录，不修改任务。",
+      "usage": "Get-ScheduledTaskInfo [-TaskName] <string> [[-TaskPath] <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] ; Get-ScheduledTaskInfo [-InputObject] <CimInstance> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["计划任务", "运行结果", "排查"],
+      "examples": [
+        { "cmd": "Get-ScheduledTaskInfo -TaskName DailyBackup", "desc": "查看该任务的上次运行时间与返回码" },
+        { "cmd": "Get-ScheduledTaskInfo -TaskName DailyBackup | Select-Object LastRunTime, LastTaskResult, NextRunTime, NumberOfMissedRuns", "desc": "查看最关键的四个运行指标" },
+        { "cmd": "Get-ScheduledTask | Get-ScheduledTaskInfo", "desc": "批量获取全部任务的运行信息" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "DailyBackup", "hint": "要查询运行信息的任务名" },
+        { "token": "-TaskPath", "label": "任务路径", "type": "text", "value": "\\", "hint": "任务所在文件夹路径，默认根目录" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，要查询的任务名", "valueHint": "任务名" },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务所在的文件夹路径", "valueHint": "\\MyTasks\\" },
+        { "token": "<任务对象>", "kind": "value", "desc": "位置参数，管道或变量传入的任务对象", "valueHint": "MSFT_ScheduledTask" },
+        { "token": "-TaskName", "kind": "option", "desc": "按名称指定要查询的任务", "valueHint": "<任务名>" },
+        { "token": "-TaskPath", "kind": "option", "desc": "按路径指定任务所在文件夹", "valueHint": "<任务路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "按任务对象查询运行信息", "valueHint": "<任务对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上查询，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行查询" },
+        { "token": "Get-ScheduledTask -TaskName <任务名> | Get-ScheduledTaskInfo", "kind": "syntax", "desc": "管道写法：先查到任务再取运行信息" },
+        { "token": "| Select-Object LastRunTime, LastTaskResult, NextRunTime, NumberOfMissedRuns", "kind": "syntax", "desc": "常看字段：上次运行、返回码、下次运行、错过次数" }
+      ]
+    },
+    {
+      "name": "Set-ScheduledTask",
+      "aliases": [],
+      "title": "修改计划任务设置",
+      "desc": "修改既有计划任务的操作、触发器、设置、运行账户或密码，不必先删除再重建。传入未指定的部分会沿用原任务定义，只需给出要改的项。修改系统任务前建议先导出备份。",
+      "usage": "Set-ScheduledTask [-TaskName] <string> [[-TaskPath] <string>] [[-Action] <CimInstance[]>] [[-Trigger] <CimInstance[]>] [[-Settings] <CimInstance>] [[-User] <string>] [[-Password] <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] ; Set-ScheduledTask [-InputObject] <CimInstance> [[-Password] <string>] [[-User] <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["计划任务", "修改", "配置"],
+      "examples": [
+        { "cmd": "$t = New-ScheduledTaskTrigger -Daily -At 01:30; Set-ScheduledTask -TaskName DailyBackup -Trigger $t", "desc": "把任务的触发时间改到每天 01:30" },
+        { "cmd": "Set-ScheduledTask -TaskName DailyBackup -User 'SYSTEM'", "desc": "把任务的运行账户改为 SYSTEM" },
+        { "cmd": "Get-ScheduledTask -TaskName DailyBackup | Set-ScheduledTask -Settings (New-ScheduledTaskSettingsSet -StartWhenAvailable)", "desc": "为任务开启错过时间后补跑" }
+      ],
+      "form": [
+        { "token": "-TaskName", "label": "任务名", "type": "text", "value": "DailyBackup", "hint": "要修改的计划任务名" },
+        { "token": "-Trigger", "label": "新触发器", "type": "text", "value": "$t", "hint": "由 New-ScheduledTaskTrigger 构造的触发器变量" },
+        { "token": "-Action", "label": "新操作", "type": "text", "value": "", "hint": "由 New-ScheduledTaskAction 构造，留空则不改" },
+        { "token": "-User", "label": "运行账户", "type": "text", "value": "", "hint": "新的运行账户，如 SYSTEM 或 域\\用户" },
+        { "token": "-Password", "label": "账户密码", "type": "text", "value": "", "hint": "改运行账户时用于保存凭据" }
+      ],
+      "nodes": [
+        { "token": "<任务名>", "kind": "value", "desc": "位置参数，要修改的计划任务名", "valueHint": "任务名" },
+        { "token": "<任务路径>", "kind": "value", "desc": "位置参数，任务所在的文件夹路径", "valueHint": "\\MyTasks\\" },
+        { "token": "<任务对象>", "kind": "value", "desc": "位置参数，管道或变量传入的任务对象", "valueHint": "MSFT_ScheduledTask" },
+        { "token": "-TaskName", "kind": "option", "desc": "按名称指定要修改的任务", "valueHint": "<任务名>" },
+        { "token": "-TaskPath", "kind": "option", "desc": "按路径指定任务所在文件夹", "valueHint": "<任务路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "按任务对象修改任务定义", "valueHint": "<任务对象>" },
+        {
+          "token": "-Action", "kind": "option", "desc": "新的操作定义，由 New-ScheduledTaskAction 构造", "valueHint": "<操作对象>", "repeatable": true,
+          "children": [
+            { "token": "-Execute", "kind": "option", "desc": "要运行的程序或脚本", "valueHint": "<程序路径>" },
+            { "token": "-Argument", "kind": "option", "desc": "传给程序的命令行参数", "valueHint": "<参数>" },
+            { "token": "-WorkingDirectory", "kind": "option", "desc": "程序启动时的工作目录", "valueHint": "<目录>" },
+            { "token": "-Id", "kind": "option", "desc": "操作的标识，多个操作时用于区分", "valueHint": "<标识>" }
+          ]
+        },
+        {
+          "token": "-Trigger", "kind": "option", "desc": "新的触发器，由 New-ScheduledTaskTrigger 构造", "valueHint": "<触发器>", "repeatable": true,
+          "children": [
+            { "token": "-Once", "kind": "subcommand", "desc": "只触发一次，需配合 -At", "valueHint": "-At <时间>" },
+            { "token": "-Daily", "kind": "subcommand", "desc": "每天触发，需配合 -At", "valueHint": "-At <时间>" },
+            { "token": "-Weekly", "kind": "subcommand", "desc": "每周触发，需配合 -At 与 -DaysOfWeek", "valueHint": "-At <时间> -DaysOfWeek Monday" },
+            { "token": "-AtStartup", "kind": "subcommand", "desc": "系统启动时触发" },
+            { "token": "-AtLogOn", "kind": "subcommand", "desc": "用户登录时触发，可用 -User 限定", "valueHint": "-User <用户名>" },
+            { "token": "-At", "kind": "option", "desc": "触发时刻，如 01:30", "valueHint": "<日期时间>" },
+            { "token": "-DaysInterval", "kind": "option", "desc": "按天触发时的间隔天数", "valueHint": "<天数>" },
+            { "token": "-DaysOfWeek", "kind": "option", "desc": "按周触发时的星期几", "valueHint": "<星期>", "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] },
+            { "token": "-WeeksInterval", "kind": "option", "desc": "按周触发时的间隔周数", "valueHint": "<周数>" },
+            { "token": "-RandomDelay", "kind": "option", "desc": "随机延迟时长，避免集中触发", "valueHint": "<时间跨度>" }
+          ]
+        },
+        {
+          "token": "-Settings", "kind": "option", "desc": "新的任务设置，由 New-ScheduledTaskSettingsSet 构造", "valueHint": "<设置对象>",
+          "children": [
+            { "token": "-StartWhenAvailable", "kind": "flag", "desc": "错过计划时间后尽快补跑" },
+            { "token": "-WakeToRun", "kind": "flag", "desc": "到点时唤醒计算机运行任务" },
+            { "token": "-AllowStartIfOnBatteries", "kind": "flag", "desc": "使用电池时也允许启动任务" },
+            { "token": "-ExecutionTimeLimit", "kind": "option", "desc": "任务最长运行时长，超时即结束", "valueHint": "<时间跨度>" },
+            { "token": "-MultipleInstances", "kind": "option", "desc": "同一任务多实例的并行策略", "valueHint": "<策略>", "enum": ["Parallel", "Queue", "IgnoreNew"] },
+            { "token": "-Disable", "kind": "flag", "desc": "禁用该任务" }
+          ]
+        },
+        {
+          "token": "-Principal", "kind": "option", "desc": "新的任务主体，由 New-ScheduledTaskPrincipal 构造", "valueHint": "<主体对象>",
+          "children": [
+            { "token": "-UserId", "kind": "option", "desc": "运行任务的用户账户", "valueHint": "<用户>" },
+            { "token": "-LogonType", "kind": "option", "desc": "登录方式，决定凭据如何保存", "valueHint": "<方式>", "enum": ["Password", "S4U", "Interactive", "ServiceAccount", "InteractiveOrPassword", "Group", "None"] },
+            { "token": "-RunLevel", "kind": "option", "desc": "运行级别，最高可绕过 UAC", "valueHint": "<级别>", "enum": ["Limited", "Highest"] },
+            { "token": "-GroupId", "kind": "option", "desc": "以某个组的身份运行任务", "valueHint": "<组>" }
+          ]
+        },
+        { "token": "-User", "kind": "option", "desc": "修改任务的运行账户", "valueHint": "<用户名>" },
+        { "token": "-Password", "kind": "option", "desc": "运行账户对应的密码", "valueHint": "<密码>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定 CIM 会话上操作，别名 -Session", "valueHint": "<CIM 会话>", "repeatable": true },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作的数量上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行修改操作" }
+      ]
+    }
+  ]
+}

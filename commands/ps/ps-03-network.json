@@ -1,0 +1,1344 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "网络与共享",
+  "icon": "network",
+  "commands": [
+    {
+      "name": "Get-NetAdapter",
+      "aliases": [],
+      "title": "查看网卡列表与状态",
+      "desc": "列出本机所有网络适配器的名称、状态、链路速度和 MAC 地址，是 NetAdapter 模块的入口命令。其它网卡相关命令用到的网卡名都可以从这里查到。需 Windows 8 / Server 2012 及以上。",
+      "usage": "Get-NetAdapter [[-Name] <string[]>] [-IncludeHidden] [-Physical] | Get-NetAdapter -InterfaceDescription <string[]> | Get-NetAdapter -InterfaceIndex <uint32[]>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["网卡", "适配器", "链路状态", "MAC"],
+      "examples": [
+        { "cmd": "Get-NetAdapter", "desc": "列出全部网卡及其实时状态" },
+        { "cmd": "Get-NetAdapter -Physical | Format-Table Name,Status,LinkSpeed,MacAddress", "desc": "只看物理网卡的关键信息" },
+        { "cmd": "Get-NetAdapter -InterfaceDescription '*Intel*'", "desc": "按硬件描述筛选网卡" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "", "hint": "留空表示全部，支持通配符" },
+        { "token": "-InterfaceDescription", "label": "硬件描述", "type": "text", "value": "", "hint": "如 *Intel*" },
+        { "token": "-IncludeHidden", "label": "含隐藏网卡", "type": "flag", "value": "false", "hint": "显示已禁用或未安装驱动的网卡" },
+        { "token": "-Physical", "label": "仅物理网卡", "type": "flag", "value": "false", "hint": "排除虚拟网卡与回环网卡" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "网卡名称，支持通配符", "valueHint": "网卡名" },
+        { "token": "-Name", "kind": "option", "desc": "按网卡名称筛选", "valueHint": "<名称>", "enum": ["Ethernet", "Wi-Fi", "Ethernet*"] },
+        { "token": "-InterfaceDescription", "kind": "option", "desc": "按硬件描述筛选网卡", "valueHint": "<描述>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引号筛选网卡", "valueHint": "<编号>" },
+        { "token": "-IncludeHidden", "kind": "flag", "desc": "包含隐藏的网卡" },
+        { "token": "-Physical", "kind": "flag", "desc": "只返回物理网卡" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Format-Table Name,Status,LinkSpeed,MacAddress", "kind": "syntax", "desc": "只显示常用列，输出更紧凑" },
+        { "token": "| Where-Object Status -eq Up", "kind": "syntax", "desc": "只保留状态为 Up 的网卡" }
+      ]
+    },
+    {
+      "name": "Enable-NetAdapter",
+      "aliases": [],
+      "title": "启用被禁用的网卡",
+      "desc": "把处于 Disabled 状态的网卡重新启用，等同于在设备管理器里点启用。启用后需要几秒才会拿到 IP 地址。远程操作时不要禁用正在使用的网卡。",
+      "usage": "Enable-NetAdapter [-Name] <string[]> [-IncludeHidden] [-PassThru] | Enable-NetAdapter -InterfaceDescription <string[]> | Enable-NetAdapter -InputObject <CimInstance>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["网卡", "启用", "恢复"],
+      "examples": [
+        { "cmd": "Enable-NetAdapter -Name '以太网'", "desc": "启用名为以太网的网卡" },
+        { "cmd": "Get-NetAdapter -Physical | Where-Object Status -eq Disabled | Enable-NetAdapter", "desc": "批量启用所有被禁用的物理网卡" },
+        { "cmd": "Enable-NetAdapter -Name 'Wi-Fi' -PassThru", "desc": "启用后立即返回网卡对象确认结果" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "以太网", "hint": "要启用的网卡名称" },
+        { "token": "-IncludeHidden", "label": "含隐藏网卡", "type": "flag", "value": "false", "hint": "允许操作隐藏的适配器" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出启用后的网卡状态" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "要启用的网卡名称", "valueHint": "网卡名" },
+        { "token": "-Name", "kind": "option", "desc": "指定网卡名称，支持通配符", "valueHint": "<名称>" },
+        { "token": "-InterfaceDescription", "kind": "option", "desc": "按硬件描述指定网卡", "valueHint": "<描述>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的网卡对象", "valueHint": "<网卡对象>" },
+        { "token": "-IncludeHidden", "kind": "flag", "desc": "包含隐藏的网卡" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的网卡对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "Get-NetAdapter -Physical | Enable-NetAdapter", "kind": "syntax", "desc": "管道批量启用的等价写法" }
+      ]
+    },
+    {
+      "name": "Disable-NetAdapter",
+      "aliases": [],
+      "title": "禁用指定网卡",
+      "desc": "把网卡置为禁用状态，该网卡上的所有网络连接立即中断。常用于排查网卡冲突或临时断开某个网络。远程操作时禁用正在使用的网卡会导致失联。",
+      "usage": "Disable-NetAdapter [-Name] <string[]> [-IncludeHidden] [-PassThru] | Disable-NetAdapter -InterfaceDescription <string[]> | Disable-NetAdapter -InputObject <CimInstance>",
+      "admin": true,
+      "danger": 2,
+      "tags": ["网卡", "禁用", "断网"],
+      "examples": [
+        { "cmd": "Disable-NetAdapter -Name 'Wi-Fi'", "desc": "禁用无线网卡" },
+        { "cmd": "Disable-NetAdapter -Name '以太网' -PassThru", "desc": "禁用后返回网卡状态确认" },
+        { "cmd": "Get-NetAdapter -Physical | Where-Object Name -ne '以太网' | Disable-NetAdapter", "desc": "保留一块网卡，禁用其余物理网卡" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "Wi-Fi", "hint": "要禁用的网卡名称" },
+        { "token": "-IncludeHidden", "label": "含隐藏网卡", "type": "flag", "value": "false", "hint": "允许操作隐藏的适配器" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出禁用后的网卡状态" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "要禁用的网卡名称", "valueHint": "网卡名" },
+        { "token": "-Name", "kind": "option", "desc": "指定网卡名称，支持通配符", "valueHint": "<名称>" },
+        { "token": "-InterfaceDescription", "kind": "option", "desc": "按硬件描述指定网卡", "valueHint": "<描述>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的网卡对象", "valueHint": "<网卡对象>" },
+        { "token": "-IncludeHidden", "kind": "flag", "desc": "包含隐藏的网卡" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的网卡对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "Get-NetAdapter -Physical | Disable-NetAdapter", "kind": "syntax", "desc": "管道批量禁用的等价写法" }
+      ]
+    },
+    {
+      "name": "Restart-NetAdapter",
+      "aliases": [],
+      "title": "重启网卡（先禁后启）",
+      "desc": "把网卡先禁用再启用，相当于软件层面的拔插网线，用于恢复假死、掉速或驱动卡住的网卡。执行期间该网卡会短暂断开几秒。",
+      "usage": "Restart-NetAdapter [-Name] <string[]> [-IncludeHidden] [-PassThru] | Restart-NetAdapter -InterfaceDescription <string[]> | Restart-NetAdapter -InputObject <CimInstance>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["网卡", "重启", "恢复"],
+      "examples": [
+        { "cmd": "Restart-NetAdapter -Name '以太网'", "desc": "重启有线网卡，短暂断网后恢复" },
+        { "cmd": "Get-NetAdapter -Physical | Restart-NetAdapter", "desc": "重启全部物理网卡" },
+        { "cmd": "Restart-NetAdapter -Name 'Wi-Fi' -PassThru", "desc": "重启无线网卡并返回状态" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "以太网", "hint": "要重启的网卡名称" },
+        { "token": "-IncludeHidden", "label": "含隐藏网卡", "type": "flag", "value": "false", "hint": "允许操作隐藏的适配器" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出重启后的网卡状态" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "要重启的网卡名称", "valueHint": "网卡名" },
+        { "token": "-Name", "kind": "option", "desc": "指定网卡名称，支持通配符", "valueHint": "<名称>" },
+        { "token": "-InterfaceDescription", "kind": "option", "desc": "按硬件描述指定网卡", "valueHint": "<描述>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的网卡对象", "valueHint": "<网卡对象>" },
+        { "token": "-IncludeHidden", "kind": "flag", "desc": "包含隐藏的网卡" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的网卡对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "Get-NetAdapter | Restart-NetAdapter", "kind": "syntax", "desc": "管道批量重启的等价写法" }
+      ]
+    },
+    {
+      "name": "Rename-NetAdapter",
+      "aliases": [],
+      "title": "重命名网卡",
+      "desc": "把网卡改成自定义名称，例如把「以太网 2」改成「内网」。改名后 ipconfig 以及其它命令里的接口名会同步变化，建议在写脚本前先统一命名。",
+      "usage": "Rename-NetAdapter [-Name] <string[]> [-NewName] <string> [-IncludeHidden] [-PassThru] | Rename-NetAdapter [-NewName] <string> -InterfaceDescription <string[]>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["网卡", "改名", "接口名"],
+      "examples": [
+        { "cmd": "Rename-NetAdapter -Name '以太网 2' -NewName '内网'", "desc": "把网卡重命名为内网" },
+        { "cmd": "Rename-NetAdapter -Name 'Wi-Fi' -NewName 'WLAN' -PassThru", "desc": "改名后返回网卡对象确认" },
+        { "cmd": "Get-NetAdapter -InterfaceIndex 12 | Rename-NetAdapter -NewName 'USB网卡'", "desc": "按接口索引改名，名称有歧义时更可靠" }
+      ],
+      "form": [
+        { "token": "", "label": "原网卡名", "type": "text", "value": "以太网 2", "hint": "当前网卡名称" },
+        { "token": "-NewName", "label": "新名称", "type": "text", "value": "内网", "hint": "新名称不要与其他网卡重复" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出改名后的网卡状态" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "当前网卡名称", "valueHint": "网卡名" },
+        { "token": "<新名称>", "kind": "value", "desc": "要改成的新名称", "valueHint": "新名称" },
+        { "token": "-NewName", "kind": "option", "desc": "指定新的网卡名称", "valueHint": "<新名称>" },
+        { "token": "-Name", "kind": "option", "desc": "指定原网卡名称", "valueHint": "<名称>", "repeatable": true },
+        { "token": "-InterfaceDescription", "kind": "option", "desc": "按硬件描述指定网卡", "valueHint": "<描述>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的网卡对象", "valueHint": "<网卡对象>" },
+        { "token": "-IncludeHidden", "kind": "flag", "desc": "包含隐藏的网卡" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的网卡对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-NetIPConfiguration",
+      "aliases": ["gip"],
+      "title": "查看网卡 IP 配置全貌",
+      "desc": "把一块网卡的 IP 地址、默认网关、DNS 服务器和网卡状态汇总成一个对象显示，相当于只输出关键信息的 ipconfig /all。排查上不了网时最先看这条。",
+      "usage": "Get-NetIPConfiguration [[-InterfaceAlias] <string>] [-Detailed] [-AllCompartments] | Get-NetIPConfiguration -InterfaceIndex <int> | Get-NetIPConfiguration -All",
+      "admin": false,
+      "danger": 0,
+      "tags": ["IP", "网关", "DNS", "网卡"],
+      "examples": [
+        { "cmd": "Get-NetIPConfiguration", "desc": "查看所有网卡的 IP 配置摘要" },
+        { "cmd": "Get-NetIPConfiguration -InterfaceAlias '以太网' -Detailed", "desc": "查看指定网卡的详细配置" },
+        { "cmd": "gip -InterfaceIndex 12", "desc": "用别名按接口索引查看配置" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "", "hint": "留空表示全部网卡" },
+        { "token": "-InterfaceIndex", "label": "接口索引", "type": "number", "value": "", "hint": "按接口编号精确指定" },
+        { "token": "-Detailed", "label": "详细信息", "type": "flag", "value": "false", "hint": "输出更多属性" },
+        { "token": "-AllCompartments", "label": "全部网络隔离舱", "type": "flag", "value": "false", "hint": "含容器等其它隔离舱" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "网卡名称，留空为全部", "valueHint": "网卡名" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-All", "kind": "flag", "desc": "返回所有网卡的配置" },
+        { "token": "-AllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-CompartmentId", "kind": "option", "desc": "指定网络隔离舱编号", "valueHint": "<编号>" },
+        { "token": "-Detailed", "kind": "flag", "desc": "输出更详细的属性" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Select-Object InterfaceAlias,IPv4Address,IPv4DefaultGateway", "kind": "syntax", "desc": "只挑出地址与网关属性" },
+        { "token": "| Format-List *", "kind": "syntax", "desc": "逐行列展开全部属性" }
+      ]
+    },
+    {
+      "name": "Get-NetIPAddress",
+      "aliases": [],
+      "title": "查看 IP 地址",
+      "desc": "列出网卡上的 IPv4 与 IPv6 地址及其来源、前缀长度、生存期等细节。比 ipconfig 更细致，可以按地址来源筛出 DHCP 或手工配置的地址。",
+      "usage": "Get-NetIPAddress [[-IPAddress] <string[]>] [-InterfaceAlias <string[]>] [-AddressFamily <AddressFamily[]>] [-Type <Type[]>] [-PrefixOrigin <PrefixOrigin[]>] [-AddressState <AddressState[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["IP", "地址", "DHCP", "IPv6"],
+      "examples": [
+        { "cmd": "Get-NetIPAddress -AddressFamily IPv4", "desc": "只看 IPv4 地址" },
+        { "cmd": "Get-NetIPAddress -InterfaceAlias '以太网' -AddressFamily IPv4", "desc": "查看指定网卡的 IPv4 地址" },
+        { "cmd": "Get-NetIPAddress -PrefixOrigin Dhcp", "desc": "找出所有由 DHCP 获取的地址" }
+      ],
+      "form": [
+        { "token": "", "label": "IP 地址", "type": "text", "value": "", "hint": "留空表示全部地址" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "以太网", "hint": "限定某块网卡" },
+        { "token": "-AddressFamily", "label": "地址族", "type": "select", "value": "IPv4", "hint": "IPv4 或 IPv6", "options": ["IPv4", "IPv6"] },
+        { "token": "-PrefixOrigin", "label": "地址来源", "type": "select", "value": "Dhcp", "hint": "按地址获取方式筛选", "options": ["Manual", "Dhcp", "WellKnown", "RouterAdvertisement", "Other"] }
+      ],
+      "nodes": [
+        { "token": "<IP 地址>", "kind": "value", "desc": "要查询的 IP 地址", "valueHint": "IP 地址" },
+        { "token": "-IPAddress", "kind": "option", "desc": "按 IP 地址筛选", "valueHint": "<IP 地址>", "repeatable": true },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-Type", "kind": "option", "desc": "按地址类型筛选", "valueHint": "<类型>", "enum": ["Unicast", "Anycast"] },
+        { "token": "-PrefixLength", "kind": "option", "desc": "按前缀长度筛选", "valueHint": "<位数>" },
+        { "token": "-PrefixOrigin", "kind": "option", "desc": "按地址前缀来源筛选", "valueHint": "<来源>", "enum": ["Other", "Manual", "WellKnown", "Dhcp", "RouterAdvertisement"] },
+        { "token": "-SuffixOrigin", "kind": "option", "desc": "按地址后缀来源筛选", "valueHint": "<来源>", "enum": ["Other", "Manual", "WellKnown", "Dhcp", "Link", "Random"] },
+        { "token": "-AddressState", "kind": "option", "desc": "按地址状态筛选", "valueHint": "<状态>", "enum": ["Preferred", "Deprecated", "Tentative", "Duplicate", "Invalid"] },
+        { "token": "-ValidLifetime", "kind": "option", "desc": "按有效生存期筛选", "valueHint": "<时间>" },
+        { "token": "-PreferredLifetime", "kind": "option", "desc": "按首选生存期筛选", "valueHint": "<时间>" },
+        { "token": "-SkipAsSource", "kind": "option", "desc": "是否为不作为源地址的地址", "valueHint": "<True 或 False>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-IncludeAllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-AssociatedIPInterface", "kind": "option", "desc": "按关联的 IP 接口对象筛选", "valueHint": "<接口对象>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "New-NetIPAddress",
+      "aliases": [],
+      "title": "新增静态 IP 地址",
+      "desc": "给网卡手工添加一个 IP 地址，可同时指定默认网关，相当于在网卡属性里填写固定 IP。如果网卡已在用 DHCP，建议先禁用 DHCP 或直接改用 Set-NetIPAddress。",
+      "usage": "New-NetIPAddress [-IPAddress] <string> -InterfaceAlias <string> [-DefaultGateway <string>] [-PrefixLength <byte>] [-AddressFamily <AddressFamily>] [-Type <Type>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["IP", "静态地址", "网关"],
+      "examples": [
+        { "cmd": "New-NetIPAddress -IPAddress 192.168.1.50 -PrefixLength 24 -InterfaceAlias '以太网'", "desc": "给网卡添加固定 IP" },
+        { "cmd": "New-NetIPAddress -IPAddress 192.168.1.50 -PrefixLength 24 -InterfaceAlias '以太网' -DefaultGateway 192.168.1.1", "desc": "添加固定 IP 并设置默认网关" },
+        { "cmd": "New-NetIPAddress -IPAddress 2001:db8::10 -PrefixLength 64 -InterfaceAlias '以太网'", "desc": "添加一个 IPv6 地址" }
+      ],
+      "form": [
+        { "token": "", "label": "IP 地址", "type": "text", "value": "192.168.1.50", "hint": "要添加的 IP 地址" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "以太网", "hint": "必填，目标网卡" },
+        { "token": "-PrefixLength", "label": "前缀长度", "type": "number", "value": "24", "hint": "常见 24 对应 255.255.255.0" },
+        { "token": "-DefaultGateway", "label": "默认网关", "type": "text", "value": "", "hint": "留空表示不设置" }
+      ],
+      "nodes": [
+        { "token": "<IP 地址>", "kind": "value", "desc": "要添加的 IP 地址", "valueHint": "IP 地址" },
+        { "token": "-IPAddress", "kind": "option", "desc": "指定要添加的 IP 地址", "valueHint": "<IP 地址>" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "指定目标网卡，必填", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "改用接口索引指定网卡", "valueHint": "<编号>" },
+        { "token": "-DefaultGateway", "kind": "option", "desc": "同时设置默认网关", "valueHint": "<网关地址>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "指定地址族，通常自动判断", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-PrefixLength", "kind": "option", "desc": "指定子网前缀长度", "valueHint": "<位数>" },
+        { "token": "-Type", "kind": "option", "desc": "指定地址类型", "valueHint": "<类型>", "enum": ["Unicast", "Anycast"] },
+        { "token": "-ValidLifetime", "kind": "option", "desc": "设置地址有效生存期", "valueHint": "<时间>" },
+        { "token": "-PreferredLifetime", "kind": "option", "desc": "设置地址首选生存期", "valueHint": "<时间>" },
+        { "token": "-SkipAsSource", "kind": "option", "desc": "不把该地址用作源地址", "valueHint": "<True 或 False>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Set-NetIPAddress",
+      "aliases": [],
+      "title": "修改现有 IP 地址",
+      "desc": "修改已经存在的 IP 地址的属性，例如前缀长度、生存期和是否用作源地址。它不会新增地址，要换 IP 得先删旧的再加新的。",
+      "usage": "Set-NetIPAddress [[-IPAddress] <string[]>] [-InterfaceAlias <string[]>] [-PrefixLength <byte>] [-SkipAsSource <bool>] [-AddressState <AddressState[]>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["IP", "修改", "前缀长度"],
+      "examples": [
+        { "cmd": "Set-NetIPAddress -IPAddress 192.168.1.50 -PrefixLength 25", "desc": "修改已有地址的子网前缀长度" },
+        { "cmd": "Set-NetIPAddress -InterfaceAlias '以太网' -AddressFamily IPv4 -SkipAsSource $true", "desc": "把该网卡 IPv4 地址设为不作为源地址" },
+        { "cmd": "Get-NetIPAddress -AddressFamily IPv4 | Set-NetIPAddress -SkipAsSource $false", "desc": "批量取消不作为源地址的设置" }
+      ],
+      "form": [
+        { "token": "", "label": "IP 地址", "type": "text", "value": "192.168.1.50", "hint": "要修改的地址" },
+        { "token": "-PrefixLength", "label": "前缀长度", "type": "number", "value": "24", "hint": "新的子网前缀长度" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "", "hint": "限定某块网卡" },
+        { "token": "-SkipAsSource", "label": "不作源地址", "type": "select", "value": "False", "hint": "是否用作源地址", "options": ["False", "True"] }
+      ],
+      "nodes": [
+        { "token": "<IP 地址>", "kind": "value", "desc": "要修改的 IP 地址", "valueHint": "IP 地址" },
+        { "token": "-IPAddress", "kind": "option", "desc": "按 IP 地址定位要改的地址", "valueHint": "<IP 地址>" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-Type", "kind": "option", "desc": "按地址类型筛选", "valueHint": "<类型>", "enum": ["Unicast", "Anycast"] },
+        { "token": "-PrefixLength", "kind": "option", "desc": "设置新的前缀长度", "valueHint": "<位数>" },
+        { "token": "-ValidLifetime", "kind": "option", "desc": "设置有效生存期", "valueHint": "<时间>" },
+        { "token": "-PreferredLifetime", "kind": "option", "desc": "设置首选生存期", "valueHint": "<时间>" },
+        { "token": "-SkipAsSource", "kind": "option", "desc": "是否不作为源地址", "valueHint": "<True 或 False>" },
+        { "token": "-AddressState", "kind": "option", "desc": "按地址状态筛选", "valueHint": "<状态>", "enum": ["Preferred", "Deprecated", "Tentative", "Duplicate", "Invalid"] },
+        { "token": "-PrefixOrigin", "kind": "option", "desc": "按前缀来源筛选", "valueHint": "<来源>", "enum": ["Other", "Manual", "WellKnown", "Dhcp", "RouterAdvertisement"] },
+        { "token": "-SuffixOrigin", "kind": "option", "desc": "按后缀来源筛选", "valueHint": "<来源>", "enum": ["Other", "Manual", "WellKnown", "Dhcp", "Link", "Random"] },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-IncludeAllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的地址对象", "valueHint": "<地址对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的地址对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Remove-NetIPAddress",
+      "aliases": [],
+      "title": "删除 IP 地址",
+      "desc": "从网卡上移除 IP 地址，可以顺带删除对应的默认网关。删除正在使用的地址会立即断网，远程操作前务必确认。执行时默认会要求确认。",
+      "usage": "Remove-NetIPAddress [[-IPAddress] <string[]>] [-InterfaceAlias <string[]>] [-DefaultGateway <string>] [-AddressFamily <AddressFamily[]>] [-IncludeAllCompartments]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["IP", "删除", "断网"],
+      "examples": [
+        { "cmd": "Remove-NetIPAddress -IPAddress 192.168.1.50", "desc": "删除指定的 IP 地址" },
+        { "cmd": "Remove-NetIPAddress -IPAddress 192.168.1.50 -DefaultGateway 192.168.1.1", "desc": "同时删除该地址的默认网关" },
+        { "cmd": "Get-NetIPAddress -InterfaceAlias '以太网' -AddressFamily IPv4 | Remove-NetIPAddress", "desc": "清空指定网卡的全部 IPv4 地址" }
+      ],
+      "form": [
+        { "token": "", "label": "IP 地址", "type": "text", "value": "192.168.1.50", "hint": "要删除的地址，留空会匹配全部" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "", "hint": "限定某块网卡" },
+        { "token": "-DefaultGateway", "label": "同时删网关", "type": "text", "value": "", "hint": "填网关地址" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出被删除的地址对象" }
+      ],
+      "nodes": [
+        { "token": "<IP 地址>", "kind": "value", "desc": "要删除的 IP 地址", "valueHint": "IP 地址" },
+        { "token": "-IPAddress", "kind": "option", "desc": "按 IP 地址定位要删的地址", "valueHint": "<IP 地址>" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-Type", "kind": "option", "desc": "按地址类型筛选", "valueHint": "<类型>", "enum": ["Unicast", "Anycast"] },
+        { "token": "-PrefixLength", "kind": "option", "desc": "按前缀长度筛选", "valueHint": "<位数>" },
+        { "token": "-DefaultGateway", "kind": "option", "desc": "同时删除关联的默认网关", "valueHint": "<网关地址>" },
+        { "token": "-AddressState", "kind": "option", "desc": "按地址状态筛选", "valueHint": "<状态>", "enum": ["Preferred", "Deprecated", "Tentative", "Duplicate", "Invalid"] },
+        { "token": "-PrefixOrigin", "kind": "option", "desc": "按前缀来源筛选", "valueHint": "<来源>", "enum": ["Other", "Manual", "WellKnown", "Dhcp", "RouterAdvertisement"] },
+        { "token": "-SuffixOrigin", "kind": "option", "desc": "按后缀来源筛选", "valueHint": "<来源>", "enum": ["Other", "Manual", "WellKnown", "Dhcp", "Link", "Random"] },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-IncludeAllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的地址对象", "valueHint": "<地址对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被删除的地址对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-NetRoute",
+      "aliases": [],
+      "title": "查看路由表",
+      "desc": "显示本机路由表，包含目标网段、下一跳、接口和跃点数，相当于 route print 但返回对象便于筛选。排查走错网卡、多网卡抢路由时非常有用。",
+      "usage": "Get-NetRoute [[-DestinationPrefix] <string[]>] [-InterfaceAlias <string[]>] [-NextHop <string[]>] [-AddressFamily <AddressFamily[]>] [-Protocol <Protocol[]>] [-RouteMetric <uint16[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["路由", "网关", "跃点", "网段"],
+      "examples": [
+        { "cmd": "Get-NetRoute -AddressFamily IPv4", "desc": "只看 IPv4 路由表" },
+        { "cmd": "Get-NetRoute -DestinationPrefix '0.0.0.0/0'", "desc": "查看默认路由，确认走哪块网卡" },
+        { "cmd": "Get-NetRoute -InterfaceAlias '以太网' | Sort-Object RouteMetric", "desc": "按跃点数排序查看指定网卡的路由" }
+      ],
+      "form": [
+        { "token": "", "label": "目标网段", "type": "text", "value": "0.0.0.0/0", "hint": "留空表示全部路由" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "", "hint": "限定某块网卡" },
+        { "token": "-AddressFamily", "label": "地址族", "type": "select", "value": "IPv4", "hint": "IPv4 或 IPv6", "options": ["IPv4", "IPv6"] },
+        { "token": "-NextHop", "label": "下一跳", "type": "text", "value": "", "hint": "按网关地址筛选" }
+      ],
+      "nodes": [
+        { "token": "<目标网段>", "kind": "value", "desc": "路由的目标网段前缀", "valueHint": "网段" },
+        { "token": "-DestinationPrefix", "kind": "option", "desc": "按目标网段筛选", "valueHint": "<网段>", "enum": ["0.0.0.0/0", "127.0.0.0/8", "192.168.0.0/16"] },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-NextHop", "kind": "option", "desc": "按下一跳地址筛选", "valueHint": "<网关地址>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-Protocol", "kind": "option", "desc": "按路由来源协议筛选", "valueHint": "<协议>", "enum": ["Local", "NetMgmt", "Icmp", "Dhcp", "Other"] },
+        { "token": "-Publish", "kind": "option", "desc": "按路由发布方式筛选", "valueHint": "<方式>", "enum": ["No", "Age", "Yes"] },
+        { "token": "-RouteMetric", "kind": "option", "desc": "按路由跃点数筛选", "valueHint": "<数值>" },
+        { "token": "-InterfaceMetric", "kind": "option", "desc": "按接口跃点数筛选", "valueHint": "<数值>" },
+        { "token": "-State", "kind": "option", "desc": "按路由状态筛选", "valueHint": "<状态>", "enum": ["Alive", "Dead", "Probe"] },
+        { "token": "-ValidLifetime", "kind": "option", "desc": "按有效生存期筛选", "valueHint": "<时间>" },
+        { "token": "-PreferredLifetime", "kind": "option", "desc": "按首选生存期筛选", "valueHint": "<时间>" },
+        { "token": "-CompartmentId", "kind": "option", "desc": "指定网络隔离舱编号", "valueHint": "<编号>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-IncludeAllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "New-NetRoute",
+      "aliases": [],
+      "title": "添加静态路由",
+      "desc": "手工往路由表里加一条路由，例如让某个网段走指定网关或指定网卡，重启后仍然有效（除非用 -PolicyStore 指定其它存储）。等同于 route add 的加强版。",
+      "usage": "New-NetRoute [-DestinationPrefix] <string> -InterfaceAlias <string> [-NextHop <string>] [-RouteMetric <uint16>] [-AddressFamily <AddressFamily>] [-Protocol <Protocol>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["路由", "静态路由", "网关"],
+      "examples": [
+        { "cmd": "New-NetRoute -DestinationPrefix '10.10.0.0/16' -InterfaceAlias '以太网' -NextHop 192.168.1.1", "desc": "让 10.10 网段走指定网关" },
+        { "cmd": "New-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias '以太网' -NextHop 192.168.1.1 -RouteMetric 5", "desc": "指定默认路由并设置较低的跃点数" },
+        { "cmd": "New-NetRoute -DestinationPrefix '172.16.0.0/12' -InterfaceIndex 12 -NextHop 192.168.1.254", "desc": "按接口索引添加内网路由" }
+      ],
+      "form": [
+        { "token": "", "label": "目标网段", "type": "text", "value": "10.10.0.0/16", "hint": "要添加的目标网段" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "以太网", "hint": "必填，出口网卡" },
+        { "token": "-NextHop", "label": "下一跳", "type": "text", "value": "192.168.1.1", "hint": "网关地址，直连可留空" },
+        { "token": "-RouteMetric", "label": "跃点数", "type": "number", "value": "256", "hint": "越小优先级越高" }
+      ],
+      "nodes": [
+        { "token": "<目标网段>", "kind": "value", "desc": "路由的目标网段前缀", "valueHint": "网段" },
+        { "token": "-DestinationPrefix", "kind": "option", "desc": "指定目标网段前缀", "valueHint": "<网段>" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "指定出口网卡，必填", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "改用接口索引指定网卡", "valueHint": "<编号>" },
+        { "token": "-NextHop", "kind": "option", "desc": "指定下一跳网关地址", "valueHint": "<网关地址>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "指定地址族", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-RouteMetric", "kind": "option", "desc": "设置路由跃点数", "valueHint": "<数值>" },
+        { "token": "-Protocol", "kind": "option", "desc": "设置路由来源协议", "valueHint": "<协议>", "enum": ["Local", "NetMgmt", "Icmp", "Dhcp", "Other"] },
+        { "token": "-Publish", "kind": "option", "desc": "设置路由发布方式", "valueHint": "<方式>", "enum": ["No", "Age", "Yes"] },
+        { "token": "-ValidLifetime", "kind": "option", "desc": "设置有效生存期", "valueHint": "<时间>" },
+        { "token": "-PreferredLifetime", "kind": "option", "desc": "设置首选生存期", "valueHint": "<时间>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Remove-NetRoute",
+      "aliases": [],
+      "title": "删除路由条目",
+      "desc": "从路由表里删掉一条或多条路由，相当于 route delete。若误删默认路由会立即失去外网访问，需要重新添加。执行时默认会要求确认。",
+      "usage": "Remove-NetRoute [[-DestinationPrefix] <string[]>] [-InterfaceAlias <string[]>] [-NextHop <string[]>] [-AddressFamily <AddressFamily[]>] [-IncludeAllCompartments]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["路由", "删除", "断网"],
+      "examples": [
+        { "cmd": "Remove-NetRoute -DestinationPrefix '10.10.0.0/16'", "desc": "删除指定网段的路由" },
+        { "cmd": "Remove-NetRoute -NextHop 192.168.1.254", "desc": "删除所有走该网关的路由" },
+        { "cmd": "Get-NetRoute -InterfaceAlias '以太网' -AddressFamily IPv4 | Where-Object RouteMetric -gt 100 | Remove-NetRoute", "desc": "批量删除跃点数偏大的路由" }
+      ],
+      "form": [
+        { "token": "", "label": "目标网段", "type": "text", "value": "10.10.0.0/16", "hint": "要删除的目标网段" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "", "hint": "限定某块网卡" },
+        { "token": "-NextHop", "label": "下一跳", "type": "text", "value": "", "hint": "按网关地址定位" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出被删除的路由对象" }
+      ],
+      "nodes": [
+        { "token": "<目标网段>", "kind": "value", "desc": "要删除的目标网段", "valueHint": "网段" },
+        { "token": "-DestinationPrefix", "kind": "option", "desc": "按目标网段定位路由", "valueHint": "<网段>" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-NextHop", "kind": "option", "desc": "按下一跳地址筛选", "valueHint": "<网关地址>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-Protocol", "kind": "option", "desc": "按路由来源协议筛选", "valueHint": "<协议>", "enum": ["Local", "NetMgmt", "Icmp", "Dhcp", "Other"] },
+        { "token": "-RouteMetric", "kind": "option", "desc": "按路由跃点数筛选", "valueHint": "<数值>" },
+        { "token": "-InterfaceMetric", "kind": "option", "desc": "按接口跃点数筛选", "valueHint": "<数值>" },
+        { "token": "-State", "kind": "option", "desc": "按路由状态筛选", "valueHint": "<状态>", "enum": ["Alive", "Dead", "Probe"] },
+        { "token": "-Publish", "kind": "option", "desc": "按路由发布方式筛选", "valueHint": "<方式>", "enum": ["No", "Age", "Yes"] },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-IncludeAllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的路由对象", "valueHint": "<路由对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被删除的路由对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-NetNeighbor",
+      "aliases": [],
+      "title": "查看 ARP 邻居表",
+      "desc": "显示 IP 与 MAC 的对应关系，也就是 ARP 缓存表，另含 IPv6 邻居记录。排查同网段不通、MAC 冲突或 ARP 欺骗时会用到。",
+      "usage": "Get-NetNeighbor [[-IPAddress] <string[]>] [-InterfaceAlias <string[]>] [-LinkLayerAddress <string[]>] [-State <State[]>] [-AddressFamily <AddressFamily[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["ARP", "MAC", "邻居", "缓存"],
+      "examples": [
+        { "cmd": "Get-NetNeighbor -AddressFamily IPv4", "desc": "查看 IPv4 的 ARP 邻居表" },
+        { "cmd": "Get-NetNeighbor -IPAddress 192.168.1.1", "desc": "查看某个 IP 对应的 MAC 地址" },
+        { "cmd": "Get-NetNeighbor -State Reachable | Sort-Object IPAddress", "desc": "只看已确认可达的邻居" }
+      ],
+      "form": [
+        { "token": "", "label": "IP 地址", "type": "text", "value": "", "hint": "留空表示全部记录" },
+        { "token": "-InterfaceAlias", "label": "网卡名", "type": "text", "value": "以太网", "hint": "限定某块网卡" },
+        { "token": "-AddressFamily", "label": "地址族", "type": "select", "value": "IPv4", "hint": "IPv4 或 IPv6", "options": ["IPv4", "IPv6"] },
+        { "token": "-State", "label": "邻居状态", "type": "select", "value": "Reachable", "hint": "按状态筛选", "options": ["Reachable", "Stale", "Permanent", "Probe", "Delay", "Incomplete", "Unreachable"] }
+      ],
+      "nodes": [
+        { "token": "<IP 地址>", "kind": "value", "desc": "要查询的邻居 IP 地址", "valueHint": "IP 地址" },
+        { "token": "-IPAddress", "kind": "option", "desc": "按邻居 IP 地址筛选", "valueHint": "<IP 地址>" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-LinkLayerAddress", "kind": "option", "desc": "按 MAC 地址筛选", "valueHint": "<MAC 地址>" },
+        { "token": "-State", "kind": "option", "desc": "按邻居状态筛选", "valueHint": "<状态>", "enum": ["Reachable", "Stale", "Permanent", "Probe", "Delay", "Incomplete", "Unreachable"] },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略存储位置", "valueHint": "<ActiveStore>" },
+        { "token": "-IncludeAllCompartments", "kind": "flag", "desc": "包含所有网络隔离舱" },
+        { "token": "-AssociatedIPInterface", "kind": "option", "desc": "按关联的 IP 接口对象筛选", "valueHint": "<接口对象>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-DnsClientServerAddress",
+      "aliases": [],
+      "title": "查看 DNS 服务器地址",
+      "desc": "列出每块网卡正在使用的 DNS 服务器地址，IPv4 与 IPv6 分开显示。排查域名解析失败时先确认这里是否为空或填错。",
+      "usage": "Get-DnsClientServerAddress [[-InterfaceAlias] <string[]>] [-InterfaceIndex <uint32[]>] [-AddressFamily <AddressFamily[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["DNS", "网卡", "解析"],
+      "examples": [
+        { "cmd": "Get-DnsClientServerAddress", "desc": "查看全部网卡的 DNS 服务器地址" },
+        { "cmd": "Get-DnsClientServerAddress -InterfaceAlias '以太网' -AddressFamily IPv4", "desc": "只看指定网卡的 IPv4 DNS" },
+        { "cmd": "Get-DnsClientServerAddress | Where-Object ServerAddresses", "desc": "只显示已经配置了 DNS 的网卡" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "", "hint": "留空表示全部网卡" },
+        { "token": "-InterfaceIndex", "label": "接口索引", "type": "number", "value": "", "hint": "按接口编号精确指定" },
+        { "token": "-AddressFamily", "label": "地址族", "type": "select", "value": "IPv4", "hint": "IPv4 或 IPv6", "options": ["IPv4", "IPv6"] }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "网卡名称，留空为全部", "valueHint": "网卡名" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "按网卡别名筛选", "valueHint": "<网卡名>" },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "按接口索引筛选", "valueHint": "<编号>" },
+        { "token": "-AddressFamily", "kind": "option", "desc": "按地址族筛选", "valueHint": "<地址族>", "enum": ["IPv4", "IPv6"] },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Where-Object ServerAddresses", "kind": "syntax", "desc": "只显示已配置 DNS 的网卡" },
+        { "token": "| Select-Object InterfaceAlias,AddressFamily,ServerAddresses", "kind": "syntax", "desc": "只挑出常用属性" },
+        { "token": "| Format-List", "kind": "syntax", "desc": "逐行列显示，地址多时更清楚" }
+      ]
+    },
+    {
+      "name": "Set-DnsClientServerAddress",
+      "aliases": [],
+      "title": "设置 DNS 服务器地址",
+      "desc": "修改网卡使用的 DNS 服务器，可指定多个实现主备，也可以用 -ResetServerAddresses 恢复成自动获取。改完立即生效，无需重启网卡。",
+      "usage": "Set-DnsClientServerAddress [-InterfaceAlias] <string[]> [-ServerAddresses <string[]>] [-Validate] [-ResetServerAddresses] | Set-DnsClientServerAddress -InterfaceIndex <uint32[]>",
+      "admin": true,
+      "danger": 1,
+      "tags": ["DNS", "设置", "解析"],
+      "examples": [
+        { "cmd": "Set-DnsClientServerAddress -InterfaceAlias '以太网' -ServerAddresses 223.5.5.5,119.29.29.29", "desc": "设置主备 DNS 服务器" },
+        { "cmd": "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ResetServerAddresses", "desc": "恢复为自动获取 DNS" },
+        { "cmd": "Set-DnsClientServerAddress -InterfaceIndex 12 -ServerAddresses 8.8.8.8 -Validate", "desc": "设置后立即校验 DNS 是否可用" }
+      ],
+      "form": [
+        { "token": "", "label": "网卡名", "type": "text", "value": "以太网", "hint": "要设置的网卡" },
+        { "token": "-ServerAddresses", "label": "DNS 地址", "type": "text", "value": "223.5.5.5,119.29.29.29", "hint": "多个用逗号分隔，前面为主" },
+        { "token": "-Validate", "label": "设置后校验", "type": "flag", "value": "false", "hint": "检查 DNS 服务器能否响应" },
+        { "token": "-ResetServerAddresses", "label": "恢复自动获取", "type": "flag", "value": "false", "hint": "清空手工配置的 DNS" }
+      ],
+      "nodes": [
+        { "token": "<网卡名>", "kind": "value", "desc": "要设置的网卡名称", "valueHint": "网卡名" },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "指定要设置的网卡，必填", "valueHint": "<网卡名>" },
+        { "token": "-ServerAddresses", "kind": "option", "desc": "指定 DNS 服务器地址列表", "valueHint": "<IP 列表>", "children": [
+          { "token": "223.5.5.5", "kind": "value", "desc": "阿里公共 DNS", "valueHint": "223.5.5.5" },
+          { "token": "119.29.29.29", "kind": "value", "desc": "腾讯公共 DNS", "valueHint": "119.29.29.29" },
+          { "token": "114.114.114.114", "kind": "value", "desc": "114 公共 DNS", "valueHint": "114.114.114.114" },
+          { "token": "8.8.8.8", "kind": "value", "desc": "Google 公共 DNS", "valueHint": "8.8.8.8" },
+          { "token": "1.1.1.1", "kind": "value", "desc": "Cloudflare 公共 DNS", "valueHint": "1.1.1.1" }
+        ] },
+        { "token": "-InterfaceIndex", "kind": "option", "desc": "改用接口索引指定网卡", "valueHint": "<编号>" },
+        { "token": "-Validate", "kind": "flag", "desc": "设置后校验 DNS 服务器可用性" },
+        { "token": "-ResetServerAddresses", "kind": "flag", "desc": "重置为自动获取 DNS" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的网卡对象", "valueHint": "<对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Resolve-DnsName",
+      "aliases": [],
+      "title": "DNS 域名解析",
+      "desc": "把域名解析成 IP 地址，等价于 nslookup 但返回的是对象，方便用管道继续筛选。也能查 MX、TXT、NS 等记录类型。其中 -DohServer 与 -DotServer 需要 Windows 11 / Server 2022 及以上。",
+      "usage": "Resolve-DnsName [-Name] <string> [[-Type] <RecordType>] [-Server <string[]>] [-DnsOnly] [-CacheOnly] [-NoHostsFile] [-TcpOnly] [-QuickTimeout]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["DNS", "解析", "域名"],
+      "examples": [
+        { "cmd": "Resolve-DnsName www.baidu.com", "desc": "解析百度的 A 记录" },
+        { "cmd": "Resolve-DnsName qq.com -Type MX", "desc": "查询 QQ 的邮件交换记录" },
+        { "cmd": "Resolve-DnsName www.contoso.com -Server 223.5.5.5 -DnsOnly", "desc": "指定公共 DNS 服务器解析，且不使用本地缓存" }
+      ],
+      "form": [
+        { "token": "", "label": "域名", "type": "text", "value": "www.baidu.com", "hint": "要解析的域名" },
+        { "token": "-Type", "label": "记录类型", "type": "select", "value": "A", "hint": "DNS 记录类型", "options": ["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "SRV", "PTR", "ANY"] },
+        { "token": "-Server", "label": "DNS 服务器", "type": "text", "value": "", "hint": "留空使用本机配置" },
+        { "token": "-DnsOnly", "label": "只查 DNS", "type": "flag", "value": "false", "hint": "不使用本机缓存" },
+        { "token": "-CacheOnly", "label": "只查缓存", "type": "flag", "value": "false", "hint": "只查本机 DNS 缓存" }
+      ],
+      "nodes": [
+        { "token": "<域名>", "kind": "value", "desc": "要解析的域名或主机名", "valueHint": "域名" },
+        { "token": "-Name", "kind": "option", "desc": "指定要解析的名称", "valueHint": "<域名>" },
+        { "token": "-Type", "kind": "option", "desc": "指定 DNS 记录类型", "valueHint": "<类型>", "enum": ["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "SRV", "PTR", "ANY"] },
+        { "token": "-Server", "kind": "option", "desc": "指定 DNS 服务器地址", "valueHint": "<IP>" },
+        { "token": "-DohServer", "kind": "option", "desc": "使用 DNS over HTTPS 服务器解析", "valueHint": "<DoH 地址>" },
+        { "token": "-DotServer", "kind": "option", "desc": "使用 DNS over TLS 服务器解析", "valueHint": "<DoT 地址>" },
+        { "token": "-DnsOnly", "kind": "flag", "desc": "只查 DNS，不使用本机缓存" },
+        { "token": "-CacheOnly", "kind": "flag", "desc": "只查本机 DNS 缓存" },
+        { "token": "-CheckCache", "kind": "flag", "desc": "先在缓存中查找该名称" },
+        { "token": "-NoHostsFile", "kind": "flag", "desc": "忽略 hosts 文件" },
+        { "token": "-NoRecursion", "kind": "flag", "desc": "要求服务器不递归查询" },
+        { "token": "-NoIdn", "kind": "flag", "desc": "不把国际化域名转成 Punycode" },
+        { "token": "-DnssecOk", "kind": "flag", "desc": "请求 DNSSEC 校验" },
+        { "token": "-DnssecCd", "kind": "flag", "desc": "设置 DNSSEC 不检查已禁用位" },
+        { "token": "-TcpOnly", "kind": "flag", "desc": "只用 TCP 查询，不用 UDP" },
+        { "token": "-QuickTimeout", "kind": "flag", "desc": "使用较短的查询超时" },
+        { "token": "-LlmnrOnly", "kind": "flag", "desc": "只用 LLMNR 协议查询" },
+        { "token": "-LlmnrNetbiosOnly", "kind": "flag", "desc": "只用 LLMNR 与 NetBIOS 查询" },
+        { "token": "-LlmnrFallback", "kind": "flag", "desc": "DNS 失败后回退到 LLMNR" },
+        { "token": "-NetbiosFallback", "kind": "flag", "desc": "查询失败后回退到 NetBIOS" }
+      ]
+    },
+    {
+      "name": "Test-NetConnection",
+      "aliases": ["TNC"],
+      "title": "测试端口与连通性",
+      "desc": "既能 ping 目标主机，也能测试指定 TCP 端口是否开放，还能做路由追踪与选路诊断。比 ping 和 telnet 更全面，是排查端口不通的首选命令。",
+      "usage": "Test-NetConnection [[-ComputerName] <string>] [-TraceRoute] [-Hops <int>] | Test-NetConnection [[-ComputerName] <string>] [-CommonTCPPort] <string> | Test-NetConnection [[-ComputerName] <string>] -Port <int>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["端口", "连通性", "ping", "追踪"],
+      "examples": [
+        { "cmd": "Test-NetConnection www.baidu.com -Port 443", "desc": "测试到百度的 443 端口是否通" },
+        { "cmd": "Test-NetConnection 192.168.1.1 -CommonTCPPort SMB", "desc": "测试共享端口 SMB 是否开放" },
+        { "cmd": "Test-NetConnection www.baidu.com -TraceRoute -Hops 8", "desc": "追踪到目标主机的路由路径" }
+      ],
+      "form": [
+        { "token": "", "label": "目标主机", "type": "text", "value": "www.baidu.com", "hint": "域名或 IP 地址" },
+        { "token": "-Port", "label": "TCP 端口", "type": "number", "value": "443", "hint": "测试指定端口是否开放" },
+        { "token": "-CommonTCPPort", "label": "常用端口", "type": "select", "value": "SMB", "hint": "免记端口号的常用服务", "options": ["SMB", "HTTP", "RDP", "WINRM"] },
+        { "token": "-InformationLevel", "label": "信息级别", "type": "select", "value": "Detailed", "hint": "Quiet 只返回真假", "options": ["Detailed", "Quiet"] }
+      ],
+      "nodes": [
+        { "token": "<目标主机>", "kind": "value", "desc": "要测试的目标主机或 IP", "valueHint": "主机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定目标主机名或 IP", "valueHint": "<主机名>" },
+        { "token": "-Port", "kind": "option", "desc": "测试指定的 TCP 端口", "valueHint": "<端口号>" },
+        { "token": "-CommonTCPPort", "kind": "option", "desc": "测试常用服务端口", "valueHint": "<服务名>", "enum": ["SMB", "HTTP", "RDP", "WINRM"] },
+        { "token": "-InformationLevel", "kind": "option", "desc": "设置输出详细程度", "valueHint": "<级别>", "enum": ["Detailed", "Quiet"] },
+        { "token": "-TraceRoute", "kind": "flag", "desc": "执行路由追踪" },
+        { "token": "-Hops", "kind": "option", "desc": "路由追踪的最大跳数", "valueHint": "<跳数>" },
+        { "token": "-DiagnoseRouting", "kind": "flag", "desc": "输出选路与源地址选择诊断" },
+        { "token": "-ConstrainSourceAddress", "kind": "option", "desc": "限定选路诊断使用的源地址", "valueHint": "<源地址>" },
+        { "token": "-ConstrainInterface", "kind": "option", "desc": "限定选路诊断使用的接口", "valueHint": "<接口索引>" }
+      ]
+    },
+    {
+      "name": "Test-Connection",
+      "aliases": [],
+      "title": "Ping 连通性测试",
+      "desc": "发送 ICMP 回显请求，就是 PowerShell 版的 ping，但返回的是对象，可以筛选和统计。加 -Quiet 后只返回 True 或 False，非常适合写进判断语句。",
+      "usage": "Test-Connection [-ComputerName] <string[]> [-Count <int>] [-Delay <int>] [-BufferSize <int>] [-TimeToLive <int>] [-Quiet] [-Protocol <string>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["ping", "连通性", "延迟", "ICMP"],
+      "examples": [
+        { "cmd": "Test-Connection www.baidu.com -Count 2", "desc": "ping 百度两次并返回对象" },
+        { "cmd": "Test-Connection 192.168.1.1 -Quiet", "desc": "只返回 True 或 False，便于脚本判断" },
+        { "cmd": "Test-Connection 192.168.1.1 -Count 3 -Delay 2 -BufferSize 256", "desc": "自定义次数、间隔与包大小" }
+      ],
+      "form": [
+        { "token": "", "label": "目标主机", "type": "text", "value": "www.baidu.com", "hint": "域名或 IP，多个用逗号分隔" },
+        { "token": "-Count", "label": "次数", "type": "number", "value": "4", "hint": "发送回显请求的个数" },
+        { "token": "-Delay", "label": "间隔秒数", "type": "number", "value": "1", "hint": "两次 ping 之间的等待秒数" },
+        { "token": "-Quiet", "label": "只返回真假", "type": "flag", "value": "false", "hint": "返回 True 或 False" },
+        { "token": "-BufferSize", "label": "包大小", "type": "number", "value": "32", "hint": "发送缓冲区字节数" }
+      ],
+      "nodes": [
+        { "token": "<目标主机>", "kind": "value", "desc": "要 ping 的主机名或 IP", "valueHint": "主机名" },
+        { "token": "-ComputerName", "kind": "option", "desc": "指定目标主机，可多个", "valueHint": "<主机名>" },
+        { "token": "-Count", "kind": "option", "desc": "指定发送回显请求的次数", "valueHint": "<次数>" },
+        { "token": "-Delay", "kind": "option", "desc": "指定两次请求的间隔秒数", "valueHint": "<秒数>" },
+        { "token": "-BufferSize", "kind": "option", "desc": "指定发送的缓冲区字节数", "valueHint": "<字节>" },
+        { "token": "-TimeToLive", "kind": "option", "desc": "指定数据包最大转发跳数", "valueHint": "<跳数>" },
+        { "token": "-Quiet", "kind": "flag", "desc": "只返回 True 或 False" },
+        { "token": "-Source", "kind": "option", "desc": "指定发起 ping 的源计算机", "valueHint": "<源主机>" },
+        { "token": "-Credential", "kind": "option", "desc": "使用 -Source 时的凭据", "valueHint": "<凭据对象>" },
+        { "token": "-Protocol", "kind": "option", "desc": "指定使用的协议", "valueHint": "<协议>", "enum": ["DCOM", "WSMan"] },
+        { "token": "-DcomAuthentication", "kind": "option", "desc": "DCOM 协议使用的认证级别", "valueHint": "<级别>", "enum": ["Default", "None", "Connect", "Call", "Packet", "PacketIntegrity", "PacketPrivacy", "Unchanged"] },
+        { "token": "-WsmanAuthentication", "kind": "option", "desc": "WSMan 协议使用的认证方式", "valueHint": "<方式>", "enum": ["Default", "Basic", "Negotiate", "CredSSP", "Digest", "Kerberos"] },
+        { "token": "-Impersonation", "kind": "option", "desc": "调用 WMI 时的模拟级别", "valueHint": "<级别>", "enum": ["Default", "Anonymous", "Identify", "Impersonate", "Delegate"] },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 32", "valueHint": "<数量>" }
+      ]
+    },
+    {
+      "name": "Get-NetTCPConnection",
+      "aliases": [],
+      "title": "查看 TCP 连接",
+      "desc": "列出本机所有 TCP 连接和监听端口，并能直接看到占用端口的进程号，相当于强化版的 netstat -ano。查找端口被谁占用时用它配合 Get-Process 即可。",
+      "usage": "Get-NetTCPConnection [[-LocalAddress] <string[]>] [[-LocalPort] <uint16[]>] [-RemoteAddress <string[]>] [-RemotePort <uint16[]>] [-State <State[]>] [-OwningProcess <uint32[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["TCP", "端口", "进程", "监听"],
+      "examples": [
+        { "cmd": "Get-NetTCPConnection -State Listen", "desc": "查看所有正在监听的 TCP 端口" },
+        { "cmd": "Get-NetTCPConnection -LocalPort 3389", "desc": "查看 3389 端口是否被占用" },
+        { "cmd": "Get-NetTCPConnection -State Established | Select-Object RemoteAddress,RemotePort,OwningProcess", "desc": "查看已建立的连接及其进程号" }
+      ],
+      "form": [
+        { "token": "", "label": "本地地址", "type": "text", "value": "", "hint": "留空表示全部地址" },
+        { "token": "-LocalPort", "label": "本地端口", "type": "number", "value": "3389", "hint": "要查询的本地端口" },
+        { "token": "-State", "label": "连接状态", "type": "select", "value": "Listen", "hint": "按状态筛选", "options": ["Listen", "Established", "TimeWait", "CloseWait", "SynSent", "Bound", "Closed"] },
+        { "token": "-OwningProcess", "label": "进程号", "type": "number", "value": "", "hint": "按占用端口的进程 PID 筛选" }
+      ],
+      "nodes": [
+        { "token": "<本地地址>", "kind": "value", "desc": "本地 IP 地址", "valueHint": "IP 地址" },
+        { "token": "<本地端口>", "kind": "value", "desc": "本地端口号", "valueHint": "端口号" },
+        { "token": "-LocalAddress", "kind": "option", "desc": "按本地地址筛选", "valueHint": "<IP 地址>" },
+        { "token": "-LocalPort", "kind": "option", "desc": "按本地端口筛选", "valueHint": "<端口号>" },
+        { "token": "-RemoteAddress", "kind": "option", "desc": "按远端地址筛选", "valueHint": "<IP 地址>" },
+        { "token": "-RemotePort", "kind": "option", "desc": "按远端端口筛选", "valueHint": "<端口号>" },
+        { "token": "-State", "kind": "option", "desc": "按连接状态筛选", "valueHint": "<状态>", "enum": ["Listen", "Established", "TimeWait", "CloseWait", "SynSent", "SynReceived", "FinWait1", "FinWait2", "Closing", "LastAck", "Closed", "Bound"] },
+        { "token": "-OwningProcess", "kind": "option", "desc": "按占用端口的进程号筛选", "valueHint": "<PID>" },
+        { "token": "-AppliedSetting", "kind": "option", "desc": "按 TCP 参数模板筛选", "valueHint": "<模板>", "enum": ["Internet", "Datacenter", "Compat", "DatacenterCustom", "InternetCustom"] },
+        { "token": "-OffloadState", "kind": "option", "desc": "按卸载状态筛选", "valueHint": "<状态>", "enum": ["InHost", "Offloading", "Offloaded", "Uploading"] },
+        { "token": "-CreationTime", "kind": "option", "desc": "按连接创建时间筛选", "valueHint": "<时间>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-NetUDPEndpoint",
+      "aliases": [],
+      "title": "查看 UDP 监听端口",
+      "desc": "列出本机所有 UDP 端点及其占用进程，用来补全 netstat 里 UDP 那部分信息。UDP 是无连接协议，所以没有状态列，只有本地地址和端口。",
+      "usage": "Get-NetUDPEndpoint [[-LocalAddress] <string[]>] [[-LocalPort] <uint16[]>] [-OwningProcess <uint32[]>] [-CreationTime <datetime[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["UDP", "端口", "进程"],
+      "examples": [
+        { "cmd": "Get-NetUDPEndpoint", "desc": "列出全部 UDP 端点" },
+        { "cmd": "Get-NetUDPEndpoint -LocalPort 53", "desc": "查看 53 端口是否被 DNS 服务占用" },
+        { "cmd": "Get-NetUDPEndpoint | Format-Table LocalAddress,LocalPort,OwningProcess", "desc": "只看地址、端口与进程号" }
+      ],
+      "form": [
+        { "token": "", "label": "本地地址", "type": "text", "value": "", "hint": "留空表示全部地址" },
+        { "token": "-LocalPort", "label": "本地端口", "type": "number", "value": "53", "hint": "要查询的 UDP 端口" },
+        { "token": "-OwningProcess", "label": "进程号", "type": "number", "value": "", "hint": "按占用端口的进程 PID 筛选" }
+      ],
+      "nodes": [
+        { "token": "<本地地址>", "kind": "value", "desc": "本地 IP 地址", "valueHint": "IP 地址" },
+        { "token": "<本地端口>", "kind": "value", "desc": "本地端口号", "valueHint": "端口号" },
+        { "token": "-LocalAddress", "kind": "option", "desc": "按本地地址筛选", "valueHint": "<IP 地址>" },
+        { "token": "-LocalPort", "kind": "option", "desc": "按本地端口筛选", "valueHint": "<端口号>" },
+        { "token": "-OwningProcess", "kind": "option", "desc": "按占用端口的进程号筛选", "valueHint": "<PID>" },
+        { "token": "-CreationTime", "kind": "option", "desc": "按端点创建时间筛选", "valueHint": "<时间>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Format-Table LocalAddress,LocalPort,OwningProcess", "kind": "syntax", "desc": "只看地址、端口与进程号" }
+      ]
+    },
+    {
+      "name": "Get-NetFirewallRule",
+      "aliases": [],
+      "title": "查看防火墙规则",
+      "desc": "列出 Windows 防火墙的入站与出站规则，可按名称、方向、动作、启用状态筛选。只看基本规则信息，要查端口或程序细节还得接 Get-NetFirewallPortFilter 等命令。",
+      "usage": "Get-NetFirewallRule [-Name] <string[]> [-DisplayName <string[]>] [-Direction <Direction[]>] [-Action <Action[]>] [-Enabled <Enabled[]>] [-All]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["防火墙", "规则", "入站", "出站"],
+      "examples": [
+        { "cmd": "Get-NetFirewallRule -Direction Inbound -Enabled True", "desc": "查看已启用的入站规则" },
+        { "cmd": "Get-NetFirewallRule -DisplayName '*远程桌面*'", "desc": "按显示名筛选远程桌面相关规则" },
+        { "cmd": "Get-NetFirewallRule -Action Block | Get-NetFirewallPortFilter", "desc": "查看所有阻止类规则对应的端口" }
+      ],
+      "form": [
+        { "token": "", "label": "规则名", "type": "text", "value": "", "hint": "规则的 Name，支持通配符" },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "*远程桌面*", "hint": "支持通配符" },
+        { "token": "-Direction", "label": "方向", "type": "select", "value": "Inbound", "hint": "入站或出站", "options": ["Inbound", "Outbound"] },
+        { "token": "-Action", "label": "动作", "type": "select", "value": "Allow", "hint": "允许、阻止或未配置", "options": ["Allow", "Block", "NotConfigured"] },
+        { "token": "-Enabled", "label": "启用状态", "type": "select", "value": "True", "hint": "只看启用或禁用的规则", "options": ["True", "False"] }
+      ],
+      "nodes": [
+        { "token": "<规则名>", "kind": "value", "desc": "规则的 Name 值", "valueHint": "规则名" },
+        { "token": "-Name", "kind": "option", "desc": "按规则 Name 筛选", "valueHint": "<规则名>" },
+        { "token": "-DisplayName", "kind": "option", "desc": "按规则显示名筛选", "valueHint": "<显示名>" },
+        { "token": "-DisplayGroup", "kind": "option", "desc": "按规则所属显示组筛选", "valueHint": "<组名>" },
+        { "token": "-Group", "kind": "option", "desc": "按规则的组标识筛选", "valueHint": "<组标识>" },
+        { "token": "-Description", "kind": "option", "desc": "按规则描述筛选", "valueHint": "<描述>" },
+        { "token": "-Enabled", "kind": "option", "desc": "按是否启用筛选", "valueHint": "<True 或 False>", "enum": ["True", "False"] },
+        { "token": "-Direction", "kind": "option", "desc": "按入站或出站筛选", "valueHint": "<方向>", "enum": ["Inbound", "Outbound"] },
+        { "token": "-Action", "kind": "option", "desc": "按允许或阻止筛选", "valueHint": "<动作>", "enum": ["Allow", "Block", "NotConfigured"] },
+        { "token": "-PrimaryStatus", "kind": "option", "desc": "按规则生效状态筛选", "valueHint": "<状态>", "enum": ["Unknown", "OK", "Inactive", "Error"] },
+        { "token": "-Status", "kind": "option", "desc": "按规则状态筛选", "valueHint": "<状态>" },
+        { "token": "-Owner", "kind": "option", "desc": "按规则所有者筛选", "valueHint": "<所有者>" },
+        { "token": "-PolicyAppId", "kind": "option", "desc": "按应用标识筛选", "valueHint": "<应用 ID>" },
+        { "token": "-PackageFamilyName", "kind": "option", "desc": "按应用包系列名筛选", "valueHint": "<包名>" },
+        { "token": "-All", "kind": "flag", "desc": "返回全部规则，不做默认过滤" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略来源存储", "valueHint": "<ActiveStore>" },
+        { "token": "-TracePolicyStore", "kind": "flag", "desc": "显示规则的策略来源信息" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Get-NetFirewallPortFilter", "kind": "syntax", "desc": "查看规则关联的端口信息" },
+        { "token": "| Get-NetFirewallApplicationFilter", "kind": "syntax", "desc": "查看规则关联的程序信息" }
+      ]
+    },
+    {
+      "name": "New-NetFirewallRule",
+      "aliases": [],
+      "title": "新建防火墙规则",
+      "desc": "创建一条 Windows 防火墙规则，可指定方向、动作、协议、端口、程序与生效配置文件。开放某个端口给局域网访问时最常用。需要管理员权限。",
+      "usage": "New-NetFirewallRule -DisplayName <string> -Direction <Direction> -Action <Action> [-Protocol <string>] [-LocalPort <string[]>] [-Profile <Profile>] [-Enabled <Enabled>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["防火墙", "放行", "端口", "入站"],
+      "examples": [
+        { "cmd": "New-NetFirewallRule -DisplayName '放行 Web 8080' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 8080", "desc": "放行入站 TCP 8080 端口" },
+        { "cmd": "New-NetFirewallRule -DisplayName '允许 Ping' -Direction Inbound -Action Allow -Protocol ICMPv4", "desc": "允许其它机器 ping 本机" },
+        { "cmd": "New-NetFirewallRule -DisplayName '仅专用网放行 3389' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3389 -Profile Private", "desc": "只在专用网络配置文件下放行远程桌面" }
+      ],
+      "form": [
+        { "token": "-DisplayName", "label": "规则显示名", "type": "text", "value": "放行 Web 8080", "hint": "必填，防火墙界面里显示的名称" },
+        { "token": "-Direction", "label": "方向", "type": "select", "value": "Inbound", "hint": "入站或出站", "options": ["Inbound", "Outbound"] },
+        { "token": "-Action", "label": "动作", "type": "select", "value": "Allow", "hint": "允许或阻止", "options": ["Allow", "Block"] },
+        { "token": "-Protocol", "label": "协议", "type": "select", "value": "TCP", "hint": "也可直接填协议号", "options": ["TCP", "UDP", "ICMPv4", "ICMPv6"] },
+        { "token": "-LocalPort", "label": "本地端口", "type": "text", "value": "8080", "hint": "多个端口用逗号分隔" }
+      ],
+      "nodes": [
+        { "token": "-DisplayName", "kind": "option", "desc": "规则显示名，必填且需唯一", "valueHint": "<名称>" },
+        { "token": "-Name", "kind": "option", "desc": "指定规则的 Name 标识", "valueHint": "<规则名>" },
+        { "token": "-Description", "kind": "option", "desc": "为规则补充说明文字", "valueHint": "<描述>" },
+        { "token": "-Group", "kind": "option", "desc": "把规则归入指定组", "valueHint": "<组标识>" },
+        { "token": "-Direction", "kind": "option", "desc": "指定入站或出站", "valueHint": "<方向>", "enum": ["Inbound", "Outbound"] },
+        { "token": "-Action", "kind": "option", "desc": "指定允许或阻止", "valueHint": "<动作>", "enum": ["Allow", "Block", "NotConfigured"] },
+        { "token": "-Enabled", "kind": "option", "desc": "创建后是否立即启用", "valueHint": "<True 或 False>", "enum": ["True", "False"] },
+        { "token": "-Profile", "kind": "option", "desc": "规则生效的配置文件", "valueHint": "<配置文件>", "enum": ["Any", "Domain", "Private", "Public", "NotApplicable"] },
+        { "token": "-Protocol", "kind": "option", "desc": "指定协议类型或协议号", "valueHint": "<协议>", "enum": ["TCP", "UDP", "ICMPv4", "ICMPv6"] },
+        { "token": "-LocalPort", "kind": "option", "desc": "指定本机端口，可用逗号分隔", "valueHint": "<端口>", "children": [
+          { "token": "80", "kind": "value", "desc": "HTTP 服务端口", "valueHint": "80" },
+          { "token": "443", "kind": "value", "desc": "HTTPS 服务端口", "valueHint": "443" },
+          { "token": "3389", "kind": "value", "desc": "远程桌面端口", "valueHint": "3389" },
+          { "token": "8080", "kind": "value", "desc": "常用备用 Web 端口", "valueHint": "8080" },
+          { "token": "Any", "kind": "value", "desc": "匹配任意端口", "valueHint": "Any" }
+        ] },
+        { "token": "-RemotePort", "kind": "option", "desc": "指定远端端口", "valueHint": "<端口>" },
+        { "token": "-LocalAddress", "kind": "option", "desc": "指定本机地址范围", "valueHint": "<地址>" },
+        { "token": "-RemoteAddress", "kind": "option", "desc": "指定远端地址范围", "valueHint": "<地址>" },
+        { "token": "-Program", "kind": "option", "desc": "指定规则关联的程序路径", "valueHint": "<程序路径>" },
+        { "token": "-Service", "kind": "option", "desc": "指定规则关联的系统服务", "valueHint": "<服务名>" },
+        { "token": "-IcmpType", "kind": "option", "desc": "指定 ICMP 类型与代码", "valueHint": "<类型代码>" },
+        { "token": "-InterfaceType", "kind": "option", "desc": "限定网络接口类型", "valueHint": "<类型>", "enum": ["Any", "Wired", "Wireless", "RemoteAccess"] },
+        { "token": "-InterfaceAlias", "kind": "option", "desc": "限定生效的网卡，支持通配符", "valueHint": "<网卡名>" },
+        { "token": "-EdgeTraversalPolicy", "kind": "option", "desc": "设置边缘遍历策略", "valueHint": "<策略>", "enum": ["Block", "Allow", "DeferToUser", "DeferToApp"] },
+        { "token": "-Authentication", "kind": "option", "desc": "要求连接经过 IPsec 认证", "valueHint": "<要求>", "enum": ["NotRequired", "Required", "NoEncap"] },
+        { "token": "-Encryption", "kind": "option", "desc": "要求连接加密", "valueHint": "<要求>", "enum": ["NotRequired", "Required", "Dynamic"] },
+        { "token": "-OverrideBlockRules", "kind": "option", "desc": "允许已认证流量覆盖阻止规则", "valueHint": "<True 或 False>" },
+        { "token": "-Owner", "kind": "option", "desc": "指定规则所有者", "valueHint": "<所有者>" },
+        { "token": "-Platform", "kind": "option", "desc": "限定适用的系统版本", "valueHint": "<版本>" },
+        { "token": "-LocalUser", "kind": "option", "desc": "限定本机用户或组", "valueHint": "<用户>" },
+        { "token": "-RemoteUser", "kind": "option", "desc": "限定远端用户或组", "valueHint": "<用户>" },
+        { "token": "-RemoteMachine", "kind": "option", "desc": "限定远端计算机", "valueHint": "<计算机>" },
+        { "token": "-Package", "kind": "option", "desc": "按应用包限制规则适用范围", "valueHint": "<包标识>" },
+        { "token": "-DynamicTarget", "kind": "option", "desc": "限定动态目标类型", "valueHint": "<类型>", "enum": ["Any", "ProximityApps", "ProximitySharing", "WifiDirectPrinting", "WifiDirectDisplay", "WifiDirectDevices"] },
+        { "token": "-LooseSourceMapping", "kind": "option", "desc": "允许源站指定包的转发路径", "valueHint": "<True 或 False>" },
+        { "token": "-LocalOnlyMapping", "kind": "option", "desc": "只接收直连网络的组播源", "valueHint": "<True 或 False>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定规则写入的策略存储", "valueHint": "<ActiveStore>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Remove-NetFirewallRule",
+      "aliases": [],
+      "title": "删除防火墙规则",
+      "desc": "按名称、显示名或组删除防火墙规则，也可以搭配筛选条件批量删除。误删放行规则会导致对应服务立刻不可访问，执行时默认会要求确认。",
+      "usage": "Remove-NetFirewallRule [-Name] <string[]> [-DisplayName <string[]>] [-DisplayGroup <string[]>] [-Group <string[]>] [-All] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["防火墙", "删除", "规则"],
+      "examples": [
+        { "cmd": "Remove-NetFirewallRule -DisplayName '放行 Web 8080'", "desc": "按显示名删除指定规则" },
+        { "cmd": "Remove-NetFirewallRule -Name '{a1b2c3d4-0000-1111-2222-333344445555}'", "desc": "按规则的 Name 标识删除" },
+        { "cmd": "Get-NetFirewallRule -DisplayName '*测试*' | Remove-NetFirewallRule", "desc": "先筛选再批量删除测试规则" }
+      ],
+      "form": [
+        { "token": "", "label": "规则名", "type": "text", "value": "", "hint": "规则的 Name 值" },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "放行 Web 8080", "hint": "支持通配符" },
+        { "token": "-DisplayGroup", "label": "显示组", "type": "text", "value": "", "hint": "按组批量删除" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出被删除的规则" }
+      ],
+      "nodes": [
+        { "token": "<规则名>", "kind": "value", "desc": "规则的 Name 值", "valueHint": "规则名" },
+        { "token": "-Name", "kind": "option", "desc": "按规则 Name 删除", "valueHint": "<规则名>" },
+        { "token": "-DisplayName", "kind": "option", "desc": "按规则显示名删除", "valueHint": "<显示名>" },
+        { "token": "-DisplayGroup", "kind": "option", "desc": "按规则显示组批量删除", "valueHint": "<组名>" },
+        { "token": "-Group", "kind": "option", "desc": "按规则组标识批量删除", "valueHint": "<组标识>" },
+        { "token": "-Description", "kind": "option", "desc": "按描述筛选后删除", "valueHint": "<描述>" },
+        { "token": "-Enabled", "kind": "option", "desc": "按启用状态筛选后删除", "valueHint": "<True 或 False>", "enum": ["True", "False"] },
+        { "token": "-Direction", "kind": "option", "desc": "按方向筛选后删除", "valueHint": "<方向>", "enum": ["Inbound", "Outbound"] },
+        { "token": "-Action", "kind": "option", "desc": "按动作筛选后删除", "valueHint": "<动作>", "enum": ["Allow", "Block", "NotConfigured"] },
+        { "token": "-All", "kind": "flag", "desc": "删除全部规则，极度危险" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略来源存储", "valueHint": "<ActiveStore>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的规则对象", "valueHint": "<规则对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被删除的规则对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Set-NetFirewallRule",
+      "aliases": [],
+      "title": "修改防火墙规则",
+      "desc": "修改已有防火墙规则的属性，例如启用或禁用、改动作、改端口、改生效配置文件，不必删掉重建。也可以顺手改显示名便于识别。",
+      "usage": "Set-NetFirewallRule [-Name] <string[]> [-NewDisplayName <string>] [-Enabled <Enabled>] [-Action <Action>] [-Profile <Profile>] [-LocalPort <string[]>] [-RemoteAddress <string[]>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["防火墙", "修改", "启用", "禁用"],
+      "examples": [
+        { "cmd": "Set-NetFirewallRule -DisplayName '放行 Web 8080' -Enabled False", "desc": "临时禁用一条规则" },
+        { "cmd": "Set-NetFirewallRule -DisplayName '放行 Web 8080' -LocalPort 9090", "desc": "把规则里的端口改成 9090" },
+        { "cmd": "Set-NetFirewallRule -DisplayGroup '远程桌面' -Profile Domain,Private", "desc": "批量修改一组规则的生效配置文件" }
+      ],
+      "form": [
+        { "token": "", "label": "规则名", "type": "text", "value": "", "hint": "规则的 Name 值" },
+        { "token": "-DisplayName", "label": "显示名", "type": "text", "value": "放行 Web 8080", "hint": "支持通配符" },
+        { "token": "-Enabled", "label": "启用状态", "type": "select", "value": "False", "hint": "启用或禁用规则", "options": ["True", "False"] },
+        { "token": "-Action", "label": "动作", "type": "select", "value": "Allow", "hint": "改为允许或阻止", "options": ["Allow", "Block", "NotConfigured"] },
+        { "token": "-LocalPort", "label": "本地端口", "type": "text", "value": "9090", "hint": "修改规则的端口" }
+      ],
+      "nodes": [
+        { "token": "<规则名>", "kind": "value", "desc": "规则的 Name 值", "valueHint": "规则名" },
+        { "token": "-Name", "kind": "option", "desc": "按规则 Name 定位", "valueHint": "<规则名>" },
+        { "token": "-DisplayName", "kind": "option", "desc": "按规则显示名定位", "valueHint": "<显示名>" },
+        { "token": "-DisplayGroup", "kind": "option", "desc": "按规则显示组批量修改", "valueHint": "<组名>" },
+        { "token": "-Group", "kind": "option", "desc": "按规则组标识批量修改", "valueHint": "<组标识>" },
+        { "token": "-NewDisplayName", "kind": "option", "desc": "修改规则的显示名", "valueHint": "<新显示名>" },
+        { "token": "-Description", "kind": "option", "desc": "修改规则描述", "valueHint": "<描述>" },
+        { "token": "-Enabled", "kind": "option", "desc": "启用或禁用规则", "valueHint": "<True 或 False>", "enum": ["True", "False"] },
+        { "token": "-Profile", "kind": "option", "desc": "修改生效的配置文件", "valueHint": "<配置文件>", "enum": ["Any", "Domain", "Private", "Public", "NotApplicable"] },
+        { "token": "-Direction", "kind": "option", "desc": "修改规则方向", "valueHint": "<方向>", "enum": ["Inbound", "Outbound"] },
+        { "token": "-Action", "kind": "option", "desc": "修改允许或阻止动作", "valueHint": "<动作>", "enum": ["Allow", "Block", "NotConfigured"] },
+        { "token": "-Protocol", "kind": "option", "desc": "修改规则协议", "valueHint": "<协议>", "enum": ["TCP", "UDP", "ICMPv4", "ICMPv6"] },
+        { "token": "-LocalPort", "kind": "option", "desc": "修改本机端口", "valueHint": "<端口>" },
+        { "token": "-RemotePort", "kind": "option", "desc": "修改远端端口", "valueHint": "<端口>" },
+        { "token": "-LocalAddress", "kind": "option", "desc": "修改本机地址范围", "valueHint": "<地址>" },
+        { "token": "-RemoteAddress", "kind": "option", "desc": "修改远端地址范围", "valueHint": "<地址>" },
+        { "token": "-Program", "kind": "option", "desc": "修改关联的程序路径", "valueHint": "<程序路径>" },
+        { "token": "-Service", "kind": "option", "desc": "修改关联的系统服务", "valueHint": "<服务名>" },
+        { "token": "-IcmpType", "kind": "option", "desc": "修改 ICMP 类型与代码", "valueHint": "<类型代码>" },
+        { "token": "-EdgeTraversalPolicy", "kind": "option", "desc": "修改边缘遍历策略", "valueHint": "<策略>", "enum": ["Block", "Allow", "DeferToUser", "DeferToApp"] },
+        { "token": "-Authentication", "kind": "option", "desc": "修改 IPsec 认证要求", "valueHint": "<要求>", "enum": ["NotRequired", "Required", "NoEncap"] },
+        { "token": "-Encryption", "kind": "option", "desc": "修改加密要求", "valueHint": "<要求>", "enum": ["NotRequired", "Required", "Dynamic"] },
+        { "token": "-InterfaceType", "kind": "option", "desc": "修改适用的接口类型", "valueHint": "<类型>", "enum": ["Any", "Wired", "Wireless", "RemoteAccess"] },
+        { "token": "-Platform", "kind": "option", "desc": "修改适用的系统版本", "valueHint": "<版本>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略来源存储", "valueHint": "<ActiveStore>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的规则对象", "valueHint": "<规则对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的规则对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-NetFirewallProfile",
+      "aliases": [],
+      "title": "查看防火墙配置文件",
+      "desc": "查看域、专用、公用三个防火墙配置文件的开关状态、默认入站与出站动作、日志设置。排查为什么某个程序被静默拦截时先看这里。",
+      "usage": "Get-NetFirewallProfile [[-Name] <string[]>] [-All] [-PolicyStore <string>] | Get-NetFirewallProfile -AssociatedNetFirewallRule <CimInstance>",
+      "admin": false,
+      "danger": 0,
+      "tags": ["防火墙", "配置文件", "域", "日志"],
+      "examples": [
+        { "cmd": "Get-NetFirewallProfile", "desc": "查看三个配置文件的防火墙状态" },
+        { "cmd": "Get-NetFirewallProfile -Name Public | Format-List Name,Enabled,DefaultInboundAction", "desc": "只看公用配置文件的开关与默认入站动作" },
+        { "cmd": "Get-NetFirewallProfile -All | Select-Object Name,Enabled,LogAllowed,LogBlocked", "desc": "查看全部配置文件的日志设置" }
+      ],
+      "form": [
+        { "token": "", "label": "配置文件", "type": "text", "value": "", "hint": "Domain、Private 或 Public" },
+        { "token": "-Name", "label": "名称", "type": "select", "value": "Public", "hint": "指定配置文件", "options": ["Domain", "Private", "Public"] },
+        { "token": "-All", "label": "全部", "type": "flag", "value": "false", "hint": "返回所有配置文件" }
+      ],
+      "nodes": [
+        { "token": "<配置文件>", "kind": "value", "desc": "配置文件名称", "valueHint": "配置文件" },
+        { "token": "-Name", "kind": "option", "desc": "按配置文件名称筛选", "valueHint": "<名称>", "enum": ["Domain", "Private", "Public"] },
+        { "token": "-All", "kind": "flag", "desc": "返回所有配置文件" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略来源存储", "valueHint": "<ActiveStore>" },
+        { "token": "-GPOSession", "kind": "option", "desc": "指定组策略会话", "valueHint": "<会话>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "| Format-List Name,Enabled,DefaultInboundAction", "kind": "syntax", "desc": "只看开关与默认入站动作" },
+        { "token": "| Select-Object Name,Enabled,LogAllowed,LogBlocked", "kind": "syntax", "desc": "只看日志相关设置" }
+      ]
+    },
+    {
+      "name": "Set-NetFirewallProfile",
+      "aliases": [],
+      "title": "设置防火墙配置文件",
+      "desc": "开关防火墙、设置默认入站出站动作、调整日志与通知选项，可以一次改一个或全部配置文件。把 Enabled 设为 False 等于关闭防火墙，远程操作要格外小心。",
+      "usage": "Set-NetFirewallProfile [-Name] <string[]> [-Enabled <GpoBoolean>] [-DefaultInboundAction <Action>] [-DefaultOutboundAction <Action>] [-LogAllowed <GpoBoolean>] [-LogBlocked <GpoBoolean>] | Set-NetFirewallProfile -All",
+      "admin": true,
+      "danger": 1,
+      "tags": ["防火墙", "开关", "日志", "入站"],
+      "examples": [
+        { "cmd": "Set-NetFirewallProfile -Name Public -Enabled True", "desc": "打开公用配置文件的防火墙" },
+        { "cmd": "Set-NetFirewallProfile -All -LogBlocked True -LogFileName '%systemroot%\\system32\\LogFiles\\Firewall\\pfirewall.log'", "desc": "开启被阻止连接的日志记录" },
+        { "cmd": "Set-NetFirewallProfile -Name Domain -DefaultInboundAction Block", "desc": "把域配置文件的默认入站动作设为阻止" }
+      ],
+      "form": [
+        { "token": "", "label": "配置文件", "type": "text", "value": "Public", "hint": "Domain、Private 或 Public" },
+        { "token": "-Enabled", "label": "防火墙开关", "type": "select", "value": "True", "hint": "True 开启，False 关闭", "options": ["True", "False", "NotConfigured"] },
+        { "token": "-DefaultInboundAction", "label": "默认入站动作", "type": "select", "value": "Block", "hint": "不匹配规则时的动作", "options": ["Block", "Allow", "NotConfigured"] },
+        { "token": "-LogBlocked", "label": "记录被阻止连接", "type": "select", "value": "True", "hint": "写入防火墙日志", "options": ["True", "False", "NotConfigured"] }
+      ],
+      "nodes": [
+        { "token": "<配置文件>", "kind": "value", "desc": "配置文件名称", "valueHint": "配置文件" },
+        { "token": "-Name", "kind": "option", "desc": "指定要修改的配置文件", "valueHint": "<名称>", "enum": ["Domain", "Private", "Public"] },
+        { "token": "-All", "kind": "flag", "desc": "对全部配置文件生效" },
+        { "token": "-Enabled", "kind": "option", "desc": "开启或关闭防火墙", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-DefaultInboundAction", "kind": "option", "desc": "设置默认入站动作", "valueHint": "<动作>", "enum": ["Block", "Allow", "NotConfigured"] },
+        { "token": "-DefaultOutboundAction", "kind": "option", "desc": "设置默认出站动作", "valueHint": "<动作>", "enum": ["Block", "Allow", "NotConfigured"] },
+        { "token": "-AllowInboundRules", "kind": "option", "desc": "是否允许本机入站规则覆盖组策略", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-AllowLocalFirewallRules", "kind": "option", "desc": "是否允许本地防火墙规则", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-AllowLocalIPsecRules", "kind": "option", "desc": "是否允许本地 IPsec 规则", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-AllowUserApps", "kind": "option", "desc": "是否允许用户应用自行创建规则", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-AllowUserPorts", "kind": "option", "desc": "是否允许用户开放端口", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-AllowUnicastResponseToMulticast", "kind": "option", "desc": "是否允许对组播的单播响应", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-NotifyOnListen", "kind": "option", "desc": "程序监听时是否弹窗通知", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-EnableStealthModeForIPsec", "kind": "option", "desc": "是否为 IPsec 启用隐身模式", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-LogFileName", "kind": "option", "desc": "指定防火墙日志文件路径", "valueHint": "<路径>" },
+        { "token": "-LogMaxSizeKilobytes", "kind": "option", "desc": "设置日志文件大小上限", "valueHint": "<KB>" },
+        { "token": "-LogAllowed", "kind": "option", "desc": "是否记录允许的连接", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-LogBlocked", "kind": "option", "desc": "是否记录被阻止的连接", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-LogIgnored", "kind": "option", "desc": "是否记录被忽略的规则", "valueHint": "<True 或 False>", "enum": ["True", "False", "NotConfigured"] },
+        { "token": "-DisabledInterfaceAliases", "kind": "option", "desc": "指定不套用防火墙的网卡", "valueHint": "<网卡名>" },
+        { "token": "-PolicyStore", "kind": "option", "desc": "指定策略来源存储", "valueHint": "<ActiveStore>" },
+        { "token": "-GPOSession", "kind": "option", "desc": "指定组策略会话", "valueHint": "<会话>" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的配置文件对象", "valueHint": "<对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的配置文件对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-SmbShare",
+      "aliases": ["gsmbs"],
+      "title": "查看共享文件夹",
+      "desc": "列出本机所有 SMB 共享，包含共享名、本地路径、当前连接数和缓存模式。加上 -Special 可以看 C$、IPC$ 这类系统隐藏共享。",
+      "usage": "Get-SmbShare [[-Name] <string[]>] [-Special <bool[]>] [-ShareState <ShareState[]>] [-CachingMode <CachingMode[]>] [-IncludeHidden] [-SmbInstance <SmbInstance>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["共享", "SMB", "文件夹"],
+      "examples": [
+        { "cmd": "Get-SmbShare", "desc": "列出全部共享文件夹" },
+        { "cmd": "Get-SmbShare -Special $true", "desc": "查看系统隐藏共享，如 C$ 与 IPC$" },
+        { "cmd": "Get-SmbShare -Name '资料' | Format-List *", "desc": "查看指定共享的全部属性" }
+      ],
+      "form": [
+        { "token": "", "label": "共享名", "type": "text", "value": "", "hint": "留空表示全部共享" },
+        { "token": "-Special", "label": "仅系统共享", "type": "select", "value": "True", "hint": "是否只看隐藏共享", "options": ["True", "False"] },
+        { "token": "-IncludeHidden", "label": "含隐藏项", "type": "flag", "value": "false", "hint": "包含隐藏的共享" },
+        { "token": "-SmbInstance", "label": "SMB 实例", "type": "select", "value": "Default", "hint": "集群等场景使用", "options": ["Default", "CSV", "SBL", "SR"] }
+      ],
+      "nodes": [
+        { "token": "<共享名>", "kind": "value", "desc": "共享名称", "valueHint": "共享名" },
+        { "token": "-Name", "kind": "option", "desc": "按共享名筛选", "valueHint": "<共享名>" },
+        { "token": "-ScopeName", "kind": "option", "desc": "按作用域名称筛选", "valueHint": "<作用域>" },
+        { "token": "-Special", "kind": "option", "desc": "是否只返回系统隐藏共享", "valueHint": "<True 或 False>" },
+        { "token": "-ShareState", "kind": "option", "desc": "按共享状态筛选", "valueHint": "<状态>", "enum": ["Online", "Offline", "Pending"] },
+        { "token": "-CachingMode", "kind": "option", "desc": "按客户端缓存模式筛选", "valueHint": "<模式>", "enum": ["None", "Manual", "Documents", "Programs", "BranchCache", "Unknown"] },
+        { "token": "-FolderEnumerationMode", "kind": "option", "desc": "按文件夹枚举模式筛选", "valueHint": "<模式>", "enum": ["AccessBased", "Unrestricted"] },
+        { "token": "-EncryptData", "kind": "option", "desc": "按是否加密共享筛选", "valueHint": "<True 或 False>" },
+        { "token": "-ConcurrentUserLimit", "kind": "option", "desc": "按同时连接用户数上限筛选", "valueHint": "<人数>" },
+        { "token": "-AvailabilityType", "kind": "option", "desc": "按可用性类型筛选", "valueHint": "<类型>", "enum": ["NonClustered", "Clustered", "ScaleOut", "CSV", "DFS"] },
+        { "token": "-IncludeHidden", "kind": "flag", "desc": "包含隐藏的共享" },
+        { "token": "-SmbInstance", "kind": "option", "desc": "指定 SMB 实例类型", "valueHint": "<实例>", "enum": ["Default", "CSV", "SBL", "SR"] },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "New-SmbShare",
+      "aliases": ["nsmbs"],
+      "title": "新建共享文件夹",
+      "desc": "把本地文件夹发布成 SMB 共享，可在一条命令里同时设置完全控制、更改、只读和无权访问的账号。默认共享名与文件夹同名，也可以另起名字。",
+      "usage": "New-SmbShare [-Name] <string> [-Path] <string> [-FullAccess <string[]>] [-ChangeAccess <string[]>] [-ReadAccess <string[]>] [-NoAccess <string[]>] [-CachingMode <CachingMode>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["共享", "SMB", "权限", "发布"],
+      "examples": [
+        { "cmd": "New-SmbShare -Name '资料' -Path 'D:\\资料'", "desc": "用默认权限创建共享" },
+        { "cmd": "New-SmbShare -Name '资料' -Path 'D:\\资料' -ReadAccess 'Everyone'", "desc": "创建只读共享给所有人" },
+        { "cmd": "New-SmbShare -Name '发布' -Path 'D:\\发布' -FullAccess 'CONTOSO\\管理员' -ChangeAccess 'CONTOSO\\编辑组'", "desc": "按账号分别授予完全控制与更改权限" }
+      ],
+      "form": [
+        { "token": "", "label": "共享名", "type": "text", "value": "资料", "hint": "对外显示的共享名称" },
+        { "token": "-Path", "label": "本地路径", "type": "path", "value": "D:\\资料", "hint": "必填，要共享的文件夹" },
+        { "token": "-ReadAccess", "label": "只读账号", "type": "text", "value": "Everyone", "hint": "多个用逗号分隔" },
+        { "token": "-ChangeAccess", "label": "更改账号", "type": "text", "value": "", "hint": "可读写但不能改权限" },
+        { "token": "-CachingMode", "label": "缓存模式", "type": "select", "value": "Manual", "hint": "离线文件缓存策略", "options": ["Manual", "None", "Documents", "Programs", "BranchCache"] }
+      ],
+      "nodes": [
+        { "token": "<共享名>", "kind": "value", "desc": "对外显示的共享名称", "valueHint": "共享名" },
+        { "token": "<本地路径>", "kind": "value", "desc": "要共享的本地文件夹", "valueHint": "文件夹路径" },
+        { "token": "-Name", "kind": "option", "desc": "指定共享名称", "valueHint": "<共享名>" },
+        { "token": "-Path", "kind": "option", "desc": "指定要共享的本地路径", "valueHint": "<路径>" },
+        { "token": "-FullAccess", "kind": "option", "desc": "授予完全控制权限的账号", "valueHint": "<账号>" },
+        { "token": "-ChangeAccess", "kind": "option", "desc": "授予更改权限的账号", "valueHint": "<账号>" },
+        { "token": "-ReadAccess", "kind": "option", "desc": "授予只读权限的账号", "valueHint": "<账号>" },
+        { "token": "-NoAccess", "kind": "option", "desc": "显式拒绝访问的账号", "valueHint": "<账号>" },
+        { "token": "-Description", "kind": "option", "desc": "补充共享说明文字", "valueHint": "<描述>" },
+        { "token": "-ConcurrentUserLimit", "kind": "option", "desc": "同时连接用户数上限", "valueHint": "<人数>" },
+        { "token": "-CachingMode", "kind": "option", "desc": "设置客户端缓存模式", "valueHint": "<模式>", "enum": ["None", "Manual", "Documents", "Programs", "BranchCache", "Unknown"] },
+        { "token": "-FolderEnumerationMode", "kind": "option", "desc": "设置文件夹枚举模式", "valueHint": "<模式>", "enum": ["AccessBased", "Unrestricted"] },
+        { "token": "-EncryptData", "kind": "option", "desc": "是否要求加密访问共享", "valueHint": "<True 或 False>" },
+        { "token": "-CompressData", "kind": "option", "desc": "是否启用传输压缩", "valueHint": "<True 或 False>" },
+        { "token": "-Temporary", "kind": "flag", "desc": "创建临时共享，重启后消失" },
+        { "token": "-ContinuouslyAvailable", "kind": "option", "desc": "是否启用持续可用", "valueHint": "<True 或 False>" },
+        { "token": "-LeasingMode", "kind": "option", "desc": "设置租约模式", "valueHint": "<模式>", "enum": ["Full", "Shared", "None"] },
+        { "token": "-CATimeout", "kind": "option", "desc": "设置持续可用超时秒数", "valueHint": "<秒数>" },
+        { "token": "-ScopeName", "kind": "option", "desc": "指定共享作用域名称", "valueHint": "<作用域>" },
+        { "token": "-SecurityDescriptor", "kind": "option", "desc": "用安全描述符字符串设置权限", "valueHint": "<描述符>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Remove-SmbShare",
+      "aliases": ["rsmbs"],
+      "title": "删除共享文件夹",
+      "desc": "取消文件夹的 SMB 共享，只删除共享关系，不会删除文件夹里的文件。删除时如果有用户正在使用，会提示并要求确认。",
+      "usage": "Remove-SmbShare [-Name] <string[]> [-ScopeName <string[]>] [-Force] [-PassThru] [-SmbInstance <SmbInstance>]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["共享", "删除", "SMB"],
+      "examples": [
+        { "cmd": "Remove-SmbShare -Name '资料'", "desc": "删除名为资料的共享" },
+        { "cmd": "Remove-SmbShare -Name '资料' -Force", "desc": "跳过确认直接删除" },
+        { "cmd": "Get-SmbShare -Special $false | Remove-SmbShare", "desc": "删除所有非系统共享" }
+      ],
+      "form": [
+        { "token": "", "label": "共享名", "type": "text", "value": "资料", "hint": "要删除的共享名称" },
+        { "token": "-Force", "label": "强制删除", "type": "flag", "value": "false", "hint": "不再逐条确认" },
+        { "token": "-SmbInstance", "label": "SMB 实例", "type": "select", "value": "Default", "hint": "集群等场景使用", "options": ["Default", "CSV", "SBL", "SR"] }
+      ],
+      "nodes": [
+        { "token": "<共享名>", "kind": "value", "desc": "要删除的共享名称", "valueHint": "共享名" },
+        { "token": "-Name", "kind": "option", "desc": "按共享名指定要删除的共享", "valueHint": "<共享名>" },
+        { "token": "-ScopeName", "kind": "option", "desc": "按作用域名称指定共享", "valueHint": "<作用域>" },
+        { "token": "-SmbInstance", "kind": "option", "desc": "指定 SMB 实例类型", "valueHint": "<实例>", "enum": ["Default", "CSV", "SBL", "SR"] },
+        { "token": "-Force", "kind": "flag", "desc": "不再逐条弹出确认" },
+        { "token": "-InputObject", "kind": "option", "desc": "接受管道传入的共享对象", "valueHint": "<共享对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被删除的共享对象" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Get-SmbConnection",
+      "aliases": ["gsmbc"],
+      "title": "查看 SMB 会话连接",
+      "desc": "列出本机作为客户端连接出去的 SMB 会话，能看到服务器、共享名、使用的账号、SMB 版本和打开文件数。排查访问共享慢或掉线时很有用。",
+      "usage": "Get-SmbConnection [[-ServerName] <string[]>] [[-UserName] <string[]>] [-SmbInstance <SmbInstance>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["SMB", "会话", "共享", "连接"],
+      "examples": [
+        { "cmd": "Get-SmbConnection", "desc": "列出全部 SMB 客户端会话" },
+        { "cmd": "Get-SmbConnection -ServerName 192.168.1.10", "desc": "查看与指定服务器的连接" },
+        { "cmd": "Get-SmbConnection | Format-Table ServerName,ShareName,Dialect,NumOpens", "desc": "查看各连接使用的 SMB 版本与打开文件数" }
+      ],
+      "form": [
+        { "token": "", "label": "服务器名", "type": "text", "value": "", "hint": "留空表示全部服务器" },
+        { "token": "-UserName", "label": "用户名", "type": "text", "value": "", "hint": "按访问账号筛选" },
+        { "token": "-SmbInstance", "label": "SMB 实例", "type": "select", "value": "Default", "hint": "集群等场景使用", "options": ["Default", "CSV", "SBL", "SR"] }
+      ],
+      "nodes": [
+        { "token": "<服务器名>", "kind": "value", "desc": "SMB 服务器名称或地址", "valueHint": "服务器" },
+        { "token": "<用户名>", "kind": "value", "desc": "连接使用的账号名", "valueHint": "用户名" },
+        { "token": "-ServerName", "kind": "option", "desc": "按服务器名称筛选", "valueHint": "<服务器>" },
+        { "token": "-UserName", "kind": "option", "desc": "按访问账号筛选", "valueHint": "<用户名>" },
+        { "token": "-SmbInstance", "kind": "option", "desc": "指定 SMB 实例类型", "valueHint": "<实例>", "enum": ["Default", "CSV", "SBL", "SR"] },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Format-Table ServerName,ShareName,UserName", "kind": "syntax", "desc": "只看服务器、共享名与账号" },
+        { "token": "| Where-Object NumOpens -gt 0", "kind": "syntax", "desc": "只看正在打开文件的连接" }
+      ]
+    },
+    {
+      "name": "Get-SmbMapping",
+      "aliases": ["gsmbm"],
+      "title": "查看 SMB 映射盘",
+      "desc": "列出本机已经建立的网络驱动器映射，包含盘符、远端 UNC 路径和连接状态。排查映射盘显示红叉或丢失时先看这条。",
+      "usage": "Get-SmbMapping [[-LocalPath] <string[]>] [[-RemotePath] <string[]>]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["映射盘", "网络驱动器", "SMB"],
+      "examples": [
+        { "cmd": "Get-SmbMapping", "desc": "列出全部已映射的网络驱动器" },
+        { "cmd": "Get-SmbMapping -LocalPath 'Z:'", "desc": "查看 Z 盘映射到哪个共享" },
+        { "cmd": "Get-SmbMapping | Where-Object Status -eq Disconnected", "desc": "找出已断开的映射" }
+      ],
+      "form": [
+        { "token": "", "label": "本地盘符", "type": "text", "value": "", "hint": "如 Z:，留空表示全部" },
+        { "token": "-RemotePath", "label": "远端路径", "type": "text", "value": "", "hint": "如 \\\\服务器\\共享" }
+      ],
+      "nodes": [
+        { "token": "<本地盘符>", "kind": "value", "desc": "映射的本地盘符", "valueHint": "盘符" },
+        { "token": "<远端路径>", "kind": "value", "desc": "远端 UNC 共享路径", "valueHint": "UNC 路径" },
+        { "token": "-LocalPath", "kind": "option", "desc": "按本地盘符筛选", "valueHint": "<盘符>" },
+        { "token": "-RemotePath", "kind": "option", "desc": "按远端 UNC 路径筛选", "valueHint": "<UNC 路径>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" },
+        { "token": "| Format-Table LocalPath,RemotePath,Status", "kind": "syntax", "desc": "只看盘符、远端路径与状态" },
+        { "token": "| Where-Object Status -eq Disconnected", "kind": "syntax", "desc": "只看已断开的映射" },
+        { "token": "| Select-Object -ExpandProperty RemotePath", "kind": "syntax", "desc": "只取出远端 UNC 路径" }
+      ]
+    },
+    {
+      "name": "New-SmbMapping",
+      "aliases": ["nsmbm"],
+      "title": "建立 SMB 映射盘",
+      "desc": "把远端共享映射成本地盘符，相当于 net use，但可以直接指定账号密码并选择是否持久保存。密码以明文写在命令行里，注意不要留在脚本中。",
+      "usage": "New-SmbMapping [[-LocalPath] <string>] [[-RemotePath] <string>] [-UserName <string>] [-Password <string>] [-Persistent <bool>] [-SaveCredentials] [-RequirePrivacy <bool>]",
+      "admin": false,
+      "danger": 1,
+      "tags": ["映射盘", "net use", "共享", "凭据"],
+      "examples": [
+        { "cmd": "New-SmbMapping -LocalPath 'Z:' -RemotePath '\\\\192.168.1.10\\资料'", "desc": "把共享映射为 Z 盘" },
+        { "cmd": "New-SmbMapping -LocalPath 'Z:' -RemotePath '\\\\192.168.1.10\\资料' -UserName 'user' -Password 'P@ssw0rd'", "desc": "使用指定账号建立映射" },
+        { "cmd": "New-SmbMapping -RemotePath '\\\\192.168.1.10\\资料' -Persistent $true", "desc": "建立映射并让它重启后仍然保留" }
+      ],
+      "form": [
+        { "token": "", "label": "本地盘符", "type": "text", "value": "Z:", "hint": "可留空自动分配" },
+        { "token": "-RemotePath", "label": "远端路径", "type": "text", "value": "\\\\192.168.1.10\\资料", "hint": "UNC 格式，注意双反斜杠" },
+        { "token": "-UserName", "label": "用户名", "type": "text", "value": "", "hint": "访问共享的账号" },
+        { "token": "-Password", "label": "密码", "type": "text", "value": "", "hint": "明文，注意脚本安全" },
+        { "token": "-Persistent", "label": "持久保存", "type": "select", "value": "True", "hint": "重启后是否保留映射", "options": ["True", "False"] }
+      ],
+      "nodes": [
+        { "token": "<本地盘符>", "kind": "value", "desc": "映射的本地盘符", "valueHint": "盘符" },
+        { "token": "<远端路径>", "kind": "value", "desc": "远端 UNC 共享路径", "valueHint": "UNC 路径" },
+        { "token": "-LocalPath", "kind": "option", "desc": "指定本地盘符", "valueHint": "<盘符>" },
+        { "token": "-RemotePath", "kind": "option", "desc": "指定远端 UNC 路径", "valueHint": "<UNC 路径>" },
+        { "token": "-UserName", "kind": "option", "desc": "指定访问共享的用户名", "valueHint": "<用户名>" },
+        { "token": "-Password", "kind": "option", "desc": "指定访问共享的密码", "valueHint": "<密码>" },
+        { "token": "-Credential", "kind": "option", "desc": "用凭据对象代替用户名密码", "valueHint": "<凭据对象>" },
+        { "token": "-Persistent", "kind": "option", "desc": "重启后是否保留该映射", "valueHint": "<True 或 False>" },
+        { "token": "-SaveCredentials", "kind": "flag", "desc": "把凭据保存到凭据管理器" },
+        { "token": "-RequireIntegrity", "kind": "option", "desc": "是否要求签名完整性", "valueHint": "<True 或 False>" },
+        { "token": "-RequirePrivacy", "kind": "option", "desc": "是否要求传输加密", "valueHint": "<True 或 False>" },
+        { "token": "-UseWriteThrough", "kind": "option", "desc": "是否启用写穿透模式", "valueHint": "<True 或 False>" },
+        { "token": "-TransportType", "kind": "option", "desc": "指定传输协议类型", "valueHint": "<类型>", "enum": ["None", "TCP", "QUIC"] },
+        { "token": "-SkipCertificateCheck", "kind": "flag", "desc": "跳过服务端证书校验" },
+        { "token": "-CompressNetworkTraffic", "kind": "option", "desc": "是否压缩网络流量", "valueHint": "<True 或 False>" },
+        { "token": "-GlobalMapping", "kind": "flag", "desc": "创建对全部会话可见的映射" },
+        { "token": "-BlockNTLM", "kind": "option", "desc": "是否阻止使用 NTLM 认证", "valueHint": "<True 或 False>" },
+        { "token": "-TcpPort", "kind": "option", "desc": "指定 TCP 传输端口", "valueHint": "<端口>" },
+        { "token": "-QuicPort", "kind": "option", "desc": "指定 QUIC 传输端口", "valueHint": "<端口>" },
+        { "token": "-RdmaPort", "kind": "option", "desc": "指定 RDMA 传输端口", "valueHint": "<端口>" },
+        { "token": "-HomeFolder", "kind": "flag", "desc": "把映射标记为主目录使用" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "并发操作上限，默认 20", "valueHint": "<数量>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在远程 CIM 会话上执行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Invoke-WebRequest",
+      "aliases": ["curl", "iwr", "wget"],
+      "title": "发起 HTTP 请求",
+      "desc": "向网址发送 HTTP 或 HTTPS 请求，可以下载文件、提交表单、调用接口，返回对象里带状态码和响应内容。需要 Windows PowerShell 5.1 或 PowerShell 7。",
+      "usage": "Invoke-WebRequest [-Uri] <uri> [-Method <WebRequestMethod>] [-Headers <IDictionary>] [-Body <Object>] [-OutFile <string>] [-TimeoutSec <int>] [-UseBasicParsing]",
+      "admin": false,
+      "danger": 0,
+      "tags": ["HTTP", "下载", "接口", "请求"],
+      "examples": [
+        { "cmd": "Invoke-WebRequest -Uri https://www.baidu.com -UseBasicParsing", "desc": "请求网页并查看状态码" },
+        { "cmd": "Invoke-WebRequest -Uri https://example.com/file.zip -OutFile D:\\file.zip", "desc": "把文件下载到本地" },
+        { "cmd": "Invoke-WebRequest -Uri https://httpbin.org/post -Method Post -Body 'name=test' -ContentType 'application/x-www-form-urlencoded'", "desc": "以表单方式提交数据" }
+      ],
+      "form": [
+        { "token": "", "label": "网址", "type": "text", "value": "https://www.baidu.com", "hint": "要请求的完整 URL" },
+        { "token": "-Method", "label": "请求方法", "type": "select", "value": "Get", "hint": "HTTP 方法", "options": ["Get", "Post", "Put", "Delete", "Head", "Patch", "Options", "Trace"] },
+        { "token": "-OutFile", "label": "保存到文件", "type": "path", "value": "", "hint": "填写后把响应写入文件" },
+        { "token": "-TimeoutSec", "label": "超时秒数", "type": "number", "value": "30", "hint": "超时后中止请求" },
+        { "token": "-UseBasicParsing", "label": "基本解析", "type": "flag", "value": "false", "hint": "无 IE 引擎时的兼容选项" }
+      ],
+      "nodes": [
+        { "token": "<网址>", "kind": "value", "desc": "要请求的完整 URL", "valueHint": "网址" },
+        { "token": "-Uri", "kind": "option", "desc": "指定请求的 URL", "valueHint": "<网址>" },
+        { "token": "-Method", "kind": "option", "desc": "指定 HTTP 请求方法", "valueHint": "<方法>", "enum": ["Default", "Get", "Head", "Post", "Put", "Delete", "Trace", "Options", "Merge", "Patch"] },
+        { "token": "-Headers", "kind": "option", "desc": "指定自定义请求头哈希表", "valueHint": "<哈希表>" },
+        { "token": "-Body", "kind": "option", "desc": "指定请求正文内容", "valueHint": "<正文>" },
+        { "token": "-ContentType", "kind": "option", "desc": "指定正文的 MIME 类型", "valueHint": "<类型>" },
+        { "token": "-OutFile", "kind": "option", "desc": "把响应保存到指定文件", "valueHint": "<文件路径>" },
+        { "token": "-InFile", "kind": "option", "desc": "从文件读取请求正文", "valueHint": "<文件路径>" },
+        { "token": "-TimeoutSec", "kind": "option", "desc": "设置请求超时秒数", "valueHint": "<秒数>" },
+        { "token": "-MaximumRedirection", "kind": "option", "desc": "设置最大重定向次数", "valueHint": "<次数>" },
+        { "token": "-UserAgent", "kind": "option", "desc": "指定浏览器标识字符串", "valueHint": "<UA>" },
+        { "token": "-Credential", "kind": "option", "desc": "指定基本认证凭据", "valueHint": "<凭据对象>" },
+        { "token": "-UseDefaultCredentials", "kind": "flag", "desc": "使用当前登录凭据认证" },
+        { "token": "-Proxy", "kind": "option", "desc": "指定代理服务器地址", "valueHint": "<代理地址>" },
+        { "token": "-ProxyCredential", "kind": "option", "desc": "指定代理认证凭据", "valueHint": "<凭据对象>" },
+        { "token": "-ProxyUseDefaultCredentials", "kind": "flag", "desc": "代理使用当前登录凭据" },
+        { "token": "-CertificateThumbprint", "kind": "option", "desc": "指定客户端证书指纹", "valueHint": "<指纹>" },
+        { "token": "-Certificate", "kind": "option", "desc": "指定客户端证书对象", "valueHint": "<证书对象>" },
+        { "token": "-DisableKeepAlive", "kind": "flag", "desc": "禁用长连接" },
+        { "token": "-WebSession", "kind": "option", "desc": "复用已有的 Web 会话", "valueHint": "<会话对象>" },
+        { "token": "-SessionVariable", "kind": "option", "desc": "把本次会话保存到变量", "valueHint": "<变量名>" },
+        { "token": "-TransferEncoding", "kind": "option", "desc": "指定传输编码方式", "valueHint": "<编码>" },
+        { "token": "-UseBasicParsing", "kind": "flag", "desc": "用基本方式解析响应内容" },
+        { "token": "-PassThru", "kind": "flag", "desc": "与 OutFile 同用时仍返回结果" }
+      ]
+    }
+  ]
+}

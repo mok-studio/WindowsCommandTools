@@ -1,0 +1,1071 @@
+{
+  "schema": 2,
+  "shell": "ps",
+  "category": "磁盘、分区与卷",
+  "icon": "disk",
+  "commands": [
+    {
+      "name": "Get-Disk",
+      "aliases": [],
+      "title": "查看物理磁盘",
+      "desc": "列出本机可见的物理磁盘及其分区样式、容量、总线类型和运行状态，是磁盘排障的起点。动态磁盘不会被返回。多数磁盘信息需要管理员权限才能完整读取。",
+      "usage": "Get-Disk [[-Number] <uint32[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["磁盘", "物理磁盘", "分区表"],
+      "examples": [
+        { "cmd": "Get-Disk", "desc": "列出本机全部物理磁盘" },
+        { "cmd": "Get-Disk -Number 0", "desc": "只看 0 号磁盘的详细信息" },
+        { "cmd": "Get-Disk | Where-Object PartitionStyle -eq 'RAW'", "desc": "找出尚未初始化的裸盘" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "0", "hint": "留空则列出全部磁盘" },
+        { "token": "-FriendlyName", "label": "友好名称", "type": "text", "value": "", "hint": "按磁盘型号名称筛选" },
+        { "token": "-SerialNumber", "label": "序列号", "type": "text", "value": "", "hint": "按磁盘序列号筛选" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "磁盘编号，0 表示第一块磁盘", "valueHint": "磁盘号" },
+        { "token": "-Number", "kind": "option", "desc": "按磁盘编号筛选，可写多个", "valueHint": "<磁盘号>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按磁盘唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按磁盘友好名称筛选", "valueHint": "<名称>" },
+        { "token": "-SerialNumber", "kind": "option", "desc": "按磁盘序列号筛选", "valueHint": "<序列号>" },
+        { "token": "-Path", "kind": "option", "desc": "按设备路径筛选，例如物理驱动器路径", "valueHint": "<设备路径>" },
+        { "token": "-Partition", "kind": "option", "desc": "按关联的分区对象筛选", "valueHint": "<分区对象>" },
+        { "token": "-VirtualDisk", "kind": "option", "desc": "按关联的虚拟磁盘筛选", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-iSCSISession", "kind": "option", "desc": "按关联的 iSCSI 会话筛选", "valueHint": "<会话对象>" },
+        { "token": "-iSCSIConnection", "kind": "option", "desc": "按关联的 iSCSI 连接筛选", "valueHint": "<连接对象>" },
+        { "token": "-StorageSubSystem", "kind": "option", "desc": "按所属存储子系统筛选", "valueHint": "<子系统对象>" },
+        { "token": "-StorageNode", "kind": "option", "desc": "按所属存储节点筛选", "valueHint": "<节点对象>" },
+        { "token": "-StorageJob", "kind": "option", "desc": "按关联的存储作业筛选", "valueHint": "<作业对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Initialize-Disk",
+      "aliases": [],
+      "title": "初始化裸盘",
+      "desc": "把 RAW 状态的磁盘初始化为 GPT 或 MBR 分区样式，之后才能创建分区和卷。初始化会重写分区表，执行前务必确认目标磁盘编号。未指定样式时默认使用 GPT。",
+      "usage": "Initialize-Disk [-Number] <uint32[]> [-PartitionStyle <PartitionStyle>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["初始化", "裸盘", "GPT"],
+      "examples": [
+        { "cmd": "Initialize-Disk -Number 1 -PartitionStyle GPT", "desc": "把 1 号磁盘初始化为 GPT" },
+        { "cmd": "Initialize-Disk -Number 1 -PartitionStyle MBR -PassThru", "desc": "初始化为 MBR 并输出磁盘对象" },
+        { "cmd": "Get-Disk -Number 1 | Initialize-Disk -PartitionStyle GPT", "desc": "通过管道把磁盘对象传给初始化命令" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "1", "hint": "要初始化的磁盘编号" },
+        { "token": "-PartitionStyle", "label": "分区样式", "type": "select", "value": "GPT", "hint": "GPT 支持大于 2TB 的磁盘", "options": ["GPT", "MBR"] },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出初始化后的磁盘对象" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "要初始化的磁盘编号，可用 Get-Disk 查看", "valueHint": "磁盘号" },
+        { "token": "-Number", "kind": "option", "desc": "按磁盘编号指定要初始化的磁盘", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionStyle", "kind": "option", "desc": "指定分区样式，默认 GPT", "valueHint": "<样式>", "enum": ["MBR", "GPT"] },
+        { "token": "-UniqueId", "kind": "option", "desc": "按磁盘唯一标识符指定目标", "valueHint": "<GUID>" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按磁盘友好名称指定目标", "valueHint": "<名称>" },
+        { "token": "-Path", "kind": "option", "desc": "按设备路径指定要初始化的磁盘", "valueHint": "<设备路径>" },
+        { "token": "-VirtualDisk", "kind": "option", "desc": "初始化指定的虚拟磁盘对象", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入磁盘对象作为目标", "valueHint": "<磁盘对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回初始化后的磁盘对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Clear-Disk",
+      "aliases": [],
+      "title": "清除磁盘数据",
+      "desc": "删除磁盘上的全部分区信息并把磁盘恢复为未初始化状态，相当于彻底清空该盘。加上 -RemoveData 会逐扇区清零，-Sanitize 则请求硬件级擦除。属于不可逆操作。",
+      "usage": "Clear-Disk [-Number] <uint32[]> [-RemoveData] [-RemoveOEM] [-Sanitize] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["清盘", "擦除数据", "分区"],
+      "examples": [
+        { "cmd": "Clear-Disk -Number 1 -RemoveData", "desc": "清空 1 号磁盘并擦除其中数据" },
+        { "cmd": "Clear-Disk -Number 1 -RemoveData -RemoveOEM", "desc": "连同 OEM 保留分区一起清除" },
+        { "cmd": "Clear-Disk -Number 1 -Sanitize", "desc": "对支持该命令的磁盘执行硬件级擦除" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "1", "hint": "要清空的磁盘编号" },
+        { "token": "-RemoveData", "label": "擦除数据", "type": "flag", "value": "true", "hint": "逐扇区清零，耗时较长" },
+        { "token": "-RemoveOEM", "label": "含 OEM 分区", "type": "flag", "value": "false", "hint": "一并删除 OEM 保留分区" },
+        { "token": "-Sanitize", "label": "硬件擦除", "type": "flag", "value": "false", "hint": "需磁盘支持 SANITIZE 命令" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "要清空的磁盘编号，务必先确认", "valueHint": "磁盘号" },
+        { "token": "-Number", "kind": "option", "desc": "按磁盘编号指定要清空的磁盘", "valueHint": "<磁盘号>" },
+        { "token": "-RemoveData", "kind": "flag", "desc": "擦除磁盘上的全部数据" },
+        { "token": "-RemoveOEM", "kind": "flag", "desc": "同时删除 OEM 保留分区" },
+        { "token": "-Sanitize", "kind": "flag", "desc": "执行硬件级安全擦除" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按磁盘唯一标识符指定目标", "valueHint": "<GUID>" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按磁盘友好名称指定目标", "valueHint": "<名称>" },
+        { "token": "-Path", "kind": "option", "desc": "按设备路径指定要清空的磁盘", "valueHint": "<设备路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入磁盘对象作为目标", "valueHint": "<磁盘对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回清空后的磁盘对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Set-Disk",
+      "aliases": [],
+      "title": "设置磁盘属性",
+      "desc": "修改磁盘的只读、脱机、分区样式或磁盘签名等属性，常用于把可疑磁盘置为只读或脱机以便离线取证。给 MBR 磁盘写入新签名会影响依赖签名的挂载关系。需要管理员权限。",
+      "usage": "Set-Disk [-Number] <uint32> [-IsReadOnly <bool>] [-Signature <uint32>] [-Guid <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["只读", "脱机", "磁盘签名"],
+      "examples": [
+        { "cmd": "Set-Disk -Number 1 -IsOffline $true", "desc": "让 1 号磁盘脱机" },
+        { "cmd": "Set-Disk -Number 1 -IsReadOnly $false", "desc": "取消 1 号磁盘的只读属性" },
+        { "cmd": "Set-Disk -Number 0 -Signature 1234567890", "desc": "为 MBR 磁盘写入新的磁盘签名" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "1", "hint": "要修改的磁盘编号" },
+        { "token": "-IsOffline", "label": "脱机", "type": "select", "value": "$true", "hint": "脱机后该盘上的卷不可访问", "options": ["$true", "$false"] },
+        { "token": "-IsReadOnly", "label": "只读", "type": "select", "value": "$false", "hint": "只读可保护数据不被写入", "options": ["$true", "$false"] },
+        { "token": "-Signature", "label": "磁盘签名", "type": "number", "value": "", "hint": "仅 MBR 磁盘使用" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "要修改属性的磁盘编号", "valueHint": "磁盘号" },
+        { "token": "-Number", "kind": "option", "desc": "按磁盘编号指定要修改的磁盘", "valueHint": "<磁盘号>" },
+        { "token": "-IsOffline", "kind": "option", "desc": "把磁盘置于脱机或联机状态", "valueHint": "$true 或 $false", "enum": ["$true", "$false"] },
+        { "token": "-IsReadOnly", "kind": "option", "desc": "设置磁盘的只读属性", "valueHint": "$true 或 $false", "enum": ["$true", "$false"] },
+        { "token": "-Signature", "kind": "option", "desc": "为 MBR 磁盘指定新的磁盘签名", "valueHint": "<数字>" },
+        { "token": "-Guid", "kind": "option", "desc": "为 GPT 磁盘指定新的磁盘 GUID", "valueHint": "<GUID>" },
+        { "token": "-PartitionStyle", "kind": "option", "desc": "转换磁盘的分区样式", "valueHint": "<样式>", "enum": ["MBR", "GPT"] },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入磁盘对象作为目标", "valueHint": "<磁盘对象>" },
+        { "token": "-Path", "kind": "option", "desc": "按设备路径指定要修改的磁盘", "valueHint": "<设备路径>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按唯一标识符指定磁盘", "valueHint": "<GUID>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Get-Partition",
+      "aliases": [],
+      "title": "查看磁盘分区",
+      "desc": "列出磁盘上的分区及其盘符、大小、类型与偏移量，是排查分区问题的第一站。可以用 -DiskNumber 只看某块盘，也能按盘符或分区号精确筛选。部分字段需要管理员权限才能读出。",
+      "usage": "Get-Partition [[-DiskNumber] <uint32[]>] [[-PartitionNumber] <uint32[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["分区", "盘符", "偏移量"],
+      "examples": [
+        { "cmd": "Get-Partition", "desc": "列出所有磁盘上的全部分区" },
+        { "cmd": "Get-Partition -DriveLetter C", "desc": "查看 C 盘对应的分区信息" },
+        { "cmd": "Get-Partition -DiskNumber 0 | Format-Table PartitionNumber, DriveLetter, Size, Type", "desc": "用表格查看 0 号磁盘的分区概览" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "0", "hint": "只看这块磁盘的分区" },
+        { "token": "-PartitionNumber", "label": "分区号", "type": "number", "value": "", "hint": "按分区编号筛选" },
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "C", "hint": "按盘符筛选" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "磁盘编号，可用 Get-Disk 查看", "valueHint": "磁盘号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号筛选分区", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号筛选", "valueHint": "<分区号>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符筛选，如 C", "valueHint": "<盘符>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按分区的唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位分区", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量筛选", "valueHint": "<字节>" },
+        { "token": "-Disk", "kind": "option", "desc": "传入磁盘对象以列出其分区", "valueHint": "<磁盘对象>" },
+        { "token": "-Volume", "kind": "option", "desc": "传入卷对象以定位其分区", "valueHint": "<卷对象>" },
+        { "token": "-StorageSubSystem", "kind": "option", "desc": "按所属存储子系统筛选", "valueHint": "<子系统对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "New-Partition",
+      "aliases": [],
+      "title": "新建磁盘分区",
+      "desc": "在已初始化的磁盘上创建分区，用 -Size 指定大小或用 -UseMaximumSize 占满剩余空间。可用 -DriveLetter 指定盘符，也可 -AssignDriveLetter 让系统自动分配。新建分区还需格式化才能存数据。",
+      "usage": "New-Partition [-DiskNumber] <uint32[]> [-Size <uint64>] [-UseMaximumSize] [-Offset <uint64>] [-Alignment <uint32>] [-DriveLetter <char>] [-AssignDriveLetter] [-MbrType <MbrType>] [-GptType <string>] [-IsHidden] [-IsActive] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["分区", "新建", "盘符"],
+      "examples": [
+        { "cmd": "New-Partition -DiskNumber 1 -UseMaximumSize -DriveLetter D", "desc": "在 1 号磁盘建占满剩余空间的分区并分配 D 盘" },
+        { "cmd": "New-Partition -DiskNumber 1 -Size 100GB -AssignDriveLetter", "desc": "创建 100GB 分区并自动分配盘符" },
+        { "cmd": "New-Partition -DiskNumber 1 -UseMaximumSize | Format-Volume -FileSystem NTFS -NewFileSystemLabel '数据'", "desc": "创建分区后立即格式化为 NTFS" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "1", "hint": "在哪块磁盘上建分区" },
+        { "token": "-Size", "label": "分区大小", "type": "text", "value": "100GB", "hint": "支持 KB、MB、GB、TB 单位" },
+        { "token": "-UseMaximumSize", "label": "占满剩余空间", "type": "flag", "value": "false", "hint": "使用全部未分配空间" },
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "D", "hint": "直接指定盘符" },
+        { "token": "-AssignDriveLetter", "label": "自动分配盘符", "type": "flag", "value": "false", "hint": "让系统挑一个可用盘符" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "要在哪块磁盘上创建分区", "valueHint": "磁盘号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "指定目标磁盘编号", "valueHint": "<磁盘号>" },
+        { "token": "-Size", "kind": "option", "desc": "指定分区大小，可用 GB 等单位", "valueHint": "<大小>" },
+        { "token": "-UseMaximumSize", "kind": "flag", "desc": "用满磁盘上剩余未分配空间" },
+        { "token": "-Offset", "kind": "option", "desc": "指定分区起始偏移量", "valueHint": "<字节>" },
+        { "token": "-Alignment", "kind": "option", "desc": "指定分区对齐大小", "valueHint": "<字节>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "为新分区指定盘符", "valueHint": "<盘符>" },
+        { "token": "-AssignDriveLetter", "kind": "flag", "desc": "自动分配一个盘符" },
+        { "token": "-MbrType", "kind": "option", "desc": "指定 MBR 分区类型", "valueHint": "<类型>", "enum": ["FAT12", "FAT16", "FAT32", "Extended", "Huge", "IFS"] },
+        { "token": "-GptType", "kind": "option", "desc": "指定 GPT 分区类型 GUID", "valueHint": "<类型GUID>", "children": [
+          { "token": "ebd0a0a2-b9e5-4433-87c0-68b6b72699c7", "kind": "value", "desc": "基本数据分区，最常用", "valueHint": "基本数据" },
+          { "token": "c12a7328-f81f-11d2-ba4b-00a0c93ec93b", "kind": "value", "desc": "EFI 系统分区", "valueHint": "EFI 分区" },
+          { "token": "e3c9e316-0b5c-4db8-817d-f92df00215ae", "kind": "value", "desc": "Microsoft 保留分区", "valueHint": "保留分区" },
+          { "token": "de94bba4-06d1-4d40-a16a-bfd50179d6ac", "kind": "value", "desc": "恢复分区", "valueHint": "恢复分区" }
+        ] },
+        { "token": "-IsHidden", "kind": "flag", "desc": "创建隐藏分区" },
+        { "token": "-IsActive", "kind": "flag", "desc": "把新分区标记为活动分区" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符指定目标磁盘", "valueHint": "<磁盘标识>" },
+        { "token": "-DiskPath", "kind": "option", "desc": "按磁盘设备路径指定目标", "valueHint": "<设备路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入磁盘对象作为目标", "valueHint": "<磁盘对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Resize-Partition",
+      "aliases": [],
+      "title": "调整分区大小",
+      "desc": "扩大或缩小分区并同步调整底层文件系统，扩容常用来把未分配空间并进现有分区。缩小受文件系统支持限制，且不能小于已用数据量。建议先用 Get-PartitionSupportedSize 确认可用范围。",
+      "usage": "Resize-Partition [-DiskNumber] <uint32[]> [-PartitionNumber] <uint32[]> [-Size] <uint64> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["扩容", "缩容", "分区"],
+      "examples": [
+        { "cmd": "Resize-Partition -DiskNumber 0 -PartitionNumber 2 -Size 200GB", "desc": "把 0 号磁盘的 2 号分区调整为 200GB" },
+        { "cmd": "Resize-Partition -DriveLetter D -Size 500GB", "desc": "按盘符把 D 盘扩容到 500GB" },
+        { "cmd": "Resize-Partition -DiskNumber 0 -PartitionNumber 2 -Size (Get-PartitionSupportedSize -DriveLetter D).MaxSize", "desc": "按查询到的最大可用大小扩容" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "0", "hint": "目标分区所在磁盘" },
+        { "token": "-PartitionNumber", "label": "分区号", "type": "number", "value": "2", "hint": "要调整的分区编号" },
+        { "token": "-Size", "label": "目标大小", "type": "text", "value": "200GB", "hint": "取值需在支持范围内" },
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "", "hint": "也可直接用盘符定位分区" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "目标分区所在磁盘编号", "valueHint": "磁盘号" },
+        { "token": "<分区号>", "kind": "value", "desc": "要调整的分区编号", "valueHint": "分区号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号指定目标", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号指定目标", "valueHint": "<分区号>" },
+        { "token": "-Size", "kind": "option", "desc": "分区调整后的目标大小", "valueHint": "<大小>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要调整的分区", "valueHint": "<盘符>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量定位分区", "valueHint": "<字节>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入分区对象作为目标", "valueHint": "<分区对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回调整后的分区对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Remove-Partition",
+      "aliases": [],
+      "title": "删除磁盘分区",
+      "desc": "删除指定分区以及其上承载的卷，分区中的数据会一并丢失。删除后空间变为未分配，可再用于新建分区或扩容其他分区。执行前请确认分区号或盘符无误。",
+      "usage": "Remove-Partition [-DiskNumber] <uint32[]> [-PartitionNumber] <uint32[]> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["删除分区", "分区", "危险"],
+      "examples": [
+        { "cmd": "Remove-Partition -DiskNumber 1 -PartitionNumber 1", "desc": "删除 1 号磁盘的 1 号分区" },
+        { "cmd": "Remove-Partition -DriveLetter E", "desc": "按盘符删除 E 盘所在分区" },
+        { "cmd": "Get-Partition -DiskNumber 1 | Where-Object DriveLetter -eq 'E' | Remove-Partition", "desc": "先筛选出目标分区再删除" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "1", "hint": "目标分区所在磁盘" },
+        { "token": "-PartitionNumber", "label": "分区号", "type": "number", "value": "1", "hint": "要删除的分区编号" },
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "E", "hint": "按盘符删除分区" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "目标分区所在磁盘编号", "valueHint": "磁盘号" },
+        { "token": "<分区号>", "kind": "value", "desc": "要删除的分区编号", "valueHint": "分区号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号指定目标", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号指定要删除的分区", "valueHint": "<分区号>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要删除的分区", "valueHint": "<盘符>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量定位分区", "valueHint": "<字节>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入分区对象作为目标", "valueHint": "<分区对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被删除的分区对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Set-Partition",
+      "aliases": [],
+      "title": "设置分区属性",
+      "desc": "修改分区的只读、活动、隐藏、脱机等属性，也能用 -NewDriveLetter 更改盘符。把分区设为活动会影响 MBR 磁盘的启动行为。改盘符不会移动数据，但依赖原盘符的程序会找不到路径。",
+      "usage": "Set-Partition [-DiskNumber] <uint32> [-PartitionNumber] <uint32> [-IsReadOnly <bool>] [-NoDefaultDriveLetter <bool>] [-IsActive <bool>] [-IsHidden <bool>] [-IsOffline <bool>] [-NewDriveLetter <char>] [-MbrType <uint16>] [-GptType <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["分区属性", "盘符", "活动分区"],
+      "examples": [
+        { "cmd": "Set-Partition -DriveLetter D -NewDriveLetter E", "desc": "把 D 盘改成 E 盘" },
+        { "cmd": "Set-Partition -DiskNumber 0 -PartitionNumber 1 -IsActive $true", "desc": "把 0 号磁盘的 1 号分区标记为活动分区" },
+        { "cmd": "Set-Partition -DriveLetter E -IsHidden $true", "desc": "隐藏 E 盘所在的分区" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "0", "hint": "目标分区所在磁盘" },
+        { "token": "-PartitionNumber", "label": "分区号", "type": "number", "value": "1", "hint": "要修改的分区编号" },
+        { "token": "-NewDriveLetter", "label": "新盘符", "type": "text", "value": "E", "hint": "更改分区的盘符" },
+        { "token": "-IsReadOnly", "label": "只读", "type": "select", "value": "$false", "hint": "把分区设为只读", "options": ["$true", "$false"] },
+        { "token": "-IsActive", "label": "活动分区", "type": "select", "value": "$false", "hint": "仅 MBR 磁盘有意义", "options": ["$true", "$false"] }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "目标分区所在磁盘编号", "valueHint": "磁盘号" },
+        { "token": "<分区号>", "kind": "value", "desc": "要修改属性的分区编号", "valueHint": "分区号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号指定目标", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号指定目标", "valueHint": "<分区号>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要修改的分区", "valueHint": "<盘符>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量定位分区", "valueHint": "<字节>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入分区对象作为目标", "valueHint": "<分区对象>" },
+        { "token": "-NewDriveLetter", "kind": "option", "desc": "为分区指定新的盘符", "valueHint": "<盘符>" },
+        { "token": "-IsReadOnly", "kind": "option", "desc": "把分区设为只读或取消只读", "valueHint": "$true 或 $false", "enum": ["$true", "$false"] },
+        { "token": "-IsOffline", "kind": "option", "desc": "把分区置为脱机或联机", "valueHint": "$true 或 $false", "enum": ["$true", "$false"] },
+        { "token": "-IsActive", "kind": "option", "desc": "标记或取消活动分区", "valueHint": "$true 或 $false", "enum": ["$true", "$false"] },
+        { "token": "-IsHidden", "kind": "option", "desc": "隐藏或显示该分区", "valueHint": "$true 或 $false", "enum": ["$true", "$false"] },
+        { "token": "-IsShadowCopy", "kind": "option", "desc": "标记为卷影副本分区", "valueHint": "$true 或 $false" },
+        { "token": "-IsDAX", "kind": "option", "desc": "标记为 DAX 直访分区", "valueHint": "$true 或 $false" },
+        { "token": "-NoDefaultDriveLetter", "kind": "option", "desc": "不再自动分配默认盘符", "valueHint": "$true 或 $false" },
+        { "token": "-MbrType", "kind": "option", "desc": "按数字修改 MBR 分区类型", "valueHint": "<数字类型>" },
+        { "token": "-GptType", "kind": "option", "desc": "修改 GPT 分区类型 GUID", "valueHint": "<类型GUID>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Add-PartitionAccessPath",
+      "aliases": [],
+      "title": "添加分区访问路径",
+      "desc": "给分区增加访问路径，例如挂载到某个空文件夹，或再分配一个盘符。常用于把数据盘挂到系统盘目录下而不占用盘符。加 -AssignDriveLetter 可让系统自动挑一个可用盘符。",
+      "usage": "Add-PartitionAccessPath [-DiskNumber] <uint32[]> [-PartitionNumber] <uint32[]> [[-AccessPath] <string>] [-AssignDriveLetter] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["挂载点", "盘符", "访问路径"],
+      "examples": [
+        { "cmd": "Add-PartitionAccessPath -DiskNumber 1 -PartitionNumber 1 -AccessPath 'C:\\Data'", "desc": "把 1 号分区挂载到 C 盘的 Data 文件夹" },
+        { "cmd": "Add-PartitionAccessPath -DriveLetter D -AssignDriveLetter", "desc": "为 D 盘所在分区再自动分配一个盘符" },
+        { "cmd": "Add-PartitionAccessPath -DiskNumber 1 -PartitionNumber 2 -AccessPath 'D:\\Backup' -PassThru", "desc": "挂载后返回分区对象以便确认" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "1", "hint": "目标分区所在磁盘" },
+        { "token": "-PartitionNumber", "label": "分区号", "type": "number", "value": "1", "hint": "要挂载的分区编号" },
+        { "token": "-AccessPath", "label": "访问路径", "type": "path", "value": "C:\\Data", "hint": "盘符或已存在的空文件夹" },
+        { "token": "-AssignDriveLetter", "label": "自动分配盘符", "type": "flag", "value": "false", "hint": "让系统挑一个可用盘符" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "目标分区所在磁盘编号", "valueHint": "磁盘号" },
+        { "token": "<分区号>", "kind": "value", "desc": "要添加访问路径的分区编号", "valueHint": "分区号" },
+        { "token": "<访问路径>", "kind": "value", "desc": "要挂载到的盘符或文件夹路径", "valueHint": "路径" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号指定目标", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号指定目标", "valueHint": "<分区号>" },
+        { "token": "-AccessPath", "kind": "option", "desc": "指定要添加的访问路径", "valueHint": "<路径>" },
+        { "token": "-AssignDriveLetter", "kind": "flag", "desc": "自动分配一个可用盘符" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要操作的分区", "valueHint": "<盘符>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量定位分区", "valueHint": "<字节>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入分区对象作为目标", "valueHint": "<分区对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被修改的分区对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Get-Volume",
+      "aliases": [],
+      "title": "查看卷信息",
+      "desc": "显示卷的盘符、文件系统标签、文件系统类型、剩余空间与健康状态。可按盘符、标签或唯一 ID 筛选，也能查出没有盘符的卷。需要管理员权限才能看到全部卷对象。",
+      "usage": "Get-Volume [[-DriveLetter] <char[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["卷", "盘符", "剩余空间"],
+      "examples": [
+        { "cmd": "Get-Volume", "desc": "列出全部卷" },
+        { "cmd": "Get-Volume -DriveLetter C", "desc": "查看 C 盘对应的卷信息" },
+        { "cmd": "Get-Volume | Where-Object DriveLetter -eq $null", "desc": "找出没有盘符的卷" }
+      ],
+      "form": [
+        { "token": "", "label": "盘符", "type": "text", "value": "C", "hint": "留空则列出所有卷" },
+        { "token": "-FileSystemLabel", "label": "文件系统标签", "type": "text", "value": "", "hint": "按卷标筛选" },
+        { "token": "-Path", "label": "卷路径", "type": "text", "value": "", "hint": "按卷对象路径筛选" }
+      ],
+      "nodes": [
+        { "token": "<盘符>", "kind": "value", "desc": "驱动器盘符，如 C，留空列出所有卷", "valueHint": "盘符" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符筛选卷", "valueHint": "<盘符>" },
+        { "token": "-FileSystemLabel", "kind": "option", "desc": "按文件系统标签筛选", "valueHint": "<卷标>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按卷的唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-ObjectId", "kind": "option", "desc": "按对象标识符筛选卷", "valueHint": "<对象ID>" },
+        { "token": "-Path", "kind": "option", "desc": "按卷对象路径筛选", "valueHint": "<路径>" },
+        { "token": "-FilePath", "kind": "option", "desc": "按文件路径反查其所在卷", "valueHint": "<文件路径>" },
+        { "token": "-Partition", "kind": "option", "desc": "传入分区对象以查看其卷", "valueHint": "<分区对象>" },
+        { "token": "-DiskImage", "kind": "option", "desc": "传入磁盘映像对象查看其中的卷", "valueHint": "<映像对象>" },
+        { "token": "-StorageSubSystem", "kind": "option", "desc": "按所属存储子系统筛选", "valueHint": "<子系统对象>" },
+        { "token": "-StoragePool", "kind": "option", "desc": "按所属存储池筛选", "valueHint": "<存储池对象>" },
+        { "token": "-StorageNode", "kind": "option", "desc": "按所属存储节点筛选", "valueHint": "<节点对象>" },
+        { "token": "-StorageFileServer", "kind": "option", "desc": "按所属存储文件服务器筛选", "valueHint": "<文件服务器对象>" },
+        { "token": "-FileShare", "kind": "option", "desc": "按关联的文件共享筛选", "valueHint": "<共享对象>" },
+        { "token": "-StorageJob", "kind": "option", "desc": "按关联的存储作业筛选", "valueHint": "<作业对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Format-Volume",
+      "aliases": [],
+      "title": "格式化卷",
+      "desc": "格式化已有卷或新建卷，写入 NTFS、ReFS、exFAT 等文件系统并可选设置卷标与分配单元大小。格式化会清空卷上的全部数据且无法撤销。加 -Full 会执行完整格式化，速度慢但更彻底。",
+      "usage": "Format-Volume [-DriveLetter] <char[]> [-FileSystem <string>] [-NewFileSystemLabel <string>] [-AllocationUnitSize <uint32>] [-Full] [-Force] [-Compress] [-ShortFileNameSupport <bool>] [-SetIntegrityStreams <bool>] [-UseLargeFRS] [-DisableHeatGathering] [-IsDAX <bool>] [-NoTrim] [-SHA256Checksums] [-DevDrive] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["格式化", "文件系统", "卷标"],
+      "examples": [
+        { "cmd": "Format-Volume -DriveLetter D -FileSystem NTFS -NewFileSystemLabel '数据'", "desc": "把 D 盘格式化为 NTFS 并设置卷标" },
+        { "cmd": "Format-Volume -DriveLetter E -FileSystem exFAT -AllocationUnitSize 65536", "desc": "格式化为 exFAT 并指定分配单元大小" },
+        { "cmd": "Format-Volume -DriveLetter F -FileSystem ReFS -SetIntegrityStreams $true", "desc": "格式化为 ReFS 并启用完整性流" }
+      ],
+      "form": [
+        { "token": "", "label": "盘符", "type": "text", "value": "D", "hint": "要格式化的卷盘符" },
+        { "token": "-FileSystem", "label": "文件系统", "type": "select", "value": "NTFS", "hint": "NTFS 为通用选择", "options": ["NTFS", "ReFS", "exFAT", "FAT32", "FAT"] },
+        { "token": "-NewFileSystemLabel", "label": "卷标", "type": "text", "value": "数据", "hint": "格式化后的文件系统标签" },
+        { "token": "-AllocationUnitSize", "label": "分配单元大小", "type": "number", "value": "4096", "hint": "单位字节，留空使用默认值" },
+        { "token": "-Full", "label": "完整格式化", "type": "flag", "value": "false", "hint": "更彻底但耗时更长" }
+      ],
+      "nodes": [
+        { "token": "<盘符>", "kind": "value", "desc": "要格式化的卷盘符，如 D", "valueHint": "盘符" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要格式化的卷", "valueHint": "<盘符>" },
+        { "token": "-FileSystem", "kind": "option", "desc": "指定目标文件系统类型", "valueHint": "<文件系统>", "enum": ["NTFS", "ReFS", "exFAT", "FAT32", "FAT"] },
+        { "token": "-NewFileSystemLabel", "kind": "option", "desc": "设置格式化后的文件系统标签", "valueHint": "<卷标>" },
+        { "token": "-AllocationUnitSize", "kind": "option", "desc": "指定分配单元大小，单位字节", "valueHint": "<字节>" },
+        { "token": "-Full", "kind": "flag", "desc": "执行完整格式化而非快速格式化" },
+        { "token": "-Force", "kind": "flag", "desc": "强制格式化正在使用的卷" },
+        { "token": "-Compress", "kind": "flag", "desc": "对新卷启用压缩" },
+        { "token": "-ShortFileNameSupport", "kind": "option", "desc": "是否启用 8.3 短文件名", "valueHint": "$true 或 $false" },
+        { "token": "-SetIntegrityStreams", "kind": "option", "desc": "是否启用完整性流，ReFS 常用", "valueHint": "$true 或 $false" },
+        { "token": "-UseLargeFRS", "kind": "flag", "desc": "使用更大的文件记录段" },
+        { "token": "-DisableHeatGathering", "kind": "flag", "desc": "关闭热数据收集" },
+        { "token": "-IsDAX", "kind": "option", "desc": "按 DAX 直访卷格式化", "valueHint": "$true 或 $false" },
+        { "token": "-NoTrim", "kind": "flag", "desc": "格式化时不发送 TRIM 通知" },
+        { "token": "-SHA256Checksums", "kind": "flag", "desc": "对 ReFS 使用 SHA256 校验和" },
+        { "token": "-DevDrive", "kind": "flag", "desc": "格式化为开发驱动器卷" },
+        { "token": "-ObjectId", "kind": "option", "desc": "按对象标识符指定目标卷", "valueHint": "<对象ID>" },
+        { "token": "-Path", "kind": "option", "desc": "按卷对象路径指定目标", "valueHint": "<路径>" },
+        { "token": "-FileSystemLabel", "kind": "option", "desc": "按现有卷标指定目标", "valueHint": "<卷标>" },
+        { "token": "-Partition", "kind": "option", "desc": "传入分区对象以格式化其卷", "valueHint": "<分区对象>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入卷对象作为目标", "valueHint": "<卷对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Set-Volume",
+      "aliases": [],
+      "title": "设置卷属性",
+      "desc": "修改卷的文件系统标签，或调整重复数据删除模式。也能用 -UniqueId、-Path 精确指定没有盘符的卷。改名不影响数据，改去重模式会影响后续写入与后台任务。本命令没有位置参数，必须用具名参数指定目标。",
+      "usage": "Set-Volume -DriveLetter <char> [-NewFileSystemLabel <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["卷标", "去重", "卷"],
+      "examples": [
+        { "cmd": "Set-Volume -DriveLetter D -NewFileSystemLabel '备份'", "desc": "把 D 盘的卷标改为备份" },
+        { "cmd": "Set-Volume -DriveLetter D -DedupMode GeneralPurpose", "desc": "把 D 盘的重复数据删除模式设为通用" },
+        { "cmd": "Set-Volume -FileSystemLabel '备份' -NewFileSystemLabel '归档'", "desc": "按现有卷标定位并改名" }
+      ],
+      "form": [
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "D", "hint": "目标卷的盘符" },
+        { "token": "-NewFileSystemLabel", "label": "新卷标", "type": "text", "value": "数据", "hint": "要设置的文件系统标签" },
+        { "token": "-DedupMode", "label": "去重模式", "type": "select", "value": "Disabled", "hint": "仅受支持的卷可用", "options": ["Disabled", "GeneralPurpose", "HyperV", "Backup", "NotAvailable"] }
+      ],
+      "nodes": [
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要设置的卷", "valueHint": "<盘符>" },
+        { "token": "-NewFileSystemLabel", "kind": "option", "desc": "设置新的文件系统标签", "valueHint": "<卷标>" },
+        { "token": "-FileSystemLabel", "kind": "option", "desc": "按现有卷标指定目标卷", "valueHint": "<卷标>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按唯一标识符指定目标卷", "valueHint": "<GUID>" },
+        { "token": "-Path", "kind": "option", "desc": "按卷对象路径指定目标", "valueHint": "<路径>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入卷对象作为目标", "valueHint": "<卷对象>" },
+        { "token": "-DedupMode", "kind": "option", "desc": "设置重复数据删除模式", "valueHint": "<模式>", "enum": ["Disabled", "GeneralPurpose", "HyperV", "Backup", "NotAvailable"] },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Resize-Volume",
+      "aliases": [],
+      "title": "调整卷大小",
+      "desc": "重要说明：本机 Get-Command 与 Microsoft Learn 的 Storage 模块都没有 Resize-Volume 这个命令，官方用于调整卷大小的命令是 Resize-Partition，它同时调整分区与底层文件系统。本条目按 Resize-Partition 的真实语法和参数编写，支持按磁盘号加分区号或直接按盘符调整。",
+      "usage": "Resize-Partition [-DiskNumber] <uint32[]> [-PartitionNumber] <uint32[]> [-Size] <uint64> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["扩容", "缩容", "卷"],
+      "examples": [
+        { "cmd": "Resize-Partition -DriveLetter D -Size 500GB", "desc": "把 D 盘所在的卷与分区调整为 500GB" },
+        { "cmd": "Resize-Partition -DiskNumber 0 -PartitionNumber 2 -Size 200GB", "desc": "按磁盘号与分区号调整卷大小" },
+        { "cmd": "Resize-Partition -DriveLetter D -Size (Get-PartitionSupportedSize -DriveLetter D).MaxSize", "desc": "按支持的最大值扩容，避免取值越界" }
+      ],
+      "form": [
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "D", "hint": "要调整的卷盘符" },
+        { "token": "-Size", "label": "目标大小", "type": "text", "value": "500GB", "hint": "需在支持的大小范围内" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "目标卷所在磁盘编号", "valueHint": "磁盘号" },
+        { "token": "<分区号>", "kind": "value", "desc": "承载该卷的分区编号", "valueHint": "分区号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号指定目标", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号指定目标", "valueHint": "<分区号>" },
+        { "token": "-Size", "kind": "option", "desc": "调整后的目标大小，支持 GB 单位", "valueHint": "<大小>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "直接按盘符指定要调整的卷", "valueHint": "<盘符>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量定位", "valueHint": "<字节>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入分区对象作为目标", "valueHint": "<分区对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回调整后的分区对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Get-PhysicalDisk",
+      "aliases": [],
+      "title": "查看物理磁盘",
+      "desc": "列出存储子系统中的物理磁盘，包含介质类型、总线类型、健康状态以及是否可加入存储池等属性。与 Get-Disk 不同，它反映的是存储池视角的磁盘对象。可按用途、健康状态或所属池筛选。",
+      "usage": "Get-PhysicalDisk [[-FriendlyName] <string>] [[-SerialNumber] <string>] [-Usage <PhysicalDiskUsage>] [-HealthStatus <PhysicalDiskHealthStatus>] [-CanPool <bool>] [-CimSession <CimSession>]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["物理磁盘", "健康状态", "存储池"],
+      "examples": [
+        { "cmd": "Get-PhysicalDisk", "desc": "列出全部物理磁盘" },
+        { "cmd": "Get-PhysicalDisk -CanPool $true", "desc": "找出可以加入存储池的磁盘" },
+        { "cmd": "Get-PhysicalDisk | Format-Table DeviceId, FriendlyName, MediaType, HealthStatus, Size", "desc": "用表格查看磁盘概览" }
+      ],
+      "form": [
+        { "token": "", "label": "友好名称", "type": "text", "value": "", "hint": "留空则列出全部磁盘" },
+        { "token": "-Usage", "label": "用途", "type": "select", "value": "AutoSelect", "hint": "按磁盘用途筛选", "options": ["AutoSelect", "ManualSelect", "HotSpare", "Retired", "Journal"] },
+        { "token": "-HealthStatus", "label": "健康状态", "type": "select", "value": "Healthy", "hint": "按健康状态筛选", "options": ["Healthy", "Warning", "Unhealthy", "Unknown"] },
+        { "token": "-CanPool", "label": "可入池", "type": "select", "value": "$true", "hint": "只看可加入存储池的磁盘", "options": ["$true", "$false"] }
+      ],
+      "nodes": [
+        { "token": "<友好名称>", "kind": "value", "desc": "磁盘友好名称，留空列出全部", "valueHint": "磁盘名称" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按友好名称筛选物理磁盘", "valueHint": "<名称>" },
+        { "token": "-SerialNumber", "kind": "option", "desc": "按序列号筛选物理磁盘", "valueHint": "<序列号>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-ObjectId", "kind": "option", "desc": "按对象标识符筛选", "valueHint": "<对象ID>" },
+        { "token": "-DeviceNumber", "kind": "option", "desc": "按设备编号筛选", "valueHint": "<设备号>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入物理磁盘对象", "valueHint": "<磁盘对象>" },
+        { "token": "-Usage", "kind": "option", "desc": "按磁盘用途筛选", "valueHint": "<用途>", "enum": ["AutoSelect", "ManualSelect", "HotSpare", "Retired", "Journal", "Unknown"] },
+        { "token": "-HealthStatus", "kind": "option", "desc": "按健康状态筛选", "valueHint": "<状态>", "enum": ["Healthy", "Warning", "Unhealthy", "Unknown"] },
+        { "token": "-CanPool", "kind": "option", "desc": "筛选能否加入存储池", "valueHint": "$true 或 $false" },
+        { "token": "-Description", "kind": "option", "desc": "按描述信息筛选", "valueHint": "<描述>" },
+        { "token": "-Manufacturer", "kind": "option", "desc": "按制造商筛选", "valueHint": "<厂商>" },
+        { "token": "-Model", "kind": "option", "desc": "按型号筛选", "valueHint": "<型号>" },
+        { "token": "-StorageSubsystem", "kind": "option", "desc": "只看指定子系统下的磁盘", "valueHint": "<子系统对象>" },
+        { "token": "-StoragePool", "kind": "option", "desc": "只看指定存储池中的磁盘", "valueHint": "<存储池对象>" },
+        { "token": "-StorageNode", "kind": "option", "desc": "只看指定节点上的磁盘", "valueHint": "<节点对象>" },
+        { "token": "-StorageEnclosure", "kind": "option", "desc": "只看指定机箱内的磁盘", "valueHint": "<机箱对象>" },
+        { "token": "-VirtualDisk", "kind": "option", "desc": "查看支撑虚拟磁盘的物理磁盘", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-PhysicallyConnected", "kind": "flag", "desc": "只列出物理直连的磁盘" },
+        { "token": "-HasMetadata", "kind": "flag", "desc": "只列出带存储池元数据的磁盘" },
+        { "token": "-NoRedundancy", "kind": "flag", "desc": "只列出承载无冗余数据的磁盘" },
+        { "token": "-VirtualRangeMin", "kind": "option", "desc": "按承载的虚拟空间下限筛选", "valueHint": "<字节>" },
+        { "token": "-VirtualRangeMax", "kind": "option", "desc": "按承载的虚拟空间上限筛选", "valueHint": "<字节>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" }
+      ]
+    },
+    {
+      "name": "Set-PhysicalDisk",
+      "aliases": [],
+      "title": "设置磁盘用途",
+      "desc": "修改物理磁盘的友好名称、用途、介质类型或所属机箱等属性，常用于把磁盘标记为热备或退役。把用途设为 Retired 会让存储池逐步把数据迁走。更改介质类型会影响分层与重建策略。",
+      "usage": "Set-PhysicalDisk [-FriendlyName] <string> [-NewFriendlyName <string>] [-Description <string>] [-Usage <Usage>] [-MediaType <MediaType>] [-StorageEnclosureId <string>] [-StorageScaleUnitId <string>] [-IsHidden <bool>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["物理磁盘", "热备", "退役"],
+      "examples": [
+        { "cmd": "Set-PhysicalDisk -FriendlyName 'PhysicalDisk1' -Usage HotSpare", "desc": "把指定磁盘标记为热备盘" },
+        { "cmd": "Set-PhysicalDisk -FriendlyName 'PhysicalDisk1' -NewFriendlyName 'DataDisk01'", "desc": "重命名物理磁盘" },
+        { "cmd": "Get-PhysicalDisk -CanPool $true | Set-PhysicalDisk -Usage Retired", "desc": "把可入池磁盘批量标记为退役" }
+      ],
+      "form": [
+        { "token": "", "label": "友好名称", "type": "text", "value": "PhysicalDisk1", "hint": "要修改的物理磁盘名称" },
+        { "token": "-Usage", "label": "用途", "type": "select", "value": "AutoSelect", "hint": "磁盘在池中的角色", "options": ["AutoSelect", "ManualSelect", "HotSpare", "Retired", "Journal"] },
+        { "token": "-MediaType", "label": "介质类型", "type": "select", "value": "HDD", "hint": "声明磁盘的介质类型", "options": ["HDD", "SSD", "SCM"] },
+        { "token": "-NewFriendlyName", "label": "新名称", "type": "text", "value": "DataDisk01", "hint": "重命名磁盘" }
+      ],
+      "nodes": [
+        { "token": "<友好名称>", "kind": "value", "desc": "要修改的物理磁盘友好名称", "valueHint": "磁盘名称" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按友好名称指定要修改的磁盘", "valueHint": "<名称>" },
+        { "token": "-NewFriendlyName", "kind": "option", "desc": "为磁盘设置新的友好名称", "valueHint": "<新名称>" },
+        { "token": "-Description", "kind": "option", "desc": "设置磁盘的描述信息", "valueHint": "<描述>" },
+        { "token": "-Usage", "kind": "option", "desc": "设置磁盘用途，如热备或退役", "valueHint": "<用途>", "enum": ["AutoSelect", "ManualSelect", "HotSpare", "Retired", "Journal"] },
+        { "token": "-MediaType", "kind": "option", "desc": "设置磁盘介质类型", "valueHint": "<介质>", "enum": ["HDD", "SSD", "SCM"] },
+        { "token": "-StorageEnclosureId", "kind": "option", "desc": "指定磁盘所属的机箱标识", "valueHint": "<机箱ID>" },
+        { "token": "-StorageScaleUnitId", "kind": "option", "desc": "指定磁盘所属的扩展单元标识", "valueHint": "<单元ID>" },
+        { "token": "-IsHidden", "kind": "option", "desc": "设置磁盘对主机是否隐藏", "valueHint": "$true 或 $false" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按唯一标识符指定目标磁盘", "valueHint": "<GUID>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入物理磁盘对象", "valueHint": "<磁盘对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Get-StoragePool",
+      "aliases": [],
+      "title": "查看存储池",
+      "desc": "列出存储池及其健康状态、用途与容量信息，其中包含系统自动创建的原始池。用 -IsPrimordial $false 可以只看用户创建的真实池。排查存储空间问题时通常先执行它。",
+      "usage": "Get-StoragePool [[-FriendlyName] <string[]>] [-Usage <Usage[]>] [-IsPrimordial <bool[]>] [-HealthStatus <HealthStatus[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["存储池", "存储空间", "容量"],
+      "examples": [
+        { "cmd": "Get-StoragePool", "desc": "列出全部存储池，含原始池" },
+        { "cmd": "Get-StoragePool -IsPrimordial $false", "desc": "只看用户创建的存储池" },
+        { "cmd": "Get-StoragePool -FriendlyName 'Pool01' | Get-PhysicalDisk", "desc": "查看指定池中的物理磁盘" }
+      ],
+      "form": [
+        { "token": "", "label": "池名称", "type": "text", "value": "", "hint": "留空则列出全部存储池" },
+        { "token": "-IsPrimordial", "label": "原始池", "type": "select", "value": "$false", "hint": "是否包含系统原始池", "options": ["$true", "$false"] },
+        { "token": "-HealthStatus", "label": "健康状态", "type": "select", "value": "Healthy", "hint": "按健康状态筛选", "options": ["Healthy", "Warning", "Unhealthy", "Unknown"] }
+      ],
+      "nodes": [
+        { "token": "<池名称>", "kind": "value", "desc": "存储池的友好名称，留空列出全部", "valueHint": "池名称" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按存储池友好名称筛选", "valueHint": "<池名称>" },
+        { "token": "-Name", "kind": "option", "desc": "按存储池名称筛选", "valueHint": "<名称>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按存储池唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-Usage", "kind": "option", "desc": "按存储池用途筛选", "valueHint": "<用途>", "enum": ["Other", "Unrestricted", "ReservedForComputerSystem"] },
+        { "token": "-OtherUsageDescription", "kind": "option", "desc": "按其他用途描述筛选", "valueHint": "<描述>" },
+        { "token": "-IsPrimordial", "kind": "option", "desc": "筛选是否为系统原始池", "valueHint": "$true 或 $false" },
+        { "token": "-HealthStatus", "kind": "option", "desc": "按健康状态筛选存储池", "valueHint": "<状态>", "enum": ["Healthy", "Warning", "Unhealthy", "Unknown"] },
+        { "token": "-StorageSubSystem", "kind": "option", "desc": "只看指定子系统下的存储池", "valueHint": "<子系统对象>" },
+        { "token": "-StorageNode", "kind": "option", "desc": "只看指定节点上的存储池", "valueHint": "<节点对象>" },
+        { "token": "-PhysicalDisk", "kind": "option", "desc": "反查包含该物理磁盘的存储池", "valueHint": "<磁盘对象>" },
+        { "token": "-VirtualDisk", "kind": "option", "desc": "反查承载该虚拟磁盘的存储池", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-ResiliencySetting", "kind": "option", "desc": "按关联的复原设置筛选", "valueHint": "<复原设置对象>" },
+        { "token": "-StorageTier", "kind": "option", "desc": "按关联的存储层筛选", "valueHint": "<存储层对象>" },
+        { "token": "-Volume", "kind": "option", "desc": "反查承载该卷的存储池", "valueHint": "<卷对象>" },
+        { "token": "-StorageJob", "kind": "option", "desc": "按关联的存储作业筛选", "valueHint": "<作业对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "New-StoragePool",
+      "aliases": [],
+      "title": "新建存储池",
+      "desc": "用一组物理磁盘创建存储池，作为存储空间与虚拟磁盘的容器。必须指定子系统、池名称与物理磁盘列表，还能预设复原类型、预配方式与介质类型等默认值。创建会向磁盘写入存储池元数据。",
+      "usage": "New-StoragePool [-StorageSubSystemFriendlyName] <string[]> -FriendlyName <string> -PhysicalDisks <CimInstance#MSFT_PhysicalDisk[]> [-Usage <Usage>] [-ProvisioningTypeDefault <ProvisioningType>] [-MediaTypeDefault <MediaType>] [-ResiliencySettingNameDefault <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["存储池", "存储空间", "新建"],
+      "examples": [
+        { "cmd": "New-StoragePool -StorageSubSystemFriendlyName 'Storage Spaces*' -FriendlyName 'Pool01' -PhysicalDisks (Get-PhysicalDisk -CanPool $true)", "desc": "用全部可入池磁盘创建存储池" },
+        { "cmd": "Get-StorageSubSystem | New-StoragePool -FriendlyName 'Pool02' -PhysicalDisks (Get-PhysicalDisk -CanPool $true)", "desc": "通过管道传入子系统创建存储池" },
+        { "cmd": "New-StoragePool -StorageSubSystemFriendlyName 'Storage Spaces*' -FriendlyName 'Pool03' -PhysicalDisks (Get-PhysicalDisk -CanPool $true) -ResiliencySettingNameDefault Mirror", "desc": "创建时指定默认为镜像布局" }
+      ],
+      "form": [
+        { "token": "", "label": "子系统名称", "type": "text", "value": "Storage Spaces*", "hint": "可用通配符匹配子系统名" },
+        { "token": "-FriendlyName", "label": "池名称", "type": "text", "value": "Pool01", "hint": "新建存储池的名称" },
+        { "token": "-PhysicalDisks", "label": "物理磁盘", "type": "text", "value": "(Get-PhysicalDisk -CanPool $true)", "hint": "磁盘对象，可传多个" },
+        { "token": "-ResiliencySettingNameDefault", "label": "默认复原类型", "type": "select", "value": "Mirror", "hint": "Simple 无冗余、Mirror 镜像、Parity 奇偶校验", "options": ["Simple", "Mirror", "Parity"] }
+      ],
+      "nodes": [
+        { "token": "<子系统名称>", "kind": "value", "desc": "存储子系统友好名称，支持通配符", "valueHint": "子系统名称" },
+        { "token": "-StorageSubSystemFriendlyName", "kind": "option", "desc": "按友好名称指定存储子系统", "valueHint": "<子系统名称>" },
+        { "token": "-StorageSubSystemUniqueId", "kind": "option", "desc": "按唯一标识符指定存储子系统", "valueHint": "<GUID>" },
+        { "token": "-StorageSubSystemName", "kind": "option", "desc": "按名称指定存储子系统", "valueHint": "<名称>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入存储子系统对象", "valueHint": "<子系统对象>" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "指定新建存储池的名称", "valueHint": "<池名称>" },
+        { "token": "-PhysicalDisks", "kind": "option", "desc": "指定加入池的物理磁盘对象", "valueHint": "<磁盘对象数组>" },
+        { "token": "-Usage", "kind": "option", "desc": "指定存储池用途", "valueHint": "<用途>" },
+        { "token": "-OtherUsageDescription", "kind": "option", "desc": "指定其他用途的描述", "valueHint": "<描述>" },
+        { "token": "-ProvisioningTypeDefault", "kind": "option", "desc": "指定默认预配方式", "valueHint": "<预配方式>", "enum": ["Thin", "Fixed"] },
+        { "token": "-MediaTypeDefault", "kind": "option", "desc": "指定默认介质类型", "valueHint": "<介质>", "enum": ["HDD", "SSD", "SCM"] },
+        { "token": "-EnclosureAwareDefault", "kind": "option", "desc": "是否默认启用机箱感知", "valueHint": "$true 或 $false" },
+        { "token": "-FaultDomainAwarenessDefault", "kind": "option", "desc": "指定默认故障域感知级别", "valueHint": "<级别>", "enum": ["PhysicalDisk", "StorageEnclosure", "StorageScaleUnit", "StorageChassis", "StorageRack"] },
+        { "token": "-ResiliencySettingNameDefault", "kind": "option", "desc": "指定默认复原类型名称", "valueHint": "Simple、Mirror 或 Parity" },
+        { "token": "-LogicalSectorSizeDefault", "kind": "option", "desc": "指定默认逻辑扇区大小", "valueHint": "<字节>" },
+        { "token": "-MetadataLength", "kind": "option", "desc": "指定池元数据占用的长度", "valueHint": "<字节>" },
+        { "token": "-MinimumAllocationSize", "kind": "option", "desc": "指定最小分配单元大小", "valueHint": "<字节>" },
+        { "token": "-WriteCacheSizeDefault", "kind": "option", "desc": "指定默认写缓存大小", "valueHint": "<字节>" },
+        { "token": "-AutoWriteCacheSize", "kind": "option", "desc": "是否自动决定写缓存大小", "valueHint": "$true 或 $false" },
+        { "token": "-Version", "kind": "option", "desc": "指定要兼容的子系统版本", "valueHint": "<版本>", "enum": ["WindowsServer2012", "WindowsServer2012R2", "WindowsServer2016", "WindowsServer2019", "WindowsServer2022", "WindowsServer2025"] },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Remove-StoragePool",
+      "aliases": [],
+      "title": "删除存储池",
+      "desc": "删除存储池及其中的虚拟磁盘，池上的卷与数据会随之丢失。执行前应确认池中没有仍在使用的卷，或已经做好备份。系统自动创建的原始池不能删除。",
+      "usage": "Remove-StoragePool [-FriendlyName] <string[]> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob] [-PassThru]",
+      "admin": true,
+      "danger": 2,
+      "tags": ["删除存储池", "存储空间", "危险"],
+      "examples": [
+        { "cmd": "Remove-StoragePool -FriendlyName 'Pool01'", "desc": "按名称删除指定存储池" },
+        { "cmd": "Get-StoragePool -IsPrimordial $false | Remove-StoragePool", "desc": "删除全部用户创建的存储池" },
+        { "cmd": "Remove-StoragePool -FriendlyName 'Pool01' -PassThru", "desc": "删除后返回被删除的池对象" }
+      ],
+      "form": [
+        { "token": "", "label": "池名称", "type": "text", "value": "Pool01", "hint": "要删除的存储池名称" },
+        { "token": "-UniqueId", "label": "唯一 ID", "type": "text", "value": "", "hint": "也可用唯一标识符定位池" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出被删除的池对象" }
+      ],
+      "nodes": [
+        { "token": "<池名称>", "kind": "value", "desc": "要删除的存储池友好名称", "valueHint": "池名称" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按友好名称指定要删除的池", "valueHint": "<池名称>" },
+        { "token": "-Name", "kind": "option", "desc": "按名称指定要删除的池", "valueHint": "<名称>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按唯一标识符指定要删除的池", "valueHint": "<GUID>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入存储池对象作为目标", "valueHint": "<存储池对象>" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回被删除的存储池对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "Get-StoragePool -IsPrimordial $false | Remove-StoragePool", "kind": "syntax", "desc": "通过管道批量删除用户创建的池" },
+        { "token": "Remove-StoragePool -FriendlyName 'Pool01' -PassThru", "kind": "syntax", "desc": "删除并回显被删除的对象" }
+      ]
+    },
+    {
+      "name": "Get-VirtualDisk",
+      "aliases": [],
+      "title": "查看虚拟磁盘",
+      "desc": "列出存储池中的虚拟磁盘及其布局、预配方式、健康状态与容量。可按名称、所属池或健康状态筛选。它对应存储空间的逻辑层，与 Get-Disk 看到的磁盘对象并不相同。",
+      "usage": "Get-VirtualDisk [[-FriendlyName] <string[]>] [-Usage <Usage[]>] [-HealthStatus <HealthStatus[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["虚拟磁盘", "存储空间", "健康状态"],
+      "examples": [
+        { "cmd": "Get-VirtualDisk", "desc": "列出全部虚拟磁盘" },
+        { "cmd": "Get-VirtualDisk -FriendlyName 'VDisk01'", "desc": "按名称查看指定虚拟磁盘" },
+        { "cmd": "Get-StoragePool -IsPrimordial $false | Get-VirtualDisk", "desc": "查看各存储池中的虚拟磁盘" }
+      ],
+      "form": [
+        { "token": "", "label": "虚拟磁盘名称", "type": "text", "value": "", "hint": "留空则列出全部虚拟磁盘" },
+        { "token": "-HealthStatus", "label": "健康状态", "type": "select", "value": "Healthy", "hint": "按健康状态筛选", "options": ["Healthy", "Warning", "Unhealthy", "Unknown"] },
+        { "token": "-IsSnapshot", "label": "快照", "type": "select", "value": "$false", "hint": "是否只看快照虚拟磁盘", "options": ["$true", "$false"] }
+      ],
+      "nodes": [
+        { "token": "<虚拟磁盘名称>", "kind": "value", "desc": "虚拟磁盘友好名称，留空列出全部", "valueHint": "虚拟磁盘名称" },
+        { "token": "-FriendlyName", "kind": "option", "desc": "按友好名称筛选虚拟磁盘", "valueHint": "<名称>" },
+        { "token": "-Name", "kind": "option", "desc": "按名称筛选虚拟磁盘", "valueHint": "<名称>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-HealthStatus", "kind": "option", "desc": "按健康状态筛选", "valueHint": "<状态>", "enum": ["Healthy", "Warning", "Unhealthy", "Unknown"] },
+        { "token": "-IsSnapshot", "kind": "option", "desc": "筛选是否为快照虚拟磁盘", "valueHint": "$true 或 $false" },
+        { "token": "-Usage", "kind": "option", "desc": "按用途筛选虚拟磁盘", "valueHint": "<用途>" },
+        { "token": "-OtherUsageDescription", "kind": "option", "desc": "按其他用途描述筛选", "valueHint": "<描述>" },
+        { "token": "-StoragePool", "kind": "option", "desc": "只看指定存储池中的虚拟磁盘", "valueHint": "<存储池对象>" },
+        { "token": "-StorageSubSystem", "kind": "option", "desc": "只看指定子系统下的虚拟磁盘", "valueHint": "<子系统对象>" },
+        { "token": "-StorageNode", "kind": "option", "desc": "只看指定节点上的虚拟磁盘", "valueHint": "<节点对象>" },
+        { "token": "-PhysicalDisk", "kind": "option", "desc": "反查由该物理磁盘支撑的虚拟磁盘", "valueHint": "<磁盘对象>" },
+        { "token": "-StorageTier", "kind": "option", "desc": "按关联的存储层筛选", "valueHint": "<存储层对象>" },
+        { "token": "-Disk", "kind": "option", "desc": "反查该磁盘对应的虚拟磁盘", "valueHint": "<磁盘对象>" },
+        { "token": "-StorageEnclosure", "kind": "option", "desc": "按关联的机箱筛选", "valueHint": "<机箱对象>" },
+        { "token": "-StorageScaleUnit", "kind": "option", "desc": "按关联的扩展单元筛选", "valueHint": "<单元对象>" },
+        { "token": "-MaskingSet", "kind": "option", "desc": "按关联的掩码集筛选", "valueHint": "<掩码集对象>" },
+        { "token": "-SourceVirtualDisk", "kind": "option", "desc": "查找由该源虚拟磁盘派生的快照", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-TargetVirtualDisk", "kind": "option", "desc": "查找该快照对应的目标虚拟磁盘", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-StorageJob", "kind": "option", "desc": "按关联的存储作业筛选", "valueHint": "<作业对象>" },
+        { "token": "-PhysicalRangeMin", "kind": "option", "desc": "按物理空间占用下限筛选", "valueHint": "<字节>" },
+        { "token": "-PhysicalRangeMax", "kind": "option", "desc": "按物理空间占用上限筛选", "valueHint": "<字节>" },
+        { "token": "-NoRedundancy", "kind": "flag", "desc": "只列出没有冗余的虚拟磁盘" },
+        { "token": "-AssociatedObjects", "kind": "flag", "desc": "同时返回关联的对象" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Repair-Volume",
+      "aliases": [],
+      "title": "修复卷错误",
+      "desc": "对卷执行文件系统检查与修复：-Scan 只扫描并报告，-SpotFix 联机定点修复，-OfflineScanAndFix 则脱机全面修复。修复前建议先备份重要数据。NTFS 与 ReFS 支持的选项并不相同。",
+      "usage": "Repair-Volume [-DriveLetter] <char[]> [-OfflineScanAndFix] [-Scan] [-SpotFix] [-DetectLeaks <DetectLeakMode>] [-ScratchFile <string>] [-Threads <uint32>] [-Triage] [-DirectoryIds <uint64[]>] [-Salvage <SalvageMode>] [-ScratchDir <string>] [-TargetFile <string>] [-TargetDir <string>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["修复卷", "文件系统", "扫描"],
+      "examples": [
+        { "cmd": "Repair-Volume -DriveLetter D -Scan", "desc": "只扫描 D 盘并报告错误，不做修改" },
+        { "cmd": "Repair-Volume -DriveLetter D -SpotFix", "desc": "在联机状态下定点修复 D 盘错误" },
+        { "cmd": "Repair-Volume -DriveLetter D -OfflineScanAndFix", "desc": "脱机扫描并修复 D 盘" }
+      ],
+      "form": [
+        { "token": "", "label": "盘符", "type": "text", "value": "D", "hint": "要检查的卷盘符" },
+        { "token": "-Scan", "label": "仅扫描", "type": "flag", "value": "true", "hint": "只报告问题不做修复" },
+        { "token": "-SpotFix", "label": "定点修复", "type": "flag", "value": "false", "hint": "联机修复已知问题" },
+        { "token": "-OfflineScanAndFix", "label": "脱机修复", "type": "flag", "value": "false", "hint": "卸载卷后全面修复" }
+      ],
+      "nodes": [
+        { "token": "<盘符>", "kind": "value", "desc": "要检查或修复的卷盘符，如 D", "valueHint": "盘符" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要处理的卷", "valueHint": "<盘符>" },
+        { "token": "-Scan", "kind": "flag", "desc": "只扫描卷并报告发现的问题" },
+        { "token": "-SpotFix", "kind": "flag", "desc": "联机状态下定点修复错误" },
+        { "token": "-OfflineScanAndFix", "kind": "flag", "desc": "脱机扫描并修复整个卷" },
+        { "token": "-Triage", "kind": "flag", "desc": "只做分诊检查，快速定位问题" },
+        { "token": "-DetectLeaks", "kind": "option", "desc": "指定检测泄漏的方式", "valueHint": "<模式>", "enum": ["Scan", "ScanAndFix", "OfflineScanAndFix", "QuerySpaceForFix"] },
+        { "token": "-Salvage", "kind": "option", "desc": "指定 ReFS 卷的抢救方式", "valueHint": "<模式>", "enum": ["Diagnose", "Scan", "Copy", "ScanAndCopy", "QuickScan", "QuickScanAndCopy"] },
+        { "token": "-DirectoryIds", "kind": "option", "desc": "指定要抢救的目录标识符", "valueHint": "<目录ID>" },
+        { "token": "-ScratchFile", "kind": "option", "desc": "指定修复时使用的暂存文件", "valueHint": "<文件路径>" },
+        { "token": "-ScratchDir", "kind": "option", "desc": "指定修复时使用的暂存目录", "valueHint": "<目录路径>" },
+        { "token": "-TargetFile", "kind": "option", "desc": "指定抢救输出的目标文件", "valueHint": "<文件路径>" },
+        { "token": "-TargetDir", "kind": "option", "desc": "指定抢救输出的目标目录", "valueHint": "<目录路径>" },
+        { "token": "-Threads", "kind": "option", "desc": "指定修复使用的线程数", "valueHint": "<线程数>" },
+        { "token": "-ObjectId", "kind": "option", "desc": "按对象标识符指定目标卷", "valueHint": "<对象ID>" },
+        { "token": "-Path", "kind": "option", "desc": "按卷对象路径指定目标", "valueHint": "<路径>" },
+        { "token": "-FileSystemLabel", "kind": "option", "desc": "按文件系统标签指定目标卷", "valueHint": "<卷标>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入卷对象作为目标", "valueHint": "<卷对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Optimize-Volume",
+      "aliases": [],
+      "title": "优化卷性能",
+      "desc": "对卷执行碎片整理、TRIM、分层优化或分析：-Defrag 整理机械盘碎片，-ReTrim 为固态盘回收无效页，-Analyze 只分析不改动。固态盘不建议频繁执行传统碎片整理。",
+      "usage": "Optimize-Volume [-DriveLetter] <char[]> [-ReTrim] [-Analyze] [-Defrag] [-SlabConsolidate] [-TierOptimize] [-NormalPriority] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["碎片整理", "TRIM", "优化"],
+      "examples": [
+        { "cmd": "Optimize-Volume -DriveLetter C -Analyze", "desc": "分析 C 盘的碎片情况，不做改动" },
+        { "cmd": "Optimize-Volume -DriveLetter D -Defrag", "desc": "对 D 盘执行碎片整理" },
+        { "cmd": "Optimize-Volume -DriveLetter C -ReTrim", "desc": "为固态盘 C 执行 TRIM 回收" }
+      ],
+      "form": [
+        { "token": "", "label": "盘符", "type": "text", "value": "C", "hint": "要优化的卷盘符" },
+        { "token": "-Analyze", "label": "仅分析", "type": "flag", "value": "true", "hint": "只报告碎片情况" },
+        { "token": "-Defrag", "label": "碎片整理", "type": "flag", "value": "false", "hint": "适合机械硬盘" },
+        { "token": "-ReTrim", "label": "TRIM", "type": "flag", "value": "false", "hint": "适合固态硬盘" }
+      ],
+      "nodes": [
+        { "token": "<盘符>", "kind": "value", "desc": "要优化的卷盘符，如 C", "valueHint": "盘符" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要优化的卷", "valueHint": "<盘符>" },
+        { "token": "-Analyze", "kind": "flag", "desc": "只分析碎片情况，不做改动" },
+        { "token": "-Defrag", "kind": "flag", "desc": "对卷执行碎片整理" },
+        { "token": "-ReTrim", "kind": "flag", "desc": "为固态盘执行 TRIM 回收" },
+        { "token": "-SlabConsolidate", "kind": "flag", "desc": "对分层存储执行块合并" },
+        { "token": "-TierOptimize", "kind": "flag", "desc": "对存储层执行优化" },
+        { "token": "-NormalPriority", "kind": "flag", "desc": "以普通优先级运行优化" },
+        { "token": "-ObjectId", "kind": "option", "desc": "按对象标识符指定目标卷", "valueHint": "<对象ID>" },
+        { "token": "-Path", "kind": "option", "desc": "按卷对象路径指定目标", "valueHint": "<路径>" },
+        { "token": "-FileSystemLabel", "kind": "option", "desc": "按文件系统标签指定目标卷", "valueHint": "<卷标>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入卷对象作为目标", "valueHint": "<卷对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Get-DiskImage",
+      "aliases": [],
+      "title": "查看磁盘映像",
+      "desc": "查询 VHD、VHDX、VHDSet 或 ISO 映像文件的信息，包括是否已经挂载以及对应的磁盘对象。可以传映像文件路径、设备路径或已挂载的卷对象。挂载或卸载前先确认映像状态很有用。",
+      "usage": "Get-DiskImage [-ImagePath] <string[]> [-StorageType <StorageType>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["VHD", "ISO", "挂载"],
+      "examples": [
+        { "cmd": "Get-DiskImage -ImagePath 'D:\\vm\\disk.vhdx'", "desc": "查看指定 VHDX 映像的状态" },
+        { "cmd": "Get-DiskImage -ImagePath 'D:\\iso\\win11.iso' | Get-Volume", "desc": "查看已挂载 ISO 中的卷" },
+        { "cmd": "Get-DiskImage -ImagePath 'D:\\vm\\disk.vhdx' | Select-Object Attached, StorageType, Size", "desc": "查看映像是否已挂载及类型与大小" }
+      ],
+      "form": [
+        { "token": "", "label": "映像路径", "type": "path", "value": "D:\\vm\\disk.vhdx", "hint": "VHD、VHDX 或 ISO 文件路径" },
+        { "token": "-StorageType", "label": "映像类型", "type": "select", "value": "VHDX", "hint": "指定映像文件类型", "options": ["ISO", "VHD", "VHDX", "VHDSet"] },
+        { "token": "-DevicePath", "label": "设备路径", "type": "text", "value": "", "hint": "已知设备路径时可直接指定" }
+      ],
+      "nodes": [
+        { "token": "<镜像路径>", "kind": "value", "desc": "映像文件路径，如 VHDX 或 ISO", "valueHint": "映像路径" },
+        { "token": "-ImagePath", "kind": "option", "desc": "按文件路径指定要查询的映像", "valueHint": "<映像路径>" },
+        { "token": "-StorageType", "kind": "option", "desc": "指定映像类型", "valueHint": "<类型>", "enum": ["ISO", "VHD", "VHDX", "VHDSet"] },
+        { "token": "-DevicePath", "kind": "option", "desc": "按设备路径查询已挂载的映像", "valueHint": "<设备路径>" },
+        { "token": "-Volume", "kind": "option", "desc": "传入卷对象反查其所属映像", "valueHint": "<卷对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "Get-DiskImage -ImagePath 'D:\\vm\\disk.vhdx' | Mount-DiskImage", "kind": "syntax", "desc": "先查询映像再通过管道挂载" },
+        { "token": "(Get-DiskImage -ImagePath 'D:\\vm\\disk.vhdx').Attached", "kind": "syntax", "desc": "直接读取映像的挂载状态属性" }
+      ]
+    },
+    {
+      "name": "Mount-DiskImage",
+      "aliases": [],
+      "title": "挂载磁盘映像",
+      "desc": "挂载 VHD、VHDX、VHDSet 或 ISO 映像，使其像普通磁盘一样可访问。默认会自动分配盘符，用 -NoDriveLetter 可只挂载不分配盘符，-Access ReadOnly 则以只读方式挂载。需要管理员权限。",
+      "usage": "Mount-DiskImage [-ImagePath] <string[]> [-StorageType <StorageType>] [-Access <Access>] [-NoDriveLetter] [-PassThru] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["挂载", "VHD", "ISO"],
+      "examples": [
+        { "cmd": "Mount-DiskImage -ImagePath 'D:\\vm\\disk.vhdx'", "desc": "挂载 VHDX 并自动分配盘符" },
+        { "cmd": "Mount-DiskImage -ImagePath 'D:\\iso\\win11.iso' -Access ReadOnly", "desc": "以只读方式挂载 ISO" },
+        { "cmd": "Mount-DiskImage -ImagePath 'D:\\vm\\disk.vhdx' -NoDriveLetter -PassThru", "desc": "挂载但不分配盘符并返回映像对象" }
+      ],
+      "form": [
+        { "token": "", "label": "映像路径", "type": "path", "value": "D:\\vm\\disk.vhdx", "hint": "要挂载的映像文件" },
+        { "token": "-Access", "label": "访问方式", "type": "select", "value": "ReadWrite", "hint": "只读挂载可保护映像内容", "options": ["ReadWrite", "ReadOnly"] },
+        { "token": "-NoDriveLetter", "label": "不分配盘符", "type": "flag", "value": "false", "hint": "挂载后不占用盘符" },
+        { "token": "-PassThru", "label": "返回对象", "type": "flag", "value": "false", "hint": "输出映像对象" }
+      ],
+      "nodes": [
+        { "token": "<镜像路径>", "kind": "value", "desc": "要挂载的映像文件路径", "valueHint": "映像路径" },
+        { "token": "-ImagePath", "kind": "option", "desc": "按文件路径指定要挂载的映像", "valueHint": "<映像路径>" },
+        { "token": "-StorageType", "kind": "option", "desc": "指定映像类型", "valueHint": "<类型>", "enum": ["ISO", "VHD", "VHDX", "VHDSet"] },
+        { "token": "-Access", "kind": "option", "desc": "指定只读或读写挂载", "valueHint": "<访问方式>", "enum": ["ReadWrite", "ReadOnly"] },
+        { "token": "-NoDriveLetter", "kind": "flag", "desc": "挂载后不自动分配盘符" },
+        { "token": "-PassThru", "kind": "flag", "desc": "返回挂载后的映像对象" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入映像对象进行挂载", "valueHint": "<映像对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Dismount-DiskImage",
+      "aliases": [],
+      "title": "卸载磁盘映像",
+      "desc": "卸载已挂载的 VHD、VHDX 或 ISO 映像，使其不再作为磁盘出现。卸载前应关闭占用该卷的文件与程序，否则会失败。可用映像路径、设备路径或映像对象指定目标。",
+      "usage": "Dismount-DiskImage [-ImagePath] <string[]> [-StorageType <StorageType>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 1,
+      "tags": ["卸载", "VHD", "ISO"],
+      "examples": [
+        { "cmd": "Dismount-DiskImage -ImagePath 'D:\\vm\\disk.vhdx'", "desc": "卸载指定的 VHDX 映像" },
+        { "cmd": "Get-DiskImage -ImagePath 'D:\\iso\\win11.iso' | Dismount-DiskImage", "desc": "查到映像对象后通过管道卸载" },
+        { "cmd": "Dismount-DiskImage -ImagePath 'D:\\vm\\disk.vhdx' -StorageType VHDX", "desc": "同时指定映像类型以确保匹配" }
+      ],
+      "form": [
+        { "token": "", "label": "映像路径", "type": "path", "value": "D:\\vm\\disk.vhdx", "hint": "要卸载的映像文件" },
+        { "token": "-StorageType", "label": "映像类型", "type": "select", "value": "VHDX", "hint": "指定映像文件类型", "options": ["ISO", "VHD", "VHDX", "VHDSet"] },
+        { "token": "-DevicePath", "label": "设备路径", "type": "text", "value": "", "hint": "已知设备路径时可直接指定" }
+      ],
+      "nodes": [
+        { "token": "<镜像路径>", "kind": "value", "desc": "要卸载的映像文件路径", "valueHint": "映像路径" },
+        { "token": "-ImagePath", "kind": "option", "desc": "按文件路径指定要卸载的映像", "valueHint": "<映像路径>" },
+        { "token": "-DevicePath", "kind": "option", "desc": "按设备路径指定要卸载的映像", "valueHint": "<设备路径>" },
+        { "token": "-StorageType", "kind": "option", "desc": "指定映像类型", "valueHint": "<类型>", "enum": ["ISO", "VHD", "VHDX", "VHDSet"] },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入映像对象进行卸载", "valueHint": "<映像对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "Dismount-DiskImage -ImagePath 'D:\\vm\\disk.vhdx' -StorageType VHDX", "kind": "syntax", "desc": "带类型卸载，避免路径解析歧义" },
+        { "token": "Get-DiskImage -ImagePath 'D:\\iso\\win11.iso' | Dismount-DiskImage", "kind": "syntax", "desc": "查询映像后通过管道卸载" }
+      ]
+    },
+    {
+      "name": "Get-StorageReliabilityCounter",
+      "aliases": [],
+      "title": "查看磁盘可靠性计数",
+      "desc": "读取物理磁盘的可靠性计数器，例如温度、通电小时数、读写错误总数与磨损度。只能用 -PhysicalDisk 或 -Disk 指定目标，通常配合管道使用。数据来自磁盘固件，部分磁盘并不提供全部字段。",
+      "usage": "Get-StorageReliabilityCounter -PhysicalDisk <CimInstance#MSFT_PhysicalDisk> [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["SMART", "温度", "磨损"],
+      "examples": [
+        { "cmd": "Get-PhysicalDisk | Get-StorageReliabilityCounter", "desc": "读取所有物理磁盘的可靠性计数" },
+        { "cmd": "(Get-PhysicalDisk -DeviceNumber 0 | Get-StorageReliabilityCounter).Temperature", "desc": "读取 0 号磁盘的当前温度" },
+        { "cmd": "Get-Disk -Number 0 | Get-StorageReliabilityCounter | Format-List", "desc": "用列表方式查看 0 号磁盘的全部计数" }
+      ],
+      "form": [
+        { "token": "-PhysicalDisk", "label": "物理磁盘", "type": "text", "value": "(Get-PhysicalDisk -DeviceNumber 0)", "hint": "物理磁盘对象，通常由管道传入" },
+        { "token": "-Disk", "label": "磁盘", "type": "text", "value": "(Get-Disk -Number 0)", "hint": "磁盘对象，与物理磁盘二选一" }
+      ],
+      "nodes": [
+        { "token": "-PhysicalDisk", "kind": "option", "desc": "指定要读取计数的物理磁盘对象", "valueHint": "<物理磁盘对象>" },
+        { "token": "-Disk", "kind": "option", "desc": "指定要读取计数的磁盘对象", "valueHint": "<磁盘对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" },
+        { "token": "Get-PhysicalDisk | Get-StorageReliabilityCounter", "kind": "syntax", "desc": "用管道传入全部物理磁盘读取计数" },
+        { "token": "Get-Disk -Number 0 | Get-StorageReliabilityCounter", "kind": "syntax", "desc": "用磁盘对象读取可靠性计数" },
+        { "token": "... | Select-Object Temperature, TemperatureMax, Wear", "kind": "syntax", "desc": "查看当前温度、历史最高温与磨损度" },
+        { "token": "... | Select-Object PowerOnHours, StartStopCycleCount", "kind": "syntax", "desc": "查看通电小时数与启停次数" },
+        { "token": "... | Select-Object ReadErrorsTotal, WriteErrorsTotal", "kind": "syntax", "desc": "查看读写错误总数以评估健康度" },
+        { "token": "... | Select-Object ReadLatencyMax, WriteLatencyMax", "kind": "syntax", "desc": "查看最大读写延迟" }
+      ]
+    },
+    {
+      "name": "Get-PartitionSupportedSize",
+      "aliases": [],
+      "title": "查看分区可调大小",
+      "desc": "查询指定分区可以调整到的最小与最大尺寸，是扩容或缩容前的必要检查，返回 MinSize 与 MaxSize 两个值。缩小会受已用数据与文件系统限制，扩大则受相邻未分配空间限制。",
+      "usage": "Get-PartitionSupportedSize [-DiskNumber] <uint32[]> [[-PartitionNumber] <uint32[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["分区", "容量", "扩容"],
+      "examples": [
+        { "cmd": "Get-PartitionSupportedSize -DiskNumber 0 -PartitionNumber 2", "desc": "查看 0 号磁盘 2 号分区的可用大小范围" },
+        { "cmd": "Get-PartitionSupportedSize -DriveLetter D", "desc": "按盘符查看 D 盘可调整的范围" },
+        { "cmd": "(Get-PartitionSupportedSize -DriveLetter D).MaxSize / 1GB", "desc": "把最大可扩容值换算成 GB" }
+      ],
+      "form": [
+        { "token": "", "label": "磁盘号", "type": "number", "value": "0", "hint": "目标分区所在磁盘" },
+        { "token": "-PartitionNumber", "label": "分区号", "type": "number", "value": "2", "hint": "要查询的分区编号" },
+        { "token": "-DriveLetter", "label": "盘符", "type": "text", "value": "D", "hint": "也可直接用盘符查询" }
+      ],
+      "nodes": [
+        { "token": "<磁盘号>", "kind": "value", "desc": "目标分区所在磁盘编号", "valueHint": "磁盘号" },
+        { "token": "<分区号>", "kind": "value", "desc": "要查询的分区编号", "valueHint": "分区号" },
+        { "token": "-DiskNumber", "kind": "option", "desc": "按磁盘编号指定目标", "valueHint": "<磁盘号>" },
+        { "token": "-PartitionNumber", "kind": "option", "desc": "按分区编号指定目标", "valueHint": "<分区号>" },
+        { "token": "-DriveLetter", "kind": "option", "desc": "按盘符指定要查询的分区", "valueHint": "<盘符>" },
+        { "token": "-DiskId", "kind": "option", "desc": "按磁盘标识符配合偏移量定位", "valueHint": "<磁盘标识>" },
+        { "token": "-Offset", "kind": "option", "desc": "按分区起始偏移量定位分区", "valueHint": "<字节>" },
+        { "token": "-InputObject", "kind": "option", "desc": "直接传入分区对象作为目标", "valueHint": "<分区对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    },
+    {
+      "name": "Get-StorageJob",
+      "aliases": [],
+      "title": "查看存储作业",
+      "desc": "查询存储模块中长时间运行的作业，例如虚拟磁盘修复、存储池优化或格式化任务的进度与状态。可用 -JobState 过滤正在运行或已完成的作业。排障时用它确认后台任务是否卡住。",
+      "usage": "Get-StorageJob [-Name <string[]>] [-JobState <JobState[]>] [-CimSession <CimSession[]>] [-ThrottleLimit <int>] [-AsJob]",
+      "admin": true,
+      "danger": 0,
+      "tags": ["存储作业", "后台任务", "进度"],
+      "examples": [
+        { "cmd": "Get-StorageJob", "desc": "列出全部存储作业" },
+        { "cmd": "Get-StorageJob -JobState Running", "desc": "只看正在运行的存储作业" },
+        { "cmd": "Get-StorageJob -Volume (Get-Volume -DriveLetter D)", "desc": "查看与 D 盘相关的存储作业" }
+      ],
+      "form": [
+        { "token": "-JobState", "label": "作业状态", "type": "select", "value": "Running", "hint": "按作业状态筛选", "options": ["Running", "Suspended", "Completed", "Terminated", "Killed", "Exception", "QueryPending"] },
+        { "token": "-Name", "label": "作业名称", "type": "text", "value": "", "hint": "按作业名称筛选" },
+        { "token": "-Volume", "label": "卷", "type": "text", "value": "", "hint": "按关联的卷筛选作业" }
+      ],
+      "nodes": [
+        { "token": "-Name", "kind": "option", "desc": "按作业名称筛选", "valueHint": "<名称>" },
+        { "token": "-UniqueId", "kind": "option", "desc": "按作业唯一标识符筛选", "valueHint": "<GUID>" },
+        { "token": "-JobState", "kind": "option", "desc": "按作业状态筛选", "valueHint": "<状态>", "enum": ["Running", "Suspended", "Completed", "Terminated", "Killed", "Exception", "QueryPending"] },
+        { "token": "-Volume", "kind": "option", "desc": "只看与指定卷相关的作业", "valueHint": "<卷对象>" },
+        { "token": "-Disk", "kind": "option", "desc": "只看与指定磁盘相关的作业", "valueHint": "<磁盘对象>" },
+        { "token": "-VirtualDisk", "kind": "option", "desc": "只看与指定虚拟磁盘相关的作业", "valueHint": "<虚拟磁盘对象>" },
+        { "token": "-StoragePool", "kind": "option", "desc": "只看与指定存储池相关的作业", "valueHint": "<存储池对象>" },
+        { "token": "-StorageSubsystem", "kind": "option", "desc": "只看指定子系统上的作业", "valueHint": "<子系统对象>" },
+        { "token": "-CimSession", "kind": "option", "desc": "在指定的 CIM 会话上运行", "valueHint": "<会话>" },
+        { "token": "-ThrottleLimit", "kind": "option", "desc": "同时执行的并发操作上限", "valueHint": "<数量>" },
+        { "token": "-AsJob", "kind": "flag", "desc": "以后台作业方式运行" }
+      ]
+    }
+  ]
+}

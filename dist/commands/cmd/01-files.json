@@ -1,0 +1,4778 @@
+{
+  "schema": 1,
+  "category": "文件与目录",
+  "icon": "folder",
+  "commands": [
+    {
+      "name": "dir",
+      "title": "列出目录内容",
+      "desc": "显示指定目录下的文件和子目录列表，包括名称、大小、修改时间等信息。是查看磁盘上有什么文件时最先使用的命令，不加参数就列出当前目录。加上 /S 可以递归搜索整个目录树，配合通配符能快速定位文件。",
+      "usage": "dir [<盘符>:][<路径>][<文件名>] [/A[[:]属性]] [/O[[:]排序]] [/S] [/B] [/W] [/P]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "目录",
+        "列表",
+        "查找文件"
+      ],
+      "examples": [
+        {
+          "cmd": "dir",
+          "desc": "列出当前目录下的文件和子目录"
+        },
+        {
+          "cmd": "dir C:\\Windows\\System32 /O:S /A:-D",
+          "desc": "按文件大小升序列出 System32 下所有文件"
+        },
+        {
+          "cmd": "dir /S /B *.log",
+          "desc": "递归搜索当前目录树中所有 .log 文件并只输出完整路径"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "路径或通配符",
+          "type": "path",
+          "value": "",
+          "hint": "留空表示当前目录，可写 D:\\Data 或 *.txt"
+        },
+        {
+          "token": "/A",
+          "label": "按属性筛选",
+          "type": "select",
+          "value": "",
+          "hint": "按属性筛选条目",
+          "options": [
+            "",
+            "D",
+            "R",
+            "H",
+            "S",
+            "A",
+            "-D",
+            "-H"
+          ]
+        },
+        {
+          "token": "/O",
+          "label": "排序方式",
+          "type": "select",
+          "value": "",
+          "hint": "指定排序字段",
+          "options": [
+            "",
+            "N",
+            "S",
+            "E",
+            "D",
+            "G",
+            "-N",
+            "-S"
+          ]
+        },
+        {
+          "token": "/S",
+          "label": "递归子目录",
+          "type": "flag",
+          "value": "false",
+          "hint": "包含所有子目录中的文件"
+        },
+        {
+          "token": "/B",
+          "label": "简洁格式",
+          "type": "flag",
+          "value": "false",
+          "hint": "只输出名称和路径，去掉表头与摘要"
+        },
+        {
+          "token": "/W",
+          "label": "宽列表",
+          "type": "flag",
+          "value": "false",
+          "hint": "多列显示文件名"
+        },
+        {
+          "token": "/P",
+          "label": "分屏暂停",
+          "type": "flag",
+          "value": "false",
+          "hint": "每显示一屏暂停一次"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "指定要列出的驱动器，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要列出的目录路径，例如 C:\\Windows",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要匹配的文件名或通配符，例如 *.txt",
+          "valueHint": "通配符"
+        },
+        {
+          "token": "/A",
+          "kind": "option",
+          "desc": "按属性筛选，冒号后接属性字母组合",
+          "valueHint": "[:]<属性>",
+          "enum": [
+            "D",
+            "R",
+            "H",
+            "S",
+            "A",
+            "-D",
+            "-H",
+            "-S"
+          ]
+        },
+        {
+          "token": "/O",
+          "kind": "option",
+          "desc": "按指定字段排序，冒号后接排序字母",
+          "valueHint": "[:]<排序>",
+          "enum": [
+            "N",
+            "S",
+            "E",
+            "D",
+            "G",
+            "-N",
+            "-S",
+            "-E"
+          ]
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "递归列出所有子目录中的文件"
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "使用简洁格式，只输出名称和路径"
+        },
+        {
+          "token": "/W",
+          "kind": "flag",
+          "desc": "使用宽列表格式，多列显示文件名"
+        },
+        {
+          "token": "/P",
+          "kind": "flag",
+          "desc": "每显示满一屏后暂停，按任意键继续"
+        },
+        {
+          "token": "/T",
+          "kind": "option",
+          "desc": "控制时间字段的显示方式",
+          "valueHint": "[:]<时间字段>",
+          "enum": [
+            "C",
+            "A",
+            "W"
+          ]
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "用小写字母显示未排序的目录和文件名"
+        }
+      ]
+    },
+    {
+      "name": "cd",
+      "title": "切换当前目录",
+      "desc": "改变命令提示符的当前工作目录，也叫 chdir。所有使用相对路径的命令都以当前目录为基准，所以进入某个目录后再操作文件最方便。只写 cd 不带参数会显示当前目录，加 /D 可以同时切换盘符。",
+      "usage": "cd [/D] [<盘符>:][<路径>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "切换目录",
+        "工作目录",
+        "路径"
+      ],
+      "examples": [
+        {
+          "cmd": "cd C:\\Windows\\System32",
+          "desc": "切换到 System32 目录"
+        },
+        {
+          "cmd": "cd /D D:\\Data\\Logs",
+          "desc": "跨盘符直接切换到 D 盘目录"
+        },
+        {
+          "cmd": "cd ..",
+          "desc": "返回上一级目录"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标目录",
+          "type": "path",
+          "value": "C:\\Windows",
+          "hint": "要进入的目录，支持相对路径"
+        },
+        {
+          "token": "/D",
+          "label": "同时换盘符",
+          "type": "flag",
+          "value": "false",
+          "hint": "跨驱动器切换时必须勾选"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "目标驱动器盘符，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要切换到的目录路径，支持相对路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "pushd",
+          "kind": "subcommand",
+          "desc": "保存当前目录并切换，可用 popd 还原",
+          "children": [
+            {
+              "token": "<目录>",
+              "kind": "value",
+              "desc": "要进入的目录，会压入目录栈",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "popd",
+              "kind": "subcommand",
+              "desc": "弹出目录栈顶并切回该目录",
+              "children": [
+                {
+                  "token": "/?",
+                  "kind": "flag",
+                  "desc": "显示 popd 的帮助信息"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "..",
+          "kind": "syntax",
+          "desc": "返回上一级目录"
+        },
+        {
+          "token": "\\",
+          "kind": "syntax",
+          "desc": "回到当前驱动器的根目录"
+        },
+        {
+          "token": "</D>",
+          "kind": "syntax",
+          "desc": "由环境变量 CMDCMDLINE 或 CD 环境变量分隔，用于扩展命令"
+        },
+        {
+          "token": "\"%CD%\"",
+          "kind": "syntax",
+          "desc": "读取当前目录环境变量，常用于脚本中引用"
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "切换目录的同时改变当前驱动器"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "md",
+      "title": "创建目录",
+      "desc": "创建一个或多个新目录，等价写法是 mkdir。默认会连同中间缺失的父目录一起建立，也就是可以一次创建多层路径。目录已存在时会报错但并不影响脚本继续执行，路径含空格需要加英文双引号。",
+      "usage": "md [<盘符>:]<路径> [<路径>] ...",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "新建目录",
+        "创建文件夹"
+      ],
+      "examples": [
+        {
+          "cmd": "md D:\\Backup\\2024",
+          "desc": "在 D 盘创建 Backup\\2024 多层目录"
+        },
+        {
+          "cmd": "md \"C:\\My Data\\Logs\"",
+          "desc": "创建含空格的目录，路径要用英文双引号包裹"
+        },
+        {
+          "cmd": "md Temp1 Temp2",
+          "desc": "一次在当前目录创建两个子目录"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目录路径",
+          "type": "text",
+          "value": "D:\\Backup\\2024",
+          "hint": "可一次写多个，用空格分隔"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "目标驱动器盘符，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要创建的目录路径，可一次写多个",
+          "valueHint": "目录路径",
+          "repeatable": true
+        },
+        {
+          "token": "\"<含空格路径>\"",
+          "kind": "value",
+          "desc": "路径中有空格时必须用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "mkdir",
+          "kind": "subcommand",
+          "desc": "md 的等价完整写法，用法完全相同",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要创建的目录路径",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/?",
+              "kind": "flag",
+              "desc": "显示 mkdir 的帮助信息"
+            }
+          ]
+        },
+        {
+          "token": "if not exist",
+          "kind": "subcommand",
+          "desc": "脚本中先判断目录不存在再创建，避免报错",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要检测是否存在的目录路径",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "md",
+              "kind": "subcommand",
+              "desc": "条件成立时执行创建目录",
+              "children": [
+                {
+                  "token": "<路径>",
+                  "kind": "value",
+                  "desc": "条件成立时要创建的目录",
+                  "valueHint": "目录路径"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "\\",
+          "kind": "syntax",
+          "desc": "反斜杠作为目录分隔符，可一次创建多层"
+        },
+        {
+          "token": "%USERPROFILE%",
+          "kind": "syntax",
+          "desc": "引用环境变量拼接用户目录路径"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "rd",
+      "title": "删除目录",
+      "desc": "删除一个或多个目录，等价写法是 rmdir。默认只能删除空目录，加上 /S 才会连同里面的所有文件和子目录一起删除，再加 /Q 则不再询问确认。是清理目录结构的命令，误用 /S /Q 会造成不可恢复的数据丢失。",
+      "usage": "rd [/S] [/Q] [<盘符>:]<路径>",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "删除目录",
+        "清理",
+        "高危"
+      ],
+      "examples": [
+        {
+          "cmd": "rd D:\\Temp\\Empty",
+          "desc": "删除一个空目录"
+        },
+        {
+          "cmd": "rd /S /Q D:\\Temp\\Build",
+          "desc": "静默删除 Build 目录及其全部内容，无法恢复"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目录路径",
+          "type": "path",
+          "value": "D:\\Temp\\Build",
+          "hint": "要删除的目录，谨慎填写"
+        },
+        {
+          "token": "/S",
+          "label": "递归删除",
+          "type": "flag",
+          "value": "false",
+          "hint": "连同子目录和文件一起删除"
+        },
+        {
+          "token": "/Q",
+          "label": "静默模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除时不询问确认"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "目标驱动器盘符，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要删除的目录路径，可用通配符匹配多个",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "\"<带空格路径>\"",
+          "kind": "value",
+          "desc": "路径含空格时用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "rmdir",
+          "kind": "subcommand",
+          "desc": "rd 的等价完整写法，用法完全相同",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要删除的目录路径",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/S",
+              "kind": "flag",
+              "desc": "递归删除所有内容"
+            },
+            {
+              "token": "/Q",
+              "kind": "flag",
+              "desc": "不提示确认"
+            }
+          ]
+        },
+        {
+          "token": "if exist",
+          "kind": "subcommand",
+          "desc": "脚本中先判断目录存在再删除，避免报错",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要检测的目录路径",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "rd",
+              "kind": "subcommand",
+              "desc": "条件成立时执行删除",
+              "children": [
+                {
+                  "token": "/S",
+                  "kind": "flag",
+                  "desc": "递归删除子目录和文件"
+                },
+                {
+                  "token": "/Q",
+                  "kind": "flag",
+                  "desc": "不提示确认"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "删除目录树中的全部文件和子目录，高危"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "安静模式，用 /S 删除时不提示确认"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "copy",
+      "title": "复制文件",
+      "desc": "把一个或多个文件复制到另一个位置，也可以用来合并文件。只能复制文件不能复制目录树，目录整体复制要用 xcopy 或 robocopy。默认遇到同名文件会询问是否覆盖，加 /Y 可跳过询问。",
+      "usage": "copy [/Y] [/-Y] [/V] <源> [<目标>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "复制",
+        "备份",
+        "覆盖"
+      ],
+      "examples": [
+        {
+          "cmd": "copy D:\\Data\\a.txt D:\\Backup\\",
+          "desc": "把单个文件复制到 Backup 目录"
+        },
+        {
+          "cmd": "copy /Y *.txt D:\\Backup\\",
+          "desc": "把所有 txt 文件覆盖复制到目标目录，不再询问"
+        },
+        {
+          "cmd": "copy a.txt+b.txt all.txt",
+          "desc": "把两个文件按顺序合并成一个新文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源文件",
+          "type": "text",
+          "value": "D:\\Data\\a.txt",
+          "hint": "支持通配符，可多个"
+        },
+        {
+          "token": "",
+          "label": "目标位置",
+          "type": "text",
+          "value": "D:\\Backup\\",
+          "hint": "目录或新文件名"
+        },
+        {
+          "token": "/Y",
+          "label": "覆盖不询问",
+          "type": "flag",
+          "value": "true",
+          "hint": "直接覆盖同名文件"
+        },
+        {
+          "token": "/V",
+          "label": "校验写入",
+          "type": "flag",
+          "value": "false",
+          "hint": "验证新文件写入是否正确"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源文件>",
+          "kind": "value",
+          "desc": "要复制的文件，支持通配符和多个源",
+          "valueHint": "源文件",
+          "repeatable": true
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "目标目录或新文件名，省略则复制到当前目录",
+          "valueHint": "目标路径"
+        },
+        {
+          "token": "con",
+          "kind": "subcommand",
+          "desc": "把控制台输入内容写入文件，按 Ctrl+Z 结束",
+          "children": [
+            {
+              "token": "<目标文件>",
+              "kind": "value",
+              "desc": "接收输入内容的文件名",
+              "valueHint": "文件名"
+            },
+            {
+              "token": "/A",
+              "kind": "flag",
+              "desc": "以 ASCII 文本方式写入"
+            }
+          ]
+        },
+        {
+          "token": "+",
+          "kind": "syntax",
+          "desc": "用加号连接多个源文件可合并为一个文件"
+        },
+        {
+          "token": "/Y",
+          "kind": "flag",
+          "desc": "取消覆盖已有文件时的确认提示"
+        },
+        {
+          "token": "/-Y",
+          "kind": "flag",
+          "desc": "强制要求覆盖时给出确认提示"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "校验新文件是否被正确写入"
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "复制时保留文件的归档属性"
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "按二进制模式复制，适合复制非文本文件"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "move",
+      "title": "移动或改名",
+      "desc": "把文件或目录移动到另一个位置，同一分区内是快速改名而非真正拷贝。也可以给文件或目录重命名，相当于把源移动到同目录下的新名字。跨分区移动目录时会实际复制再删除源，目标已存在同名文件时默认会询问。",
+      "usage": "move [/Y | /-Y] <源> <目标>",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "移动",
+        "重命名",
+        "整理"
+      ],
+      "examples": [
+        {
+          "cmd": "move D:\\Data\\a.txt D:\\Backup\\",
+          "desc": "把文件移动到 Backup 目录"
+        },
+        {
+          "cmd": "move /Y D:\\Old D:\\Archive\\Old2024",
+          "desc": "移动并重命名目录，覆盖同名项不询问"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源",
+          "type": "text",
+          "value": "D:\\Data\\a.txt",
+          "hint": "要移动的文件或目录"
+        },
+        {
+          "token": "",
+          "label": "目标",
+          "type": "text",
+          "value": "D:\\Backup\\",
+          "hint": "目标目录或新名称"
+        },
+        {
+          "token": "/Y",
+          "label": "覆盖不询问",
+          "type": "flag",
+          "value": "true",
+          "hint": "直接覆盖目标中的同名文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源>",
+          "kind": "value",
+          "desc": "要移动的文件或目录，支持通配符",
+          "valueHint": "源路径"
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "目标目录或新名称",
+          "valueHint": "目标路径"
+        },
+        {
+          "token": "\"<带空格路径>\"",
+          "kind": "value",
+          "desc": "路径含空格时必须用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "D:",
+          "kind": "subcommand",
+          "desc": "跨分区移动目录时会复制后删除源",
+          "children": [
+            {
+              "token": "<源目录>",
+              "kind": "value",
+              "desc": "要跨分区移动的目录",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "<目标目录>",
+              "kind": "value",
+              "desc": "目标分区上的目录",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/Y",
+              "kind": "flag",
+              "desc": "覆盖时不提示确认"
+            }
+          ]
+        },
+        {
+          "token": "ren",
+          "kind": "subcommand",
+          "desc": "只改名字不换位置时可用 ren 代替",
+          "children": [
+            {
+              "token": "<原名称>",
+              "kind": "value",
+              "desc": "当前的文件或目录名",
+              "valueHint": "原名"
+            },
+            {
+              "token": "<新名称>",
+              "kind": "value",
+              "desc": "修改后的名称，不能带路径",
+              "valueHint": "新名"
+            }
+          ]
+        },
+        {
+          "token": "%1",
+          "kind": "syntax",
+          "desc": "批处理参数占位，脚本中常用来接收拖入的文件"
+        },
+        {
+          "token": "/Y",
+          "kind": "flag",
+          "desc": "取消覆盖目标同名文件时的确认提示"
+        },
+        {
+          "token": "/-Y",
+          "kind": "flag",
+          "desc": "强制在覆盖同名文件前给出确认提示"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "del",
+      "title": "删除文件",
+      "desc": "删除一个或多个文件，等价写法是 erase。默认删除到回收站以外，被删除的文件一般无法通过回收站恢复。加上 /S 会递归删除所有子目录中的匹配文件，/F 强制删除只读文件，/Q 静默执行。",
+      "usage": "del <文件名> [/P] [/F] [/S] [/Q] [/A[[:]属性]]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "删除文件",
+        "清理",
+        "高危"
+      ],
+      "examples": [
+        {
+          "cmd": "del D:\\Temp\\a.txt",
+          "desc": "删除单个文件"
+        },
+        {
+          "cmd": "del /F /S /Q D:\\Temp\\*.tmp",
+          "desc": "静默强制递归删除所有临时文件，不可恢复"
+        },
+        {
+          "cmd": "del /P D:\\Data\\old.log",
+          "desc": "删除前先询问确认"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "text",
+          "value": "D:\\Temp\\*.tmp",
+          "hint": "支持通配符，可多个"
+        },
+        {
+          "token": "/S",
+          "label": "递归删除",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除所有子目录中的匹配文件"
+        },
+        {
+          "token": "/F",
+          "label": "强制删除",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除只读文件"
+        },
+        {
+          "token": "/Q",
+          "label": "静默模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "使用通配符时不提示确认"
+        },
+        {
+          "token": "/P",
+          "label": "逐个确认",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除每个文件前都询问"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要删除的文件，支持通配符，可多个",
+          "valueHint": "文件或通配符",
+          "repeatable": true
+        },
+        {
+          "token": "erase",
+          "kind": "subcommand",
+          "desc": "del 的等价完整写法，参数完全通用",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "要删除的文件或通配符",
+              "valueHint": "文件或通配符"
+            },
+            {
+              "token": "/F",
+              "kind": "flag",
+              "desc": "强制删除只读文件"
+            },
+            {
+              "token": "/Q",
+              "kind": "flag",
+              "desc": "不提示确认"
+            }
+          ]
+        },
+        {
+          "token": "\\\\.\\<盘符>:",
+          "kind": "syntax",
+          "desc": "用设备路径删除整个分区上的文件，极度危险"
+        },
+        {
+          "token": "/P",
+          "kind": "flag",
+          "desc": "删除每一个文件前都提示确认"
+        },
+        {
+          "token": "/F",
+          "kind": "flag",
+          "desc": "强制删除只读文件"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "从所有子目录中删除指定的文件"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "安静模式，删除全局通配符时不要求确认"
+        },
+        {
+          "token": "/A",
+          "kind": "option",
+          "desc": "按属性选择要删除的文件",
+          "valueHint": "[:]<属性>",
+          "enum": [
+            "R",
+            "H",
+            "S",
+            "A",
+            "-R",
+            "-H"
+          ]
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "ren",
+      "title": "重命名文件",
+      "desc": "修改文件或目录的名称，等价写法是 rename。只改名字，不能把文件移动到其它目录，也不能跨越磁盘分区。新名称中如果已存在同名文件会直接报错，通配符可以批量替换名称中的一部分。",
+      "usage": "ren <原名称> [<盘符>:][<路径>] <新名称>",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "重命名",
+        "改名",
+        "批量"
+      ],
+      "examples": [
+        {
+          "cmd": "ren D:\\Data\\a.txt b.txt",
+          "desc": "把 a.txt 改名为 b.txt"
+        },
+        {
+          "cmd": "ren *.txt *.bak",
+          "desc": "把当前目录所有 txt 文件的扩展名批量改成 bak"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "原名称",
+          "type": "text",
+          "value": "a.txt",
+          "hint": "当前文件名，可含路径和通配符"
+        },
+        {
+          "token": "",
+          "label": "新名称",
+          "type": "text",
+          "value": "b.txt",
+          "hint": "只写名称，不能带路径"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<原名称>",
+          "kind": "value",
+          "desc": "要重命名的文件或目录，可带路径",
+          "valueHint": "原名称"
+        },
+        {
+          "token": "<新名称>",
+          "kind": "value",
+          "desc": "新名称，不能包含驱动器或路径",
+          "valueHint": "新名称"
+        },
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "指定文件所在驱动器，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "原文件所在的目录路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "\"<带空格名称>\"",
+          "kind": "value",
+          "desc": "名称含空格时用英文双引号包裹",
+          "valueHint": "带引号名称"
+        },
+        {
+          "token": "rename",
+          "kind": "subcommand",
+          "desc": "ren 的等价完整写法，参数完全通用",
+          "children": [
+            {
+              "token": "<原名称>",
+              "kind": "value",
+              "desc": "当前的文件或目录名",
+              "valueHint": "原名称"
+            },
+            {
+              "token": "<新名称>",
+              "kind": "value",
+              "desc": "修改后的名称",
+              "valueHint": "新名称"
+            }
+          ]
+        },
+        {
+          "token": "move",
+          "kind": "subcommand",
+          "desc": "需要同时换目录时改用 move 命令",
+          "children": [
+            {
+              "token": "<源>",
+              "kind": "value",
+              "desc": "要移动的文件或目录",
+              "valueHint": "源路径"
+            },
+            {
+              "token": "<目标>",
+              "kind": "value",
+              "desc": "目标目录或新名称",
+              "valueHint": "目标路径"
+            }
+          ]
+        },
+        {
+          "token": "*",
+          "kind": "syntax",
+          "desc": "通配符批量替换名称中的相同部分"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "xcopy",
+      "title": "复制目录树",
+      "desc": "复制文件和整个目录树，比 copy 强在能带子目录和筛选文件。用 /E 复制所有子目录含空目录，/I 在目标不存在时按目录处理不再询问。是 robocopy 出现前最常用的批量复制工具，但仍不擅长处理超长路径和权限。",
+      "usage": "xcopy <源> [<目标>] [/E] [/I] [/S] [/H] [/Y] [/D[:日期]] [/EXCLUDE:<文件>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "复制目录",
+        "批量复制",
+        "备份"
+      ],
+      "examples": [
+        {
+          "cmd": "xcopy D:\\Data D:\\Backup\\Data /E /I /H /Y",
+          "desc": "完整复制目录树含空目录和隐藏文件，覆盖不询问"
+        },
+        {
+          "cmd": "xcopy D:\\Src D:\\Dst /S /D:2024-01-01",
+          "desc": "只复制指定日期之后更新的文件"
+        },
+        {
+          "cmd": "xcopy D:\\Src D:\\Dst /E /EXCLUDE:D:\\skip.txt",
+          "desc": "复制时排除列表文件中列出的文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源",
+          "type": "path",
+          "value": "D:\\Data",
+          "hint": "源文件或目录"
+        },
+        {
+          "token": "",
+          "label": "目标",
+          "type": "path",
+          "value": "D:\\Backup\\Data",
+          "hint": "目标目录，配合 /I 可自动创建"
+        },
+        {
+          "token": "/E",
+          "label": "含空子目录",
+          "type": "flag",
+          "value": "true",
+          "hint": "复制所有子目录，包括空的"
+        },
+        {
+          "token": "/I",
+          "label": "目标按目录处理",
+          "type": "flag",
+          "value": "true",
+          "hint": "目标不存在时不再询问直接建目录"
+        },
+        {
+          "token": "/H",
+          "label": "含隐藏文件",
+          "type": "flag",
+          "value": "false",
+          "hint": "同时复制隐藏和系统文件"
+        },
+        {
+          "token": "/Y",
+          "label": "覆盖不询问",
+          "type": "flag",
+          "value": "true",
+          "hint": "覆盖已有文件时不提示"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源>",
+          "kind": "value",
+          "desc": "要复制的源文件或源目录",
+          "valueHint": "源路径"
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "目标目录或文件名，省略则输出到当前目录",
+          "valueHint": "目标路径"
+        },
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "复制所有子目录，包括空目录"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "复制子目录，但不复制空目录"
+        },
+        {
+          "token": "/I",
+          "kind": "flag",
+          "desc": "目标不存在时按目录处理并自动创建"
+        },
+        {
+          "token": "/H",
+          "kind": "flag",
+          "desc": "同时复制隐藏文件和系统文件"
+        },
+        {
+          "token": "/Y",
+          "kind": "flag",
+          "desc": "覆盖已有文件前不提示确认"
+        },
+        {
+          "token": "/-Y",
+          "kind": "flag",
+          "desc": "覆盖已有文件前要求确认"
+        },
+        {
+          "token": "/D",
+          "kind": "option",
+          "desc": "只复制指定日期之后更改过的源文件",
+          "valueHint": "[:MM-DD-YYYY]"
+        },
+        {
+          "token": "/EXCLUDE:",
+          "kind": "option",
+          "desc": "排除清单文件里列出的字符串匹配项",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "覆盖只读文件"
+        },
+        {
+          "token": "/K",
+          "kind": "flag",
+          "desc": "复制后保留源文件的只读属性"
+        },
+        {
+          "token": "/T",
+          "kind": "flag",
+          "desc": "只创建目录结构，不复制文件"
+        },
+        {
+          "token": "/U",
+          "kind": "flag",
+          "desc": "只复制目标中已经存在的文件"
+        },
+        {
+          "token": "/M",
+          "kind": "flag",
+          "desc": "复制后清除源文件的归档属性"
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "只复制有归档属性的文件，且不清除属性"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "出错时继续复制，忽略错误"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "复制时不显示文件名"
+        },
+        {
+          "token": "/W",
+          "kind": "flag",
+          "desc": "复制前提示按任意键开始"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "robocopy",
+      "title": "健壮的文件同步",
+      "desc": "Windows 上最强的文件与目录复制同步工具，支持断点续传、多线程、镜像删除和精细的复制条件筛选。默认只复制新增或更新的文件，可以用 /MIR 让目标与源完全一致。返回值大于等于 8 才表示真的出错，这是脚本判断成功与否的关键。",
+      "usage": "robocopy <源> <目标> [<文件>[...]] [/E] [/MIR] [/PURGE] [/COPY:标志] [/MT[:n]] [/XD <目录>]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "同步",
+        "镜像",
+        "复制目录",
+        "备份"
+      ],
+      "examples": [
+        {
+          "cmd": "robocopy D:\\Data D:\\Backup\\Data /E /COPY:DAT /R:2 /W:5",
+          "desc": "完整复制目录树，失败重试 2 次、每次等 5 秒"
+        },
+        {
+          "cmd": "robocopy D:\\Src D:\\Dst /MIR /MT:16 /XD D:\\Src\\Temp",
+          "desc": "镜像同步并排除 Temp 目录，使用 16 线程"
+        },
+        {
+          "cmd": "robocopy D:\\Src D:\\Dst *.log /S /XO",
+          "desc": "只同步日志文件且不覆盖更新的目标文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源目录",
+          "type": "path",
+          "value": "D:\\Data",
+          "hint": "要复制的源目录"
+        },
+        {
+          "token": "",
+          "label": "目标目录",
+          "type": "path",
+          "value": "D:\\Backup\\Data",
+          "hint": "接收文件的目标目录"
+        },
+        {
+          "token": "",
+          "label": "文件筛选",
+          "type": "text",
+          "value": "*.*",
+          "hint": "要复制的文件名或通配符"
+        },
+        {
+          "token": "/E",
+          "label": "含空子目录",
+          "type": "flag",
+          "value": "true",
+          "hint": "复制所有子目录包括空目录"
+        },
+        {
+          "token": "/MIR",
+          "label": "镜像模式",
+          "type": "flag",
+          "value": "false",
+          "hint": "等同 /E 加 /PURGE，会删除目标多余文件"
+        },
+        {
+          "token": "/MT:",
+          "label": "线程数",
+          "type": "number",
+          "value": "16",
+          "hint": "1 到 128，默认 8"
+        },
+        {
+          "token": "/R:",
+          "label": "重试次数",
+          "type": "number",
+          "value": "2",
+          "hint": "默认 100 万次，建议设小"
+        },
+        {
+          "token": "/W:",
+          "label": "重试间隔秒",
+          "type": "number",
+          "value": "5",
+          "hint": "两次重试之间等待的秒数"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源>",
+          "kind": "value",
+          "desc": "源目录，末尾加反斜杠表示只复制内容",
+          "valueHint": "源目录"
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "目标目录，不存在时会自动创建",
+          "valueHint": "目标目录"
+        },
+        {
+          "token": "<文件>",
+          "kind": "value",
+          "desc": "要复制的文件名或通配符，默认 *.*",
+          "valueHint": "文件筛选",
+          "repeatable": true
+        },
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "复制所有子目录，包括空目录"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "复制子目录，但不含空目录"
+        },
+        {
+          "token": "/MIR",
+          "kind": "flag",
+          "desc": "镜像目录树，含清除目标中多余的文件，高危"
+        },
+        {
+          "token": "/PURGE",
+          "kind": "flag",
+          "desc": "删除目标中源已不存在的文件和目录",
+          "repeatable": false
+        },
+        {
+          "token": "/MOVE",
+          "kind": "flag",
+          "desc": "复制后删除源文件，相当于移动"
+        },
+        {
+          "token": "/COPY:",
+          "kind": "option",
+          "desc": "指定要复制的文件属性标志组合",
+          "valueHint": "<标志>",
+          "enum": [
+            "D",
+            "A",
+            "T",
+            "S",
+            "O",
+            "U",
+            "DAT",
+            "DATSOU"
+          ]
+        },
+        {
+          "token": "/DCOPY:",
+          "kind": "option",
+          "desc": "指定要复制的目录时间戳属性",
+          "valueHint": "<标志>",
+          "enum": [
+            "T",
+            "D",
+            "DAT"
+          ]
+        },
+        {
+          "token": "/MT:",
+          "kind": "option",
+          "desc": "使用多线程复制，n 为线程数 1 到 128",
+          "valueHint": "<线程数>"
+        },
+        {
+          "token": "/R:",
+          "kind": "option",
+          "desc": "失败副本的重试次数，默认 100 万次",
+          "valueHint": "<次数>"
+        },
+        {
+          "token": "/W:",
+          "kind": "option",
+          "desc": "两次重试之间的等待时间（秒）",
+          "valueHint": "<秒数>"
+        },
+        {
+          "token": "/XD",
+          "kind": "option",
+          "desc": "排除指定的目录不参与复制",
+          "valueHint": "<目录>",
+          "repeatable": true
+        },
+        {
+          "token": "/XF",
+          "kind": "option",
+          "desc": "排除指定的文件不参与复制",
+          "valueHint": "<文件>",
+          "repeatable": true
+        },
+        {
+          "token": "/XO",
+          "kind": "flag",
+          "desc": "排除较旧的文件，不覆盖更新的目标"
+        },
+        {
+          "token": "/XN",
+          "kind": "flag",
+          "desc": "排除较新的文件"
+        },
+        {
+          "token": "/XX",
+          "kind": "flag",
+          "desc": "排除目标中多出的文件，不报告也不删除"
+        },
+        {
+          "token": "/XL",
+          "kind": "flag",
+          "desc": "排除孤立文件，即目标中多出的文件"
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "只列出将要执行的操作，不实际复制"
+        },
+        {
+          "token": "/Z",
+          "kind": "flag",
+          "desc": "以可重启模式复制，中断后可续传"
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "使用备份模式复制，需要备份权限"
+        },
+        {
+          "token": "/CREATE",
+          "kind": "flag",
+          "desc": "只创建目录结构并写入零字节文件"
+        },
+        {
+          "token": "/NP",
+          "kind": "flag",
+          "desc": "不显示复制进度百分比"
+        },
+        {
+          "token": "/TEE",
+          "kind": "flag",
+          "desc": "把输出同时写入控制台和日志文件"
+        },
+        {
+          "token": "/LOG:",
+          "kind": "option",
+          "desc": "把执行结果写入日志文件",
+          "valueHint": "<日志文件>"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "生成详细输出，显示跳过和跳过的文件"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "type",
+      "title": "显示文本内容",
+      "desc": "把文本文件的内容直接输出到屏幕上，不做分页，适合短文件。可以一次查看多个文件，也能配合重定向把内容写入别的文件。遇到二进制文件会输出乱码并可能让终端显示出错，查看大文件应改用 more。",
+      "usage": "type [<盘符>:][<路径>]<文件名>",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "查看内容",
+        "文本",
+        "读取"
+      ],
+      "examples": [
+        {
+          "cmd": "type D:\\Data\\readme.txt",
+          "desc": "显示 readme.txt 的全部内容"
+        },
+        {
+          "cmd": "type a.txt > b.txt",
+          "desc": "把 a.txt 的内容重定向写入 b.txt"
+        },
+        {
+          "cmd": "type *.log | findstr ERROR",
+          "desc": "把日志内容通过管道交给 findstr 过滤错误行"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "path",
+          "value": "D:\\Data\\readme.txt",
+          "hint": "支持通配符，可多个"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要显示的文本文件，支持通配符和多个",
+          "valueHint": "文件名",
+          "repeatable": true
+        },
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "文件所在驱动器，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "文件所在的目录路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "\"<带空格路径>\"",
+          "kind": "value",
+          "desc": "路径含空格时用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "more",
+          "kind": "subcommand",
+          "desc": "配合 more 实现分页浏览长文件",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "要分页显示的文本文件",
+              "valueHint": "文件名"
+            },
+            {
+              "token": "/S",
+              "kind": "flag",
+              "desc": "把连续多个空行压缩成一个空行"
+            }
+          ]
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "重定向输出覆盖写入新文件",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": ">>",
+          "kind": "option",
+          "desc": "重定向输出追加到文件末尾",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把输出通过管道传给下一条命令",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "more",
+      "title": "分页显示内容",
+      "desc": "逐屏显示文本文件内容，每显示一屏就暂停等待按键，适合查看较长的文本或日志。也可以接收管道输入，配合 dir /S 或 type 使用。只能向下翻页不能回滚，且对超长单行会截断处理。",
+      "usage": "more [<文件名>] [/E] [/C] [/P] [/S] [/Tn] [+n]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "分页",
+        "查看内容",
+        "日志"
+      ],
+      "examples": [
+        {
+          "cmd": "more D:\\Data\\app.log",
+          "desc": "分页查看日志文件"
+        },
+        {
+          "cmd": "dir /S | more",
+          "desc": "把递归目录列表交给 more 分页显示"
+        },
+        {
+          "cmd": "more +100 D:\\Data\\app.log",
+          "desc": "从第 100 行开始显示"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "path",
+          "value": "D:\\Data\\app.log",
+          "hint": "留空则从标准输入读取"
+        },
+        {
+          "token": "/S",
+          "label": "压缩空行",
+          "type": "flag",
+          "value": "false",
+          "hint": "多个连续空行压缩为一个"
+        },
+        {
+          "token": "+",
+          "label": "起始行",
+          "type": "number",
+          "value": "",
+          "hint": "从第 n 行开始显示"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要分页显示的文本文件",
+          "valueHint": "文件名"
+        },
+        {
+          "token": "Space",
+          "kind": "subcommand",
+          "desc": "显示下一屏内容",
+          "children": [
+            {
+              "token": "Enter",
+              "kind": "subcommand",
+              "desc": "向下滚动一行",
+              "children": [
+                {
+                  "token": "Q",
+                  "kind": "subcommand",
+                  "desc": "退出 more 返回命令提示符",
+                  "children": [
+                    {
+                      "token": "/?",
+                      "kind": "flag",
+                      "desc": "显示 more 的帮助信息"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "启用扩展功能，支持更多按键操作"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "显示页面前先清除屏幕"
+        },
+        {
+          "token": "/P",
+          "kind": "flag",
+          "desc": "展开换页符，不使用扩展功能"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "把连续多个空行显示为一个空行"
+        },
+        {
+          "token": "/Tn",
+          "kind": "option",
+          "desc": "把制表符展开为 n 个空格",
+          "valueHint": "<空格数>"
+        },
+        {
+          "token": "+n",
+          "kind": "option",
+          "desc": "从文件的第 n 行开始显示",
+          "valueHint": "<行号>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "接收其它命令的管道输出并分页",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "tree",
+      "title": "树状显示目录",
+      "desc": "以树形图方式显示指定驱动器或目录下的所有子目录层级，结构一目了然。加 /F 会同时列出每个目录中的文件名。默认只显示目录，输出量大时建议重定向到文件再查看。",
+      "usage": "tree [<盘符>:][<路径>] [/F] [/A]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "目录结构",
+        "树形",
+        "概览"
+      ],
+      "examples": [
+        {
+          "cmd": "tree D:\\Projects",
+          "desc": "树状显示 Projects 下的所有子目录"
+        },
+        {
+          "cmd": "tree /F /A > D:\\tree.txt",
+          "desc": "用 ASCII 字符输出含文件的目录树到文本文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "路径",
+          "type": "path",
+          "value": "D:\\Projects",
+          "hint": "留空表示当前目录"
+        },
+        {
+          "token": "/F",
+          "label": "显示文件",
+          "type": "flag",
+          "value": "true",
+          "hint": "同时列出每个目录中的文件"
+        },
+        {
+          "token": "/A",
+          "label": "ASCII 字符",
+          "type": "flag",
+          "value": "false",
+          "hint": "用文本字符代替图形线条"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "指定要显示的驱动器，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要显示目录树的起始路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "more",
+          "kind": "subcommand",
+          "desc": "输出很长时分页查看目录树",
+          "children": [
+            {
+              "token": "/S",
+              "kind": "flag",
+              "desc": "分页时压缩连续空行"
+            },
+            {
+              "token": "+n",
+              "kind": "option",
+              "desc": "从第 n 行开始显示",
+              "valueHint": "<行号>"
+            }
+          ]
+        },
+        {
+          "token": "/F",
+          "kind": "flag",
+          "desc": "显示每个目录中的文件名"
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "使用 ASCII 文本字符绘制树形线"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把目录树输出重定向到文件",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": ">>",
+          "kind": "option",
+          "desc": "把目录树追加输出到文件末尾",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把输出通过管道传给其它命令",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "attrib",
+      "title": "查看修改文件属性",
+      "desc": "显示或更改文件与目录的只读、隐藏、系统、存档等属性。常用场景是脚本复制前去掉只读属性，或者把配置文件设为隐藏。对目录设置属性时要用 /D，隐藏文件不会被 del 和 dir 默认处理。",
+      "usage": "attrib [+R|-R] [+A|-A] [+S|-S] [+H|-H] [<文件名>] [/S [/D]]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "属性",
+        "只读",
+        "隐藏"
+      ],
+      "examples": [
+        {
+          "cmd": "attrib D:\\Data\\a.txt",
+          "desc": "查看单个文件的属性"
+        },
+        {
+          "cmd": "attrib -R -H -S D:\\Data\\*.* /S /D",
+          "desc": "递归清除文件与目录的只读隐藏系统属性"
+        },
+        {
+          "cmd": "attrib +H D:\\Data\\config.ini",
+          "desc": "把配置文件设置为隐藏"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "text",
+          "value": "D:\\Data\\*.*",
+          "hint": "支持通配符"
+        },
+        {
+          "token": "+R",
+          "label": "设为只读",
+          "type": "flag",
+          "value": "false",
+          "hint": "勾选添加只读属性"
+        },
+        {
+          "token": "-R",
+          "label": "去掉只读",
+          "type": "flag",
+          "value": "true",
+          "hint": "勾选移除只读属性"
+        },
+        {
+          "token": "+H",
+          "label": "设为隐藏",
+          "type": "flag",
+          "value": "false",
+          "hint": "勾选添加隐藏属性"
+        },
+        {
+          "token": "/S",
+          "label": "递归子目录",
+          "type": "flag",
+          "value": "true",
+          "hint": "处理所有子目录中的匹配文件"
+        },
+        {
+          "token": "/D",
+          "label": "含目录",
+          "type": "flag",
+          "value": "true",
+          "hint": "同时处理目录本身"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "+R",
+          "kind": "flag",
+          "desc": "设置只读文件属性"
+        },
+        {
+          "token": "-R",
+          "kind": "flag",
+          "desc": "清除只读文件属性"
+        },
+        {
+          "token": "+A",
+          "kind": "flag",
+          "desc": "设置存档文件属性"
+        },
+        {
+          "token": "-A",
+          "kind": "flag",
+          "desc": "清除存档文件属性"
+        },
+        {
+          "token": "+S",
+          "kind": "flag",
+          "desc": "设置系统文件属性"
+        },
+        {
+          "token": "-S",
+          "kind": "flag",
+          "desc": "清除系统文件属性"
+        },
+        {
+          "token": "+H",
+          "kind": "flag",
+          "desc": "设置隐藏文件属性"
+        },
+        {
+          "token": "-H",
+          "kind": "flag",
+          "desc": "清除隐藏文件属性"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "处理当前目录及所有子目录中的匹配文件"
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "同时处理目录，必须与 /S 一起使用"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        },
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "指定文件所在驱动器，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "文件所在的目录路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要处理的文件或目录，支持通配符",
+          "valueHint": "文件或通配符"
+        }
+      ]
+    },
+    {
+      "name": "icacls",
+      "title": "查看修改 NTFS 权限",
+      "desc": "显示或修改文件与目录的自主访问控制列表，是管理 NTFS 权限的现代主力命令。支持继承、批量处理、保存与还原权限设置。授权范围过大时会造成安全隐患，撤销权限前务必确认影响范围。",
+      "usage": "icacls <文件名> [/grant[:r] <用户>:<权限>] [/remove[:g|:d] <用户>] [/T] [/C] [/Q] [/reset]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "权限",
+        "ACL",
+        "授权",
+        "NTFS"
+      ],
+      "examples": [
+        {
+          "cmd": "icacls D:\\Data",
+          "desc": "查看 Data 目录当前的权限设置"
+        },
+        {
+          "cmd": "icacls D:\\Data /grant Administrators:(OI)(CI)F /T",
+          "desc": "给管理员组授予完全控制并向下继承"
+        },
+        {
+          "cmd": "icacls D:\\Data /save D:\\acl.txt /T",
+          "desc": "把目录树的权限备份到文本文件"
+        },
+        {
+          "cmd": "icacls D:\\Data /reset /T /C /Q",
+          "desc": "递归把权限重置为从父对象继承"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件或目录",
+          "type": "path",
+          "value": "D:\\Data",
+          "hint": "要操作的目标路径"
+        },
+        {
+          "token": "/grant",
+          "label": "授权",
+          "type": "text",
+          "value": "",
+          "hint": "格式为 用户:权限，例如 Users:(RX)"
+        },
+        {
+          "token": "/remove",
+          "label": "移除授权",
+          "type": "text",
+          "value": "",
+          "hint": "格式为 用户或组名"
+        },
+        {
+          "token": "/T",
+          "label": "递归",
+          "type": "flag",
+          "value": "false",
+          "hint": "对目录下所有文件与子目录执行"
+        },
+        {
+          "token": "/C",
+          "label": "忽略错误继续",
+          "type": "flag",
+          "value": "false",
+          "hint": "出错时继续处理剩余文件"
+        },
+        {
+          "token": "/Q",
+          "label": "静默",
+          "type": "flag",
+          "value": "false",
+          "hint": "不显示成功信息"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要显示或修改权限的文件或目录",
+          "valueHint": "文件或目录"
+        },
+        {
+          "token": "(OI)",
+          "kind": "syntax",
+          "desc": "对象继承标志，让权限适用于目录中的文件"
+        },
+        {
+          "token": "(CI)",
+          "kind": "syntax",
+          "desc": "容器继承标志，让权限适用于子目录"
+        },
+        {
+          "token": "F",
+          "kind": "syntax",
+          "desc": "完全控制权限简写，相当于完全访问"
+        },
+        {
+          "token": "M",
+          "kind": "syntax",
+          "desc": "修改权限简写，可读写和删除"
+        },
+        {
+          "token": "RX",
+          "kind": "syntax",
+          "desc": "读取和执行权限简写"
+        },
+        {
+          "token": "/grant",
+          "kind": "option",
+          "desc": "授予指定用户或组访问权限，加 :r 只改不覆盖",
+          "valueHint": "[:r] <用户>:<权限>",
+          "repeatable": true
+        },
+        {
+          "token": "/deny",
+          "kind": "option",
+          "desc": "显式拒绝指定用户或组的权限，优先级最高",
+          "valueHint": "<用户>:<权限>"
+        },
+        {
+          "token": "/remove",
+          "kind": "option",
+          "desc": "移除用户或组的全部权限项，:g 只移除授予项",
+          "valueHint": "[:g|:d] <用户>"
+        },
+        {
+          "token": "/setowner",
+          "kind": "option",
+          "desc": "把文件或目录的所有者改为指定用户或组",
+          "valueHint": "<用户>"
+        },
+        {
+          "token": "/T",
+          "kind": "flag",
+          "desc": "递归处理目录下所有文件与子目录"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "遇到错误时继续处理剩余文件并报告错误"
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "对符号链接本身执行操作而非其目标"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "安静模式，不显示处理成功的信息"
+        },
+        {
+          "token": "/save",
+          "kind": "option",
+          "desc": "把访问控制列表保存到文件以便还原",
+          "valueHint": "<ACL 文件>"
+        },
+        {
+          "token": "/restore",
+          "kind": "option",
+          "desc": "从保存的文件还原访问控制列表",
+          "valueHint": "<ACL 文件>"
+        },
+        {
+          "token": "/reset",
+          "kind": "flag",
+          "desc": "把权限重置为默认继承值，会丢弃自定义项"
+        },
+        {
+          "token": "/inheritance:",
+          "kind": "option",
+          "desc": "启用或禁用继承，可选复制或移除已有继承项",
+          "valueHint": "<e|d|r>",
+          "enum": [
+            "e",
+            "d",
+            "r"
+          ]
+        },
+        {
+          "token": "/verify",
+          "kind": "flag",
+          "desc": "查找并报告 ACL 中的问题项"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "takeown",
+      "title": "取得文件所有权",
+      "desc": "把文件或目录的所有权改为当前用户或指定管理员，用于处理提示拒绝访问、无法修改的文件。取得所有权后还需要用 icacls 授予权限才能真正读写。会改变系统安全设置，对系统目录操作前应确认必要性。",
+      "usage": "takeown [/S <系统>] [/U <用户>] [/P <密码>] /F <文件名> [/A] [/R] [/D <答复>]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "所有权",
+        "拒绝访问",
+        "权限"
+      ],
+      "examples": [
+        {
+          "cmd": "takeown /F D:\\Locked\\a.txt",
+          "desc": "把单个文件的所有权改为当前用户"
+        },
+        {
+          "cmd": "takeown /F D:\\Locked /R /A /D Y",
+          "desc": "递归把目录树所有权改为管理员组并自动确认"
+        }
+      ],
+      "form": [
+        {
+          "token": "/F",
+          "label": "目标文件或目录",
+          "type": "path",
+          "value": "D:\\Locked\\a.txt",
+          "hint": "要接管所有权的路径"
+        },
+        {
+          "token": "/A",
+          "label": "改为管理员组",
+          "type": "flag",
+          "value": "false",
+          "hint": "把所有权给 Administrators 而不是当前用户"
+        },
+        {
+          "token": "/R",
+          "label": "递归",
+          "type": "flag",
+          "value": "false",
+          "hint": "对目录及其所有内容执行"
+        },
+        {
+          "token": "/D",
+          "label": "自动答复",
+          "type": "text",
+          "value": "",
+          "hint": "配合 /R 使用，通常填 Y"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "icacls",
+          "kind": "subcommand",
+          "desc": "取得所有权后通常还要授权才能真正访问",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "要授予权限的目标路径",
+              "valueHint": "文件或目录"
+            },
+            {
+              "token": "/grant",
+              "kind": "option",
+              "desc": "格式为 用户:权限，例如 Users:(F)",
+              "valueHint": "<用户>:<权限>"
+            },
+            {
+              "token": "/T",
+              "kind": "flag",
+              "desc": "递归处理所有子项"
+            }
+          ]
+        },
+        {
+          "token": "/F",
+          "kind": "option",
+          "desc": "指定要接管所有权的文件或目录，支持通配符",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "把所有权授予管理员组而非当前用户"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "递归作用于目录中的所有文件与子目录"
+        },
+        {
+          "token": "/D",
+          "kind": "option",
+          "desc": "递归时对每个提示自动给出的答复",
+          "valueHint": "<答复>",
+          "enum": [
+            "Y",
+            "N"
+          ]
+        },
+        {
+          "token": "/S",
+          "kind": "option",
+          "desc": "指定要连接的远程系统",
+          "valueHint": "<系统名>"
+        },
+        {
+          "token": "/U",
+          "kind": "option",
+          "desc": "指定执行命令时使用的用户上下文",
+          "valueHint": "<域\\用户>"
+        },
+        {
+          "token": "/P",
+          "kind": "option",
+          "desc": "指定 /U 对应用户的密码",
+          "valueHint": "<密码>"
+        },
+        {
+          "token": "/SKIPSL",
+          "kind": "flag",
+          "desc": "不处理目录中的符号链接本身"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "cacls",
+      "title": "旧版权限查看修改",
+      "desc": "显示或修改文件的访问控制列表，是 icacls 之前的老命令，语法简单但在新系统上已不推荐使用。它能查看和授权，但功能比 icacls 少。新的脚本和运维工作应优先使用 icacls。",
+      "usage": "cacls <文件名> [/T] [/E] [/C] [/G <用户>:<权限>] [/R <用户>] [/P <用户>:<权限>]",
+      "admin": true,
+      "danger": 2,
+      "tags": [
+        "权限",
+        "ACL",
+        "旧命令"
+      ],
+      "examples": [
+        {
+          "cmd": "cacls D:\\Data",
+          "desc": "查看 Data 目录当前的权限列表"
+        },
+        {
+          "cmd": "cacls D:\\Data /E /G Users:F",
+          "desc": "给 Users 组追加完全控制权限"
+        },
+        {
+          "cmd": "cacls D:\\Data /T /P Everyone:R",
+          "desc": "递归把所有人权限改成只读"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "path",
+          "value": "D:\\Data",
+          "hint": "要查看或修改权限的目标"
+        },
+        {
+          "token": "/T",
+          "label": "递归",
+          "type": "flag",
+          "value": "false",
+          "hint": "对子目录中的文件也执行"
+        },
+        {
+          "token": "/E",
+          "label": "编辑而非替换",
+          "type": "flag",
+          "value": "true",
+          "hint": "在原有 ACL 上修改而不是替换"
+        },
+        {
+          "token": "/C",
+          "label": "忽略错误继续",
+          "type": "flag",
+          "value": "false",
+          "hint": "遇到访问拒绝时继续"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要显示或修改权限的文件或目录",
+          "valueHint": "文件或目录"
+        },
+        {
+          "token": "N",
+          "kind": "syntax",
+          "desc": "权限级别：无访问权限"
+        },
+        {
+          "token": "R",
+          "kind": "syntax",
+          "desc": "权限级别：读取"
+        },
+        {
+          "token": "W",
+          "kind": "syntax",
+          "desc": "权限级别：写入"
+        },
+        {
+          "token": "C",
+          "kind": "syntax",
+          "desc": "权限级别：更改（读写）"
+        },
+        {
+          "token": "F",
+          "kind": "syntax",
+          "desc": "权限级别：完全控制"
+        },
+        {
+          "token": "/T",
+          "kind": "flag",
+          "desc": "更改当前目录及子目录中指定文件的 ACL"
+        },
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "编辑 ACL 而不是替换原有的权限项"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "出现拒绝访问错误时继续执行"
+        },
+        {
+          "token": "/G",
+          "kind": "option",
+          "desc": "授予指定用户访问权限，格式为 用户:权限",
+          "valueHint": "<用户>:<权限>"
+        },
+        {
+          "token": "/R",
+          "kind": "option",
+          "desc": "撤销指定用户的访问权限",
+          "valueHint": "<用户>"
+        },
+        {
+          "token": "/P",
+          "kind": "option",
+          "desc": "替换指定用户的访问权限",
+          "valueHint": "<用户>:<权限>"
+        },
+        {
+          "token": "/D",
+          "kind": "option",
+          "desc": "拒绝指定用户访问",
+          "valueHint": "<用户>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "compact",
+      "title": "NTFS 压缩管理",
+      "desc": "显示或修改 NTFS 分区上文件和目录的压缩状态，压缩后文件占用空间变小但仍可直接读写。适合压缩归档数据和不常访问的安装目录。压缩会消耗一些处理器性能，系统文件和已经压缩过的文件不会再次压缩。",
+      "usage": "compact [/C | /U] [/S[:目录]] [/A] [/I] [/F] [/Q] [<文件名> [...]]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "压缩",
+        "空间",
+        "NTFS"
+      ],
+      "examples": [
+        {
+          "cmd": "compact D:\\Data\\a.txt",
+          "desc": "查看单个文件的压缩状态"
+        },
+        {
+          "cmd": "compact /C /S:D:\\Archive /I /Q",
+          "desc": "静默压缩 Archive 目录树中的所有文件"
+        },
+        {
+          "cmd": "compact /U /S:D:\\Data",
+          "desc": "取消 Data 目录下所有文件的压缩"
+        }
+      ],
+      "form": [
+        {
+          "token": "/C",
+          "label": "压缩",
+          "type": "flag",
+          "value": "true",
+          "hint": "压缩指定的文件或目录"
+        },
+        {
+          "token": "/U",
+          "label": "解压缩",
+          "type": "flag",
+          "value": "false",
+          "hint": "取消压缩状态"
+        },
+        {
+          "token": "/S",
+          "label": "递归目录",
+          "type": "text",
+          "value": "D:\\Archive",
+          "hint": "对指定目录及其子目录执行"
+        },
+        {
+          "token": "/I",
+          "label": "忽略错误",
+          "type": "flag",
+          "value": "true",
+          "hint": "出错时继续处理"
+        },
+        {
+          "token": "/Q",
+          "label": "只报关键信息",
+          "type": "flag",
+          "value": "true",
+          "hint": "精简输出"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "压缩指定的文件或目录"
+        },
+        {
+          "token": "/U",
+          "kind": "flag",
+          "desc": "解压缩指定的文件或目录"
+        },
+        {
+          "token": "/S",
+          "kind": "option",
+          "desc": "对指定目录及其所有子目录执行操作",
+          "valueHint": "[:<目录>]"
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "显示带隐藏或系统属性的文件"
+        },
+        {
+          "token": "/I",
+          "kind": "flag",
+          "desc": "发生错误时继续执行后续操作"
+        },
+        {
+          "token": "/F",
+          "kind": "flag",
+          "desc": "强制压缩所有指定文件，包括已压缩过的"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "只报告最重要的信息"
+        },
+        {
+          "token": "/EXE",
+          "kind": "flag",
+          "desc": "使用标准压缩引擎而非默认算法"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        },
+        {
+          "token": "<目录>",
+          "kind": "value",
+          "desc": "要处理的目录路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要处理的文件，支持通配符和多个",
+          "valueHint": "文件名",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "name": "cipher",
+      "title": "EFS 加密与擦除",
+      "desc": "显示或修改 NTFS 卷上文件和目录的加密状态，也就是 EFS 加密文件系统。可以加密数据保护隐私，也可以显示加密信息。其中 /W 会反复写入随机数据来擦除已删除文件的残留内容，耗时很长且彻底不可恢复。",
+      "usage": "cipher [/E | /D] [/S:<目录>] [/A] [/I] [/F] [/Q] [/W:<目录>] [<文件名> [...]]",
+      "admin": false,
+      "danger": 2,
+      "tags": [
+        "加密",
+        "EFS",
+        "擦除残留"
+      ],
+      "examples": [
+        {
+          "cmd": "cipher D:\\Secret",
+          "desc": "查看目录当前的加密状态"
+        },
+        {
+          "cmd": "cipher /E /S:D:\\Secret /A /I",
+          "desc": "加密 Secret 目录树中的全部文件"
+        },
+        {
+          "cmd": "cipher /W:D:\\Temp",
+          "desc": "擦除 D 盘空闲空间中的残留数据，极慢且不可恢复"
+        }
+      ],
+      "form": [
+        {
+          "token": "/E",
+          "label": "加密",
+          "type": "flag",
+          "value": "true",
+          "hint": "加密指定的文件或目录"
+        },
+        {
+          "token": "/D",
+          "label": "解密",
+          "type": "flag",
+          "value": "false",
+          "hint": "解密指定的文件或目录"
+        },
+        {
+          "token": "/S",
+          "label": "递归目录",
+          "type": "text",
+          "value": "D:\\Secret",
+          "hint": "对指定目录及其子目录执行"
+        },
+        {
+          "token": "/W",
+          "label": "擦除空闲空间",
+          "type": "text",
+          "value": "",
+          "hint": "极度耗时，填盘符目录如 D:\\"
+        },
+        {
+          "token": "/A",
+          "label": "含系统隐藏文件",
+          "type": "flag",
+          "value": "false",
+          "hint": "对带系统或隐藏属性的文件操作"
+        },
+        {
+          "token": "/I",
+          "label": "忽略错误",
+          "type": "flag",
+          "value": "false",
+          "hint": "出错时继续"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "加密指定的文件或目录"
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "解密指定的文件或目录"
+        },
+        {
+          "token": "/S",
+          "kind": "option",
+          "desc": "对指定目录及其子目录中的文件执行操作",
+          "valueHint": "<目录>"
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "对带系统或隐藏属性的文件执行操作"
+        },
+        {
+          "token": "/I",
+          "kind": "flag",
+          "desc": "发生错误时继续执行后续操作"
+        },
+        {
+          "token": "/F",
+          "kind": "flag",
+          "desc": "强制对所有指定对象操作，包括已加密的"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "只报告最重要的信息"
+        },
+        {
+          "token": "/W",
+          "kind": "option",
+          "desc": "擦除卷上空闲空间的残留数据，不可恢复",
+          "valueHint": "<目录>"
+        },
+        {
+          "token": "/K",
+          "kind": "flag",
+          "desc": "为当前用户创建新的加密证书和密钥"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "生成新的恢复密钥和证书文件"
+        },
+        {
+          "token": "/U",
+          "kind": "flag",
+          "desc": "更新用户文件加密密钥"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        },
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要处理的文件，支持通配符和多个",
+          "valueHint": "文件名",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "name": "mklink",
+      "title": "创建符号链接",
+      "desc": "创建符号链接、硬链接或目录联接，让一个路径指向另一个位置。常用于把占用空间的大目录搬到别的盘再链接回来，程序仍按原路径访问。创建符号链接默认需要管理员权限或开发者模式，硬链接只能用于同一分区上的文件。",
+      "usage": "mklink <链接名> [/D | /H | /J]  <目标>",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "符号链接",
+        "硬链接",
+        "目录联接"
+      ],
+      "examples": [
+        {
+          "cmd": "mklink /D D:\\Link D:\\Target",
+          "desc": "创建指向目录的符号链接"
+        },
+        {
+          "cmd": "mklink /J D:\\Cache D:\\Data\\Cache",
+          "desc": "创建目录联接，不需管理员也能访问目标"
+        },
+        {
+          "cmd": "mklink /H D:\\b.txt D:\\a.txt",
+          "desc": "为同一分区上的文件创建硬链接"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "链接名",
+          "type": "text",
+          "value": "D:\\Link",
+          "hint": "要创建的链接路径"
+        },
+        {
+          "token": "",
+          "label": "目标",
+          "type": "text",
+          "value": "D:\\Target",
+          "hint": "链接指向的真实位置"
+        },
+        {
+          "token": "/D",
+          "label": "目录符号链接",
+          "type": "flag",
+          "value": "true",
+          "hint": "创建指向目录的符号链接"
+        },
+        {
+          "token": "/J",
+          "label": "目录联接",
+          "type": "flag",
+          "value": "false",
+          "hint": "创建 junction，本机路径必须绝对"
+        },
+        {
+          "token": "/H",
+          "label": "硬链接",
+          "type": "flag",
+          "value": "false",
+          "hint": "仅限同分区文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<链接名>",
+          "kind": "value",
+          "desc": "要创建的链接路径，不能已存在",
+          "valueHint": "链接路径"
+        },
+        {
+          "token": "<目标>",
+          "kind": "value",
+          "desc": "链接指向的目标路径，目录联接必须用绝对路径",
+          "valueHint": "目标路径"
+        },
+        {
+          "token": "\"<带空格路径>\"",
+          "kind": "value",
+          "desc": "链接名或目标含空格时用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "dir /AL",
+          "kind": "subcommand",
+          "desc": "列出当前目录中的链接，用于验证结果",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要检查的目录路径",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/S",
+              "kind": "flag",
+              "desc": "递归查找所有子目录中的链接"
+            }
+          ]
+        },
+        {
+          "token": "fsutil",
+          "kind": "subcommand",
+          "desc": "管理重解析点和硬链接的进阶工具",
+          "children": [
+            {
+              "token": "hardlink",
+              "kind": "subcommand",
+              "desc": "创建和查询硬链接",
+              "children": [
+                {
+                  "token": "list",
+                  "kind": "subcommand",
+                  "desc": "列出文件的硬链接情况",
+                  "children": [
+                    {
+                      "token": "<文件名>",
+                      "kind": "value",
+                      "desc": "要查询的文件路径",
+                      "valueHint": "文件名"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "创建指向目录的符号链接"
+        },
+        {
+          "token": "/H",
+          "kind": "flag",
+          "desc": "创建硬链接，只能用于同一分区上的文件"
+        },
+        {
+          "token": "/J",
+          "kind": "flag",
+          "desc": "创建目录联接，即 junction 点"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "subst",
+      "title": "映射虚拟盘符",
+      "desc": "把本地的一个目录映射成一个虚拟驱动器盘符，让长路径可以用短盘符访问。常用来给超长目录或固定工作目录分配一个字母盘，重启后失效需重新执行。不能映射网络路径，网络共享要用 net use。",
+      "usage": "subst <盘符>:  [[<盘符>:]<路径>] | [/D <盘符>:]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "虚拟盘符",
+        "映射",
+        "路径"
+      ],
+      "examples": [
+        {
+          "cmd": "subst X: D:\\Projects\\VeryLongPath",
+          "desc": "把长目录映射为 X 盘"
+        },
+        {
+          "cmd": "subst",
+          "desc": "列出当前所有虚拟驱动器映射"
+        },
+        {
+          "cmd": "subst X: /D",
+          "desc": "删除 X 盘的虚拟映射"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "盘符",
+          "type": "text",
+          "value": "X:",
+          "hint": "未被占用的驱动器字母，带冒号"
+        },
+        {
+          "token": "",
+          "label": "目标目录",
+          "type": "text",
+          "value": "D:\\Projects\\VeryLongPath",
+          "hint": "要映射的本地目录"
+        },
+        {
+          "token": "/D",
+          "label": "删除映射",
+          "type": "flag",
+          "value": "false",
+          "hint": "删除指定的虚拟驱动器"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<盘符>: ",
+          "kind": "value",
+          "desc": "要分配的虚拟驱动器字母，例如 X:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要映射的本地目录，必须是绝对路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "\"<带空格路径>\"",
+          "kind": "value",
+          "desc": "路径含空格时用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "net use",
+          "kind": "subcommand",
+          "desc": "映射网络共享需要用 net use 而不是 subst",
+          "children": [
+            {
+              "token": "<盘符>: ",
+              "kind": "value",
+              "desc": "要分配的网络驱动器字母",
+              "valueHint": "盘符"
+            },
+            {
+              "token": "\\\\<服务器>\\<共享>",
+              "kind": "value",
+              "desc": "网络共享的 UNC 路径",
+              "valueHint": "UNC 路径"
+            },
+            {
+              "token": "/persistent:",
+              "kind": "option",
+              "desc": "是否在重启后保留映射",
+              "valueHint": "<yes|no>",
+              "enum": [
+                "yes",
+                "no"
+              ]
+            }
+          ]
+        },
+        {
+          "token": "pushd",
+          "kind": "subcommand",
+          "desc": "脚本中临时切换并自动映射网络路径",
+          "children": [
+            {
+              "token": "\\\\<服务器>\\<共享>",
+              "kind": "value",
+              "desc": "要临时进入的网络路径",
+              "valueHint": "UNC 路径"
+            },
+            {
+              "token": "popd",
+              "kind": "subcommand",
+              "desc": "返回并自动取消临时映射",
+              "children": [
+                {
+                  "token": "/?",
+                  "kind": "flag",
+                  "desc": "显示 popd 的帮助信息"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "/D",
+          "kind": "flag",
+          "desc": "删除指定的虚拟驱动器映射"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把映射列表输出重定向到文本文件",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "fc",
+      "title": "比较文件差异",
+      "desc": "逐行比较两个文件或两组文件，把不同之处显示出来，用于核对配置改动或校对文本。文本文件按行比较，二进制文件必须加 /B。比较结果会给出差异行号和内容，退出码可反映是否存在差异。",
+      "usage": "fc [/A] [/C] [/L] [/LB <n>] [/N] [/T] [/U] [/W] [/nnnn] <文件1> <文件2>",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "比较",
+        "差异",
+        "校对"
+      ],
+      "examples": [
+        {
+          "cmd": "fc D:\\a.txt D:\\b.txt",
+          "desc": "比较两个文本文件的不同之处"
+        },
+        {
+          "cmd": "fc /B D:\\a.exe D:\\b.exe",
+          "desc": "以二进制模式比较两个文件"
+        },
+        {
+          "cmd": "fc /N D:\\old.ini D:\\new.ini",
+          "desc": "比较并显示行号，方便定位改动"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件 1",
+          "type": "path",
+          "value": "D:\\a.txt",
+          "hint": "第一个文件"
+        },
+        {
+          "token": "",
+          "label": "文件 2",
+          "type": "path",
+          "value": "D:\\b.txt",
+          "hint": "第二个文件"
+        },
+        {
+          "token": "/N",
+          "label": "显示行号",
+          "type": "flag",
+          "value": "true",
+          "hint": "在 ASCII 比较时显示行号"
+        },
+        {
+          "token": "/B",
+          "label": "二进制比较",
+          "type": "flag",
+          "value": "false",
+          "hint": "逐字节比较，适合可执行文件"
+        },
+        {
+          "token": "/C",
+          "label": "忽略大小写",
+          "type": "flag",
+          "value": "false",
+          "hint": "比较时不区分大小写"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件1>",
+          "kind": "value",
+          "desc": "要比较的第一个文件",
+          "valueHint": "文件名"
+        },
+        {
+          "token": "<文件2>",
+          "kind": "value",
+          "desc": "要比较的第二个文件",
+          "valueHint": "文件名"
+        },
+        {
+          "token": "comp",
+          "kind": "subcommand",
+          "desc": "逐字节比较两个文件或文件集的内容",
+          "children": [
+            {
+              "token": "<文件1>",
+              "kind": "value",
+              "desc": "要比较的第一个文件",
+              "valueHint": "文件名"
+            },
+            {
+              "token": "<文件2>",
+              "kind": "value",
+              "desc": "要比较的第二个文件",
+              "valueHint": "文件名"
+            },
+            {
+              "token": "/A",
+              "kind": "flag",
+              "desc": "以 ASCII 字符显示差异"
+            }
+          ]
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "只显示每组差异的首行和末行"
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "执行二进制比较，逐字节对比"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "比较时忽略字母大小写"
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "以 ASCII 文本方式比较两个文件"
+        },
+        {
+          "token": "/LB",
+          "kind": "option",
+          "desc": "设置内部行缓冲区的行数上限",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "/N",
+          "kind": "flag",
+          "desc": "在 ASCII 比较中显示行号"
+        },
+        {
+          "token": "/T",
+          "kind": "flag",
+          "desc": "不把制表符展开为空格"
+        },
+        {
+          "token": "/U",
+          "kind": "flag",
+          "desc": "把文件作为 Unicode 文本文件比较"
+        },
+        {
+          "token": "/W",
+          "kind": "flag",
+          "desc": "比较时把连续空白字符压缩处理"
+        },
+        {
+          "token": "/nnnn",
+          "kind": "option",
+          "desc": "指定连续匹配多少行后必须重新同步",
+          "valueHint": "<行数>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "find",
+      "title": "在文件中查找文本",
+      "desc": "在文件或命令输出中查找包含指定字符串的行，是最基础的文本搜索工具。可以统计匹配行数、显示行号或反向筛选不含该字符串的行。它不支持正则表达式，需要正则匹配时要用 findstr。",
+      "usage": "find <字符串> [/V] [/C] [/N] [/I] [/OFF[LINE]] \"\" [[<盘符>:][<路径>]<文件名>[...]]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "查找文本",
+        "过滤",
+        "统计"
+      ],
+      "examples": [
+        {
+          "cmd": "find \"ERROR\" D:\\Data\\app.log",
+          "desc": "在日志中查找所有含 ERROR 的行"
+        },
+        {
+          "cmd": "find /C /I \"success\" D:\\Data\\app.log",
+          "desc": "忽略大小写统计匹配的行数"
+        },
+        {
+          "cmd": "dir /S /B | find /V \".tmp\"",
+          "desc": "列出文件但排除包含 .tmp 的路径"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "查找字符串",
+          "type": "text",
+          "value": "ERROR",
+          "hint": "要搜索的文本，建议加英文双引号"
+        },
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "text",
+          "value": "D:\\Data\\app.log",
+          "hint": "留空则从标准输入读取"
+        },
+        {
+          "token": "/I",
+          "label": "忽略大小写",
+          "type": "flag",
+          "value": "true",
+          "hint": "搜索时不区分大小写"
+        },
+        {
+          "token": "/N",
+          "label": "显示行号",
+          "type": "flag",
+          "value": "false",
+          "hint": "同时显示匹配行的行号"
+        },
+        {
+          "token": "/C",
+          "label": "只统计行数",
+          "type": "flag",
+          "value": "false",
+          "hint": "只显示匹配的行数"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<字符串>",
+          "kind": "value",
+          "desc": "要查找的文本，需用英文双引号包裹",
+          "valueHint": "查找字符串"
+        },
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要搜索的文件，支持通配符和多个",
+          "valueHint": "文件名",
+          "repeatable": true
+        },
+        {
+          "token": "findstr",
+          "kind": "subcommand",
+          "desc": "需要正则表达式匹配时改用 findstr",
+          "children": [
+            {
+              "token": "<字符串>",
+              "kind": "value",
+              "desc": "要搜索的文本或正则表达式",
+              "valueHint": "字符串"
+            },
+            {
+              "token": "/R",
+              "kind": "flag",
+              "desc": "把搜索字符串作为正则表达式处理"
+            },
+            {
+              "token": "/S",
+              "kind": "flag",
+              "desc": "在当前目录及所有子目录中搜索"
+            }
+          ]
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "显示不包含指定字符串的所有行"
+        },
+        {
+          "token": "/C",
+          "kind": "flag",
+          "desc": "只显示包含该字符串的行数"
+        },
+        {
+          "token": "/N",
+          "kind": "flag",
+          "desc": "显示匹配行之前加上文件内的行号"
+        },
+        {
+          "token": "/I",
+          "kind": "flag",
+          "desc": "查找字符串时忽略大小写"
+        },
+        {
+          "token": "/OFF",
+          "kind": "flag",
+          "desc": "不跳过带脱机属性的文件"
+        },
+        {
+          "token": "/OFFLINE",
+          "kind": "flag",
+          "desc": "包含脱机文件中的内容"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "接收其它命令的管道输出作为搜索输入",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把查找结果重定向写入文件",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "findstr",
+      "title": "正则搜索文本",
+      "desc": "在文件中搜索字符串或正则表达式，比 find 强大得多，支持多个关键词、行首行尾锚点和递归搜索。可以只列出匹配的文件名，也能按字面量精确匹配。是批处理中做日志筛选和文本抽取的主力工具。",
+      "usage": "findstr <字符串> [/B] [/E] [/L] [/R] [/S] [/I] [/X] [/V] [/N] [/M] [/O] [/P] [/F:<文件>] [/C:\"\"] [/G:<文件>] <字符串> [<文件名>[...]]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "正则",
+        "搜索",
+        "日志筛选"
+      ],
+      "examples": [
+        {
+          "cmd": "findstr /I /N \"error warning\" D:\\Data\\app.log",
+          "desc": "忽略大小写搜索多个关键词并显示行号"
+        },
+        {
+          "cmd": "findstr /S /I /M \"timeout\" *.log",
+          "desc": "递归搜索并只列出包含匹配内容的文件名"
+        },
+        {
+          "cmd": "findstr /R /C:\"^2024-.*ERROR\" D:\\Data\\app.log",
+          "desc": "用正则匹配以日期开头且含 ERROR 的行"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "搜索字符串",
+          "type": "text",
+          "value": "error warning",
+          "hint": "多个词用空格分隔，加 /C 可整体匹配"
+        },
+        {
+          "token": "",
+          "label": "文件名",
+          "type": "text",
+          "value": "D:\\Data\\app.log",
+          "hint": "支持通配符"
+        },
+        {
+          "token": "/I",
+          "label": "忽略大小写",
+          "type": "flag",
+          "value": "true",
+          "hint": "不区分大小写搜索"
+        },
+        {
+          "token": "/N",
+          "label": "显示行号",
+          "type": "flag",
+          "value": "true",
+          "hint": "在匹配行前显示行号"
+        },
+        {
+          "token": "/S",
+          "label": "递归子目录",
+          "type": "flag",
+          "value": "false",
+          "hint": "搜索当前目录及所有子目录"
+        },
+        {
+          "token": "/M",
+          "label": "只列文件名",
+          "type": "flag",
+          "value": "false",
+          "hint": "只输出包含匹配的文件名"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<字符串>",
+          "kind": "value",
+          "desc": "要搜索的文本，多个词用空格分隔",
+          "valueHint": "搜索字符串"
+        },
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要搜索的文件，支持通配符和多个",
+          "valueHint": "文件名",
+          "repeatable": true
+        },
+        {
+          "token": "/B",
+          "kind": "flag",
+          "desc": "只匹配位于行首的文本模式"
+        },
+        {
+          "token": "/E",
+          "kind": "flag",
+          "desc": "只匹配位于行尾的文本模式"
+        },
+        {
+          "token": "/L",
+          "kind": "flag",
+          "desc": "把搜索字符串按字面量而不是正则处理"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "把搜索字符串按正则表达式处理，默认行为"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "在当前目录及所有子目录中递归搜索"
+        },
+        {
+          "token": "/I",
+          "kind": "flag",
+          "desc": "搜索时忽略字符大小写"
+        },
+        {
+          "token": "/X",
+          "kind": "flag",
+          "desc": "只输出完全匹配整行的行"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "只输出不包含匹配内容的行"
+        },
+        {
+          "token": "/N",
+          "kind": "flag",
+          "desc": "在匹配行之前显示行号"
+        },
+        {
+          "token": "/M",
+          "kind": "flag",
+          "desc": "只输出包含匹配内容的文件名"
+        },
+        {
+          "token": "/O",
+          "kind": "flag",
+          "desc": "在每个匹配行前显示字符偏移量"
+        },
+        {
+          "token": "/P",
+          "kind": "flag",
+          "desc": "跳过含有不可打印字符的文件"
+        },
+        {
+          "token": "/F:",
+          "kind": "option",
+          "desc": "从指定文件中读取要搜索的文件列表",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/C:",
+          "kind": "option",
+          "desc": "把后面的内容当作一个完整的字面量字符串",
+          "valueHint": "\"<字符串>\""
+        },
+        {
+          "token": "/G:",
+          "kind": "option",
+          "desc": "从指定文件中读取多个搜索字符串",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "sort",
+      "title": "排序文本行",
+      "desc": "从文件或标准输入读取文本，按字符顺序排序后输出，是批处理里处理列表的常用筛选器。可以从指定列开始排序，也能去重和改变输出方向。文件较大时输出会很多，通常配合重定向使用。",
+      "usage": "sort [/R] [/+n] [/M <千字节>] [/L <区域设置>] [<文件名>]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "排序",
+        "去重",
+        "文本处理"
+      ],
+      "examples": [
+        {
+          "cmd": "sort D:\\Data\\list.txt",
+          "desc": "把文件内容按字母顺序排序输出"
+        },
+        {
+          "cmd": "sort /R D:\\Data\\list.txt > D:\\Data\\sorted.txt",
+          "desc": "按逆序排序并把结果写入新文件"
+        },
+        {
+          "cmd": "dir /B | sort",
+          "desc": "把目录中的文件名排序后显示"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "输入文件",
+          "type": "path",
+          "value": "D:\\Data\\list.txt",
+          "hint": "留空则从标准输入读取"
+        },
+        {
+          "token": "/R",
+          "label": "逆序",
+          "type": "flag",
+          "value": "false",
+          "hint": "按相反顺序排序"
+        },
+        {
+          "token": "/+",
+          "label": "起始列",
+          "type": "number",
+          "value": "",
+          "hint": "从第 n 个字符开始比较"
+        },
+        {
+          "token": "/UNIQUE",
+          "label": "去重",
+          "type": "flag",
+          "value": "false",
+          "hint": "只在支持的系统上压缩重复行"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要排序的文本文件，省略则读取标准输入",
+          "valueHint": "文件名"
+        },
+        {
+          "token": "findstr",
+          "kind": "subcommand",
+          "desc": "排序前先用 findstr 筛选行可以更高效",
+          "children": [
+            {
+              "token": "<字符串>",
+              "kind": "value",
+              "desc": "筛选条件文本",
+              "valueHint": "搜索字符串"
+            },
+            {
+              "token": "/V",
+              "kind": "flag",
+              "desc": "反向筛选不含该文本的行"
+            }
+          ]
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "按相反顺序排序，即从 Z 到 A"
+        },
+        {
+          "token": "/+n",
+          "kind": "option",
+          "desc": "从每行的第 n 个字符开始比较排序",
+          "valueHint": "<列号>"
+        },
+        {
+          "token": "/M",
+          "kind": "option",
+          "desc": "指定排序用的主内存大小（千字节）",
+          "valueHint": "<千字节>"
+        },
+        {
+          "token": "/L",
+          "kind": "option",
+          "desc": "用指定的区域设置覆盖系统默认排序顺序",
+          "valueHint": "<区域设置>"
+        },
+        {
+          "token": "/REC",
+          "kind": "option",
+          "desc": "指定记录的最大字符数，默认 4096",
+          "valueHint": "<字节数>"
+        },
+        {
+          "token": "/UNIQUE",
+          "kind": "flag",
+          "desc": "去除排序结果中相邻的重复行"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "接收其它命令的管道输出进行排序",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": ">",
+          "kind": "option",
+          "desc": "把排序结果重定向写入文件",
+          "valueHint": "<文件>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "replace",
+      "title": "批量替换文件",
+      "desc": "用源目录中的同名文件替换目标目录中的文件，并能把新文件追加到目标目录。常用于批量更新程序文件或分发补丁，替换前可以用 /A 先追加而不覆盖。加上 /S 会搜索子目录，/W 空格或 /U 可控制替换条件。",
+      "usage": "replace [<盘符>:][<路径>]<文件名> [<盘符>:][<路径>]<文件名> [/A] [/P] [/R] [/S] [/W] [/U]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "批量替换",
+        "更新",
+        "补丁"
+      ],
+      "examples": [
+        {
+          "cmd": "replace D:\\New\\*.dll D:\\App\\Bin",
+          "desc": "用新目录中的同名 DLL 替换目标目录的文件"
+        },
+        {
+          "cmd": "replace D:\\New\\*.cfg D:\\App /A",
+          "desc": "把源目录中新增的文件追加到目标目录"
+        },
+        {
+          "cmd": "replace D:\\New\\app.exe D:\\App /S /U",
+          "desc": "搜索子目录并只更新比源文件旧的目标文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源文件",
+          "type": "text",
+          "value": "D:\\New\\*.dll",
+          "hint": "提供替换内容的文件"
+        },
+        {
+          "token": "",
+          "label": "目标目录",
+          "type": "path",
+          "value": "D:\\App\\Bin",
+          "hint": "被替换文件所在目录"
+        },
+        {
+          "token": "/A",
+          "label": "追加新文件",
+          "type": "flag",
+          "value": "false",
+          "hint": "把目标中不存在的源文件加进去"
+        },
+        {
+          "token": "/S",
+          "label": "搜索子目录",
+          "type": "flag",
+          "value": "false",
+          "hint": "递归匹配目标目录树"
+        },
+        {
+          "token": "/U",
+          "label": "只更新较旧文件",
+          "type": "flag",
+          "value": "false",
+          "hint": "仅替换比源文件旧的目标文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源文件>",
+          "kind": "value",
+          "desc": "提供替换内容的源文件名，支持通配符",
+          "valueHint": "源文件"
+        },
+        {
+          "token": "<目标目录>",
+          "kind": "value",
+          "desc": "要被替换文件的目录",
+          "valueHint": "目标目录"
+        },
+        {
+          "token": "xcopy",
+          "kind": "subcommand",
+          "desc": "需要复制而不只是替换时改用 xcopy",
+          "children": [
+            {
+              "token": "<源>",
+              "kind": "value",
+              "desc": "源文件或目录",
+              "valueHint": "源路径"
+            },
+            {
+              "token": "<目标>",
+              "kind": "value",
+              "desc": "目标位置",
+              "valueHint": "目标路径"
+            },
+            {
+              "token": "/Y",
+              "kind": "flag",
+              "desc": "覆盖时不提示确认"
+            }
+          ]
+        },
+        {
+          "token": "/A",
+          "kind": "flag",
+          "desc": "把新文件追加到目标目录而不替换已有文件"
+        },
+        {
+          "token": "/P",
+          "kind": "flag",
+          "desc": "替换前提示用户确认"
+        },
+        {
+          "token": "/R",
+          "kind": "flag",
+          "desc": "替换只读文件以及未受保护的文件"
+        },
+        {
+          "token": "/S",
+          "kind": "flag",
+          "desc": "搜索目标目录中的所有子目录"
+        },
+        {
+          "token": "/W",
+          "kind": "flag",
+          "desc": "替换前等待插入磁盘，适用于软盘等介质"
+        },
+        {
+          "token": "/U",
+          "kind": "flag",
+          "desc": "只更新目标中比源文件更旧的文件"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "where",
+      "title": "定位可执行文件",
+      "desc": "按照 PATH 环境变量搜索并显示匹配文件的位置，用来确认某条命令到底调用的是哪个程序。默认只找可执行文件，加 /R 可以递归搜索指定目录。排查命令冲突和环境变量配置问题时非常有用。",
+      "usage": "where <模式> [/R <目录>] [/Q] [/F] [/T] [...]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "查找程序",
+        "PATH",
+        "定位"
+      ],
+      "examples": [
+        {
+          "cmd": "where notepad",
+          "desc": "显示记事本程序在 PATH 中的完整路径"
+        },
+        {
+          "cmd": "where /R D:\\Tools *.exe",
+          "desc": "在指定目录中递归搜索所有可执行文件"
+        },
+        {
+          "cmd": "where python",
+          "desc": "查看当前生效的 Python 解释器位置"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "搜索模式",
+          "type": "text",
+          "value": "notepad",
+          "hint": "命令名或带通配符的文件名"
+        },
+        {
+          "token": "/R",
+          "label": "递归目录",
+          "type": "path",
+          "value": "",
+          "hint": "在指定目录及子目录中递归搜索"
+        },
+        {
+          "token": "/F",
+          "label": "显示引号路径",
+          "type": "flag",
+          "value": "false",
+          "hint": "输出带英文双引号的完整路径"
+        },
+        {
+          "token": "/T",
+          "label": "显示文件信息",
+          "type": "flag",
+          "value": "false",
+          "hint": "显示大小和修改时间"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<模式>",
+          "kind": "value",
+          "desc": "要查找的命令名或文件名，支持通配符",
+          "valueHint": "文件名模式",
+          "repeatable": true
+        },
+        {
+          "token": "dir /S /B",
+          "kind": "subcommand",
+          "desc": "where 找不到时可用 dir 递归搜索文件",
+          "children": [
+            {
+              "token": "<文件名>",
+              "kind": "value",
+              "desc": "要搜索的文件名或通配符",
+              "valueHint": "文件名"
+            },
+            {
+              "token": "/S",
+              "kind": "flag",
+              "desc": "包含所有子目录"
+            }
+          ]
+        },
+        {
+          "token": "set",
+          "kind": "subcommand",
+          "desc": "查看或修改 PATH 环境变量",
+          "children": [
+            {
+              "token": "PATH",
+              "kind": "syntax",
+              "desc": "显示当前 PATH 的值"
+            },
+            {
+              "token": "PATH=",
+              "kind": "option",
+              "desc": "设置新的 PATH 值，会覆盖原值需谨慎",
+              "valueHint": "<路径列表>"
+            }
+          ]
+        },
+        {
+          "token": "$env:PATH",
+          "kind": "syntax",
+          "desc": "查看当前 PATH 环境变量的搜索范围"
+        },
+        {
+          "token": "/R",
+          "kind": "option",
+          "desc": "从指定目录开始递归搜索并显示结果",
+          "valueHint": "<目录>"
+        },
+        {
+          "token": "/Q",
+          "kind": "flag",
+          "desc": "安静模式，只返回退出码不输出路径"
+        },
+        {
+          "token": "/F",
+          "kind": "flag",
+          "desc": "在输出中显示带英文双引号的路径"
+        },
+        {
+          "token": "/T",
+          "kind": "flag",
+          "desc": "显示每个匹配文件的大小和修改时间"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "assoc",
+      "title": "查看文件关联",
+      "desc": "显示或修改文件扩展名与文件类型之间的关联关系，决定双击某类文件时由哪种类型处理。修改后通常还要配合 ftype 指定打开程序，两者一起用才能改掉默认打开方式。直接改注册表关联属于系统级设置，出错会影响双击行为。",
+      "usage": "assoc [.ext[=[文件类型]]]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "关联",
+        "扩展名",
+        "文件类型"
+      ],
+      "examples": [
+        {
+          "cmd": "assoc",
+          "desc": "列出当前所有文件扩展名关联"
+        },
+        {
+          "cmd": "assoc .txt",
+          "desc": "查看 .txt 扩展名对应的文件类型"
+        },
+        {
+          "cmd": "assoc .log=txtfile",
+          "desc": "把 .log 扩展名关联到 txtfile 类型"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "扩展名",
+          "type": "text",
+          "value": ".txt",
+          "hint": "要查看或修改的扩展名，含点号"
+        },
+        {
+          "token": "",
+          "label": "文件类型",
+          "type": "text",
+          "value": "",
+          "hint": "留空表示查看，填写则设置关联"
+        }
+      ],
+      "nodes": [
+        {
+          "token": ".ext",
+          "kind": "value",
+          "desc": "要查看或关联的文件扩展名，必须带点号",
+          "valueHint": ".扩展名"
+        },
+        {
+          "token": "<文件类型>",
+          "kind": "value",
+          "desc": "由 ftype 定义的文件类型名，例如 txtfile",
+          "valueHint": "文件类型"
+        },
+        {
+          "token": "ftype",
+          "kind": "subcommand",
+          "desc": "配合 ftype 才能真正指定用什么程序打开",
+          "children": [
+            {
+              "token": "<文件类型>",
+              "kind": "value",
+              "desc": "要查看或修改的文件类型名",
+              "valueHint": "文件类型"
+            },
+            {
+              "token": "=",
+              "kind": "option",
+              "desc": "设置该类型的打开命令，如 txtfile=\"notepad\" \"%1\"",
+              "valueHint": "<命令行>"
+            }
+          ]
+        },
+        {
+          "token": "runas",
+          "kind": "subcommand",
+          "desc": "修改全局关联通常需要以管理员身份运行",
+          "children": [
+            {
+              "token": "cmd",
+              "kind": "subcommand",
+              "desc": "以管理员身份启动新的命令提示符",
+              "children": [
+                {
+                  "token": "/k",
+                  "kind": "flag",
+                  "desc": "执行命令后保留窗口不关闭"
+                }
+              ]
+            },
+            {
+              "token": "/user:",
+              "kind": "option",
+              "desc": "指定以哪个用户身份运行命令",
+              "valueHint": "<用户>"
+            }
+          ]
+        },
+        {
+          "token": "=",
+          "kind": "syntax",
+          "desc": "等号表示把扩展名关联到右侧的文件类型"
+        },
+        {
+          "token": ".txt",
+          "kind": "syntax",
+          "desc": "常见示例：文本文件扩展名"
+        },
+        {
+          "token": ".log",
+          "kind": "syntax",
+          "desc": "常见示例：日志文件扩展名"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把关联列表交给 find 或 findstr 过滤",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "ftype",
+      "title": "查看文件类型命令",
+      "desc": "显示或修改文件类型所关联的打开命令，和 assoc 配合使用才能完整定义双击行为。assoc 负责扩展名到类型名，ftype 负责类型名到实际命令行。修改系统已有类型前应先记录原值，便于出错后还原。",
+      "usage": "ftype <文件类型> [[=[<命令行>]]]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "文件类型",
+        "打开方式",
+        "关联"
+      ],
+      "examples": [
+        {
+          "cmd": "ftype",
+          "desc": "列出当前所有已定义的文件类型及打开命令"
+        },
+        {
+          "cmd": "ftype txtfile",
+          "desc": "查看 txtfile 类型当前使用的打开命令"
+        },
+        {
+          "cmd": "ftype mylog=\"C:\\Windows\\notepad.exe\" \"%1\"",
+          "desc": "定义 mylog 类型用记事本打开"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "文件类型",
+          "type": "text",
+          "value": "txtfile",
+          "hint": "要查看或定义的类型名"
+        },
+        {
+          "token": "",
+          "label": "打开命令",
+          "type": "text",
+          "value": "",
+          "hint": "留空查看，填写则设置，通常含 %1"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件类型>",
+          "kind": "value",
+          "desc": "要显示或修改的文件类型名称",
+          "valueHint": "文件类型"
+        },
+        {
+          "token": "<命令行>",
+          "kind": "value",
+          "desc": "实际执行的命令，通常用 %1 代表文件路径",
+          "valueHint": "命令行"
+        },
+        {
+          "token": "\"<程序路径>\"",
+          "kind": "value",
+          "desc": "程序路径含空格时必须加引号",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "assoc",
+          "kind": "subcommand",
+          "desc": "先查看扩展名关联到哪个类型再修改 ftype",
+          "children": [
+            {
+              "token": ".ext",
+              "kind": "value",
+              "desc": "要查看关联的扩展名",
+              "valueHint": ".扩展名"
+            },
+            {
+              "token": "=",
+              "kind": "option",
+              "desc": "设置扩展名对应的文件类型",
+              "valueHint": "<文件类型>"
+            }
+          ]
+        },
+        {
+          "token": "=",
+          "kind": "syntax",
+          "desc": "等号后接该类型的打开命令行"
+        },
+        {
+          "token": "%1",
+          "kind": "syntax",
+          "desc": "占位符，代表被双击文件的完整路径"
+        },
+        {
+          "token": "txtfile",
+          "kind": "syntax",
+          "desc": "常见类型：文本文档"
+        },
+        {
+          "token": "batfile",
+          "kind": "syntax",
+          "desc": "常见类型：批处理文件"
+        },
+        {
+          "token": "|",
+          "kind": "option",
+          "desc": "把类型列表交给 find 或 findstr 过滤",
+          "valueHint": "<命令>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "pushd",
+      "title": "压栈并切换目录",
+      "desc": "保存当前目录到目录栈并切换到新目录，功能类似 cd，但可以用 popd 精确还原。在脚本里临时进入别的目录办事再回来非常方便，不用手工记录原路径。它还能直接进入网络 UNC 路径并自动分配临时盘符。",
+      "usage": "pushd <路径> [<盘符>:]",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "目录栈",
+        "切换目录",
+        "脚本"
+      ],
+      "examples": [
+        {
+          "cmd": "pushd D:\\Projects\\App",
+          "desc": "保存当前目录并进入 App 目录"
+        },
+        {
+          "cmd": "pushd \\\\Server\\Share\\Data",
+          "desc": "进入网络共享并自动分配一个临时盘符"
+        },
+        {
+          "cmd": "pushd %TEMP%",
+          "desc": "进入环境变量指向的临时目录"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "目标目录",
+          "type": "text",
+          "value": "D:\\Projects\\App",
+          "hint": "本地路径或 UNC 网络路径"
+        },
+        {
+          "token": "popd",
+          "label": "配套还原",
+          "type": "flag",
+          "value": "false",
+          "hint": "勾选则在末尾自动追加 popd 还原目录"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "要进入并压栈的目录，支持相对路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "目标驱动器盘符，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "\\\\<服务器>\\<共享>",
+          "kind": "value",
+          "desc": "网络 UNC 路径，会自动分配临时盘符",
+          "valueHint": "UNC 路径"
+        },
+        {
+          "token": "\"<含空格路径>\"",
+          "kind": "value",
+          "desc": "路径含空格时用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "popd",
+          "kind": "subcommand",
+          "desc": "弹出目录栈顶并切回先前保存的目录",
+          "children": [
+            {
+              "token": "<无参数>",
+              "kind": "syntax",
+              "desc": "不带参数直接还原最近一次 pushd 的目录"
+            },
+            {
+              "token": "/?",
+              "kind": "flag",
+              "desc": "显示 popd 的帮助信息"
+            }
+          ]
+        },
+        {
+          "token": "cd",
+          "kind": "subcommand",
+          "desc": "不需要还原时可直接用 cd 切换目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要切换到的目录",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/D",
+              "kind": "flag",
+              "desc": "同时切换驱动器盘符"
+            }
+          ]
+        },
+        {
+          "token": "..",
+          "kind": "syntax",
+          "desc": "进入上一级目录并压栈"
+        },
+        {
+          "token": "%CD%",
+          "kind": "syntax",
+          "desc": "引用当前目录环境变量作为参数"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "popd",
+      "title": "弹出目录栈还原",
+      "desc": "从目录栈顶弹出一个已保存的目录并切换过去，是 pushd 的逆操作。脚本里多次 pushd 后可以按后进先出的顺序逐步还原。栈为空时执行会报错，网络路径对应的临时盘符也会同时被删除。",
+      "usage": "popd",
+      "admin": false,
+      "danger": 0,
+      "tags": [
+        "目录栈",
+        "还原目录",
+        "脚本"
+      ],
+      "examples": [
+        {
+          "cmd": "popd",
+          "desc": "弹回最近一次 pushd 保存的目录"
+        },
+        {
+          "cmd": "pushd D:\\A && popd",
+          "desc": "进入目录后立刻还原，验证栈行为"
+        }
+      ],
+      "form": [
+        {
+          "token": "pushd",
+          "label": "先压栈",
+          "type": "text",
+          "value": "D:\\Projects\\App",
+          "hint": "配合使用的目标目录，便于生成完整命令"
+        },
+        {
+          "token": "popd",
+          "label": "执行 popd",
+          "type": "flag",
+          "value": "true",
+          "hint": "输出 popd 命令本身"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "pushd",
+          "kind": "subcommand",
+          "desc": "先把当前目录压栈再进入新目录",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要进入并保存的目录",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "\\\\<服务器>\\<共享>",
+              "kind": "value",
+              "desc": "网络路径，popd 时会删除临时盘符",
+              "valueHint": "UNC 路径"
+            }
+          ]
+        },
+        {
+          "token": "cd",
+          "kind": "subcommand",
+          "desc": "直接切换目录并显示当前路径",
+          "children": [
+            {
+              "token": "<路径>",
+              "kind": "value",
+              "desc": "要切换到的目录",
+              "valueHint": "目录路径"
+            },
+            {
+              "token": "/D",
+              "kind": "flag",
+              "desc": "同时切换驱动器"
+            }
+          ]
+        },
+        {
+          "token": "call",
+          "kind": "subcommand",
+          "desc": "在批处理中调用子程序后可配合 popd 还原",
+          "children": [
+            {
+              "token": ":<标签>",
+              "kind": "value",
+              "desc": "要调用的标签名",
+              "valueHint": "标签"
+            },
+            {
+              "token": "exit /B",
+              "kind": "subcommand",
+              "desc": "从子程序返回调用处继续执行",
+              "children": [
+                {
+                  "token": "<错误码>",
+                  "kind": "value",
+                  "desc": "返回给调用方的退出码",
+                  "valueHint": "错误码"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "token": "<无参数>",
+          "kind": "syntax",
+          "desc": "popd 不需要任何参数，直接执行即可还原"
+        },
+        {
+          "token": "&&",
+          "kind": "syntax",
+          "desc": "连接多条命令，前一条成功才执行后一条"
+        },
+        {
+          "token": "&",
+          "kind": "syntax",
+          "desc": "连接多条命令，依次无条件执行"
+        },
+        {
+          "token": "echo %CD%",
+          "kind": "syntax",
+          "desc": "还原后打印当前目录以便确认结果"
+        },
+        {
+          "token": "%ERRORLEVEL%",
+          "kind": "syntax",
+          "desc": "读取上一条命令的退出码，判断是否执行成功"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "openfiles",
+      "title": "查看本机打开的文件",
+      "desc": "列出系统中当前被打开的文件和文件夹，也可以按用户或名称筛选。能够断开被远程用户打开的文件，是排查文件被占用、共享冲突的工具。本地连接需要先启用维护对象列表，否则看不到本地打开项。",
+      "usage": "openfiles [/Query] [/Local] [/V] [/Connect] [/Disconnect] [/Disconnect <标识>] [/S <系统>] [/U <用户>]",
+      "admin": true,
+      "danger": 1,
+      "tags": [
+        "文件占用",
+        "共享",
+        "排查"
+      ],
+      "examples": [
+        {
+          "cmd": "openfiles /Query",
+          "desc": "查询当前所有被打开的文件"
+        },
+        {
+          "cmd": "openfiles /Query /V /FO TABLE",
+          "desc": "以表格形式显示详细的打开文件信息"
+        },
+        {
+          "cmd": "openfiles /Disconnect /ID 3",
+          "desc": "断开标识为 3 的远程打开文件连接"
+        }
+      ],
+      "form": [
+        {
+          "token": "/Query",
+          "label": "查询",
+          "type": "flag",
+          "value": "true",
+          "hint": "显示当前打开的文件列表"
+        },
+        {
+          "token": "/V",
+          "label": "详细信息",
+          "type": "flag",
+          "value": "false",
+          "hint": "显示更详细的输出"
+        },
+        {
+          "token": "/FO",
+          "label": "输出格式",
+          "type": "select",
+          "value": "TABLE",
+          "hint": "指定结果输出格式",
+          "options": [
+            "TABLE",
+            "LIST",
+            "CSV"
+          ]
+        },
+        {
+          "token": "/Local",
+          "label": "本地打开项",
+          "type": "flag",
+          "value": "false",
+          "hint": "包含本地打开的文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "net file",
+          "kind": "subcommand",
+          "desc": "查看本机共享中被打开的文件，可强制关闭",
+          "children": [
+            {
+              "token": "/CLOSE",
+              "kind": "subcommand",
+              "desc": "关闭指定编号的共享文件",
+              "children": [
+                {
+                  "token": "<标识号>",
+                  "kind": "value",
+                  "desc": "要关闭的打开文件标识",
+                  "valueHint": "标识号"
+                }
+              ]
+            },
+            {
+              "token": "/ID",
+              "kind": "option",
+              "desc": "关闭指定标识的打开文件",
+              "valueHint": "<标识号>"
+            }
+          ]
+        },
+        {
+          "token": "/Query",
+          "kind": "flag",
+          "desc": "显示当前打开的文件和文件夹列表"
+        },
+        {
+          "token": "/Local",
+          "kind": "flag",
+          "desc": "同时显示本地打开的文件，需先启用维护对象列表"
+        },
+        {
+          "token": "/V",
+          "kind": "flag",
+          "desc": "显示详细的查询输出信息"
+        },
+        {
+          "token": "/FO",
+          "kind": "option",
+          "desc": "指定查询结果的输出格式",
+          "valueHint": "<格式>",
+          "enum": [
+            "TABLE",
+            "LIST",
+            "CSV"
+          ]
+        },
+        {
+          "token": "/NH",
+          "kind": "flag",
+          "desc": "输出中不显示列标题"
+        },
+        {
+          "token": "/Disconnect",
+          "kind": "option",
+          "desc": "断开被远程用户打开的文件连接",
+          "valueHint": "[<标识>]"
+        },
+        {
+          "token": "/ID",
+          "kind": "option",
+          "desc": "配合 /Disconnect 指定要断开的连接标识",
+          "valueHint": "<标识号>"
+        },
+        {
+          "token": "/S",
+          "kind": "option",
+          "desc": "指定要连接的远程系统",
+          "valueHint": "<系统名>"
+        },
+        {
+          "token": "/U",
+          "kind": "option",
+          "desc": "指定执行命令时使用的用户上下文",
+          "valueHint": "<域\\用户>"
+        },
+        {
+          "token": "/P",
+          "kind": "option",
+          "desc": "指定 /U 对应用户的密码",
+          "valueHint": "<密码>"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "recover",
+      "title": "从坏磁盘恢复数据",
+      "desc": "从损坏或有坏扇区的磁盘中按扇区逐个读取并恢复可读数据，尽量抢救文件内容。它绕过文件系统直接读取，能救回部分数据但无法保证完整性。操作不会写入源磁盘，恢复结果必须保存到另一个位置。",
+      "usage": "recover <文件名> [<盘符>:][<路径>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "数据恢复",
+        "坏扇区",
+        "抢救文件"
+      ],
+      "examples": [
+        {
+          "cmd": "recover D:\\Data\\report.docx",
+          "desc": "尝试从损坏文件中恢复可读数据"
+        },
+        {
+          "cmd": "recover E:\\Photos\\IMG_0001.jpg",
+          "desc": "从有坏扇区的磁盘恢复照片文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "要恢复的文件",
+          "type": "text",
+          "value": "D:\\Data\\report.docx",
+          "hint": "损坏磁盘上的目标文件路径"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<文件名>",
+          "kind": "value",
+          "desc": "要恢复的损坏文件，必须指定完整路径",
+          "valueHint": "文件名"
+        },
+        {
+          "token": "<盘符:>",
+          "kind": "value",
+          "desc": "文件所在驱动器盘符，例如 D:",
+          "valueHint": "盘符"
+        },
+        {
+          "token": "<路径>",
+          "kind": "value",
+          "desc": "文件所在目录路径",
+          "valueHint": "目录路径"
+        },
+        {
+          "token": "\\\\.\\<盘符>:",
+          "kind": "value",
+          "desc": "以设备方式访问物理磁盘，供数据恢复工具使用",
+          "valueHint": "设备路径"
+        },
+        {
+          "token": "chkdsk",
+          "kind": "subcommand",
+          "desc": "先检查磁盘错误有助于判断损坏位置",
+          "children": [
+            {
+              "token": "<盘符>: ",
+              "kind": "value",
+              "desc": "要检查的驱动器盘符",
+              "valueHint": "盘符"
+            },
+            {
+              "token": "/F",
+              "kind": "flag",
+              "desc": "修复磁盘上的错误"
+            },
+            {
+              "token": "/R",
+              "kind": "flag",
+              "desc": "定位坏扇区并恢复可读信息"
+            }
+          ]
+        },
+        {
+          "token": "copy",
+          "kind": "subcommand",
+          "desc": "把恢复结果复制到另一块完好的磁盘",
+          "children": [
+            {
+              "token": "<源>",
+              "kind": "value",
+              "desc": "恢复出来的文件",
+              "valueHint": "源文件"
+            },
+            {
+              "token": "<目标>",
+              "kind": "value",
+              "desc": "另一块健康磁盘上的位置",
+              "valueHint": "目标路径"
+            }
+          ]
+        },
+        {
+          "token": "只读读取",
+          "kind": "syntax",
+          "desc": "该命令只读取源磁盘，不会写入原始位置"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    },
+    {
+      "name": "expand",
+      "title": "解压 CAB 文件",
+      "desc": "从微软压缩格式的 CAB 压缩包中解开文件，安装包和系统补丁内部大量使用这种格式。可以按需解出单个文件，也能保留目录结构整体解压。现代压缩格式如 zip 和 7z 它并不支持，需要其它工具。",
+      "usage": "expand <源文件> [-R] [.<扩展名>] [<目标路径>] [-F:<文件>]",
+      "admin": false,
+      "danger": 1,
+      "tags": [
+        "解压",
+        "CAB",
+        "提取文件"
+      ],
+      "examples": [
+        {
+          "cmd": "expand D:\\Pak.cab -F:* D:\\Out",
+          "desc": "把 CAB 中的全部文件解压到 Out 目录"
+        },
+        {
+          "cmd": "expand D:\\Pak.cab -F:setup.inf D:\\Out",
+          "desc": "只解出压缩包中的 setup.inf 文件"
+        },
+        {
+          "cmd": "expand -R D:\\Files\\*.cab",
+          "desc": "重命名解开时被压缩改名的文件"
+        }
+      ],
+      "form": [
+        {
+          "token": "",
+          "label": "源压缩包",
+          "type": "path",
+          "value": "D:\\Pak.cab",
+          "hint": "要解压的 CAB 文件，支持通配符"
+        },
+        {
+          "token": "-F:",
+          "label": "指定文件",
+          "type": "text",
+          "value": "*",
+          "hint": "只解压匹配的文件，* 表示全部"
+        },
+        {
+          "token": "",
+          "label": "目标目录",
+          "type": "path",
+          "value": "D:\\Out",
+          "hint": "解压输出的目录位置"
+        },
+        {
+          "token": "-R",
+          "label": "重命名文件",
+          "type": "flag",
+          "value": "false",
+          "hint": "还原被压缩改名的文件"
+        }
+      ],
+      "nodes": [
+        {
+          "token": "<源文件>",
+          "kind": "value",
+          "desc": "要展开的压缩文件，通常扩展名为 cab",
+          "valueHint": "CAB 文件"
+        },
+        {
+          "token": "<目标路径>",
+          "kind": "value",
+          "desc": "解压输出的目录，不存在时需要先创建",
+          "valueHint": "目标目录"
+        },
+        {
+          "token": "\"<带空格路径>\"",
+          "kind": "value",
+          "desc": "路径含空格时必须用英文双引号包裹",
+          "valueHint": "带引号路径"
+        },
+        {
+          "token": "makecab",
+          "kind": "subcommand",
+          "desc": "与 expand 相反，把文件打包成 CAB",
+          "children": [
+            {
+              "token": "<源文件>",
+              "kind": "value",
+              "desc": "要压缩的文件",
+              "valueHint": "文件名"
+            },
+            {
+              "token": "<目标文件>",
+              "kind": "value",
+              "desc": "生成的 CAB 文件名",
+              "valueHint": "CAB 文件"
+            },
+            {
+              "token": "/D",
+              "kind": "option",
+              "desc": "指定压缩参数，例如压缩级别",
+              "valueHint": "<变量=值>"
+            }
+          ]
+        },
+        {
+          "token": "*",
+          "kind": "syntax",
+          "desc": "通配符，配合 -F: 表示展开全部内容"
+        },
+        {
+          "token": ".cab",
+          "kind": "syntax",
+          "desc": "可省略扩展名，默认按 CAB 格式查找"
+        },
+        {
+          "token": "-F:",
+          "kind": "option",
+          "desc": "只展开指定的文件，星号表示全部文件",
+          "valueHint": "<文件名>"
+        },
+        {
+          "token": "-R",
+          "kind": "flag",
+          "desc": "重命名被展开的文件，还原原始文件名"
+        },
+        {
+          "token": "-D",
+          "kind": "flag",
+          "desc": "只显示压缩包中的文件列表而不解压"
+        },
+        {
+          "token": "/?",
+          "kind": "flag",
+          "desc": "在命令提示符下显示帮助信息"
+        }
+      ]
+    }
+  ]
+}
