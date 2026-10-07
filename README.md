@@ -1,5 +1,7 @@
 # WindowsCommandTools
 
+**此项目由DeepSeek Harness制作，感谢AI Agent提供的便利！**
+
 > **用可视化面板替代记忆命令语法。**
 > 把 CMD 和 PowerShell 变简单：输入命令自动提示下一个参数，参数可以填表，危险操作会拦一下。
 
